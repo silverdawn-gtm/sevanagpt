@@ -279,7 +279,7 @@ export default function EligibilityWizard() {
             <div className="grid grid-cols-2 gap-3">
               {[
                 { label: t("scheme_detail.yes"), value: true },
-                { label: "No", value: false },
+                { label: t("scheme_detail.no"), value: false },
               ].map((opt) => (
                 <button
                   key={opt.label}
@@ -301,7 +301,7 @@ export default function EligibilityWizard() {
             <div className="grid grid-cols-2 gap-3">
               {[
                 { label: t("scheme_detail.yes"), value: true },
-                { label: "No", value: false },
+                { label: t("scheme_detail.no"), value: false },
               ].map((opt) => (
                 <button
                   key={opt.label}
@@ -337,7 +337,7 @@ export default function EligibilityWizard() {
             <div className="grid grid-cols-2 gap-3">
               {[
                 { label: t("scheme_detail.yes"), value: true },
-                { label: "No", value: false },
+                { label: t("scheme_detail.no"), value: false },
               ].map((opt) => (
                 <button
                   key={opt.label}

@@ -44,6 +44,7 @@ async def list_states(
 async def get_state(
     slug: str,
     lang: str = Query("en"),
+    level: str | None = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(24, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
@@ -52,11 +53,16 @@ async def get_state(
     if not state:
         raise HTTPException(status_code=404, detail="State not found")
 
+    # Base filters
+    base_filters = [scheme_states.c.state_id == state.id, Scheme.status == "active"]
+    if level:
+        base_filters.append(Scheme.level == level)
+
     # Count total
     count_q = (
         select(func.count(Scheme.id))
         .join(scheme_states, scheme_states.c.scheme_id == Scheme.id)
-        .where(scheme_states.c.state_id == state.id, Scheme.status == "active")
+        .where(*base_filters)
     )
     total = (await db.execute(count_q)).scalar() or 0
 
@@ -64,7 +70,7 @@ async def get_state(
         select(Scheme)
         .options(selectinload(Scheme.category), selectinload(Scheme.tags))
         .join(scheme_states, scheme_states.c.scheme_id == Scheme.id)
-        .where(scheme_states.c.state_id == state.id, Scheme.status == "active")
+        .where(*base_filters)
         .order_by(Scheme.name)
         .offset((page - 1) * page_size)
         .limit(page_size)

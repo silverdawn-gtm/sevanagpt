@@ -1,4 +1,4 @@
-.PHONY: db-up db-down backend frontend migrate seed ingest embed
+.PHONY: db-up db-down backend frontend migrate seed ingest embed download-model indictrans
 
 db-up:
 	docker compose up -d db
@@ -23,3 +23,9 @@ ingest:
 
 embed:
 	cd backend && python -m app.data.generate_embeddings
+
+download-model:
+	cd indictrans && python download_model.py
+
+indictrans:
+	cd indictrans && uvicorn app.main:app --host 0.0.0.0 --port 7860

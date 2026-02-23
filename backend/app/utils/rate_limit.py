@@ -29,7 +29,6 @@ class RateLimiter:
 
 # Shared instances
 chat_limiter = RateLimiter(max_requests=30, window_seconds=60)
-voice_limiter = RateLimiter(max_requests=10, window_seconds=60)
 
 
 def get_client_ip(request: Request) -> str:

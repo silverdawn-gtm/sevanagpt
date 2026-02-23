@@ -1,0 +1,771 @@
+================================================================================
+                            PROJECT REPORT
+                            SEVANA GPT
+     AI-Powered Indian Government Scheme Discovery Platform
+================================================================================
+
+1. INTRODUCTION
+--------------------------------------------------------------------------------
+
+SevanaGPT is an AI-powered web application designed to help Indian citizens
+discover, understand, and check their eligibility for government welfare schemes.
+India has thousands of government schemes spread across central and state
+governments, managed by over 50 ministries, targeting diverse demographics.
+Citizens often struggle to find schemes they are eligible for due to language
+barriers, information fragmentation, and complex eligibility criteria.
+
+SevanaGPT addresses this by providing:
+  - A conversational AI assistant that understands user needs in 23 Indian
+    languages and recommends relevant schemes.
+  - An eligibility-matching engine that scores schemes against user profiles.
+  - Hybrid search (keyword + semantic) for scheme discovery.
+  - Voice input/output for accessibility in low-literacy populations.
+  - A comprehensive browsable catalog of 4,700+ schemes.
+
+The platform aggregates data from official government sources including
+MyScheme.gov.in, data.gov.in, Kaggle datasets, and HuggingFace Hub.
+
+
+2. OBJECTIVES
+--------------------------------------------------------------------------------
+
+  a) Build an intelligent, multilingual scheme discovery platform that serves
+     citizens across all Indian states and union territories.
+
+  b) Implement conversational AI that can gather user context (age, gender,
+     location, income, occupation) through natural dialogue and recommend
+     matching schemes.
+
+  c) Support 23 Indian languages with real-time translation using both
+     cloud APIs and a locally-hosted neural machine translation model.
+
+  d) Provide voice-based interaction (speech-to-text and text-to-speech) for
+     accessibility.
+
+  e) Aggregate scheme data from multiple government data sources into a unified,
+     searchable database with structured eligibility fields.
+
+  f) Implement hybrid search combining keyword matching and vector-based
+     semantic similarity for accurate scheme discovery.
+
+
+3. SYSTEM ARCHITECTURE
+--------------------------------------------------------------------------------
+
+SevanaGPT follows a microservices architecture with three main components:
+
+  +-----------+       +------------+       +-----------+
+  |           |  API  |            |  SQL  |           |
+  | Frontend  +------>+  Backend   +------>+ Database  |
+  | (Next.js) |       |  (FastAPI) |       | (Postgres)|
+  |           |       |            |       | + pgvector|
+  +-----------+       +-----+------+       +-----------+
+                            |
+                    +-------+--------+
+                    |                |
+              +-----+-----+   +-----+------+
+              | IndicTrans |   | External   |
+              | Microserv. |   | APIs       |
+              | (PyTorch)  |   | (Mistral,  |
+              | Port 7860  |   |  Groq,     |
+              +-----------+    |  Bhashini) |
+                               +------------+
+
+3.1 Frontend (Next.js 16 + React 19)
+  - Server-side rendered pages with App Router
+  - Tailwind CSS 4 for styling
+  - Client-side state management via React Context API
+  - 23-language internationalization with dynamic locale loading
+  - Responsive mobile-first design
+
+3.2 Backend (FastAPI + Python 3.12)
+  - Asynchronous API server using uvicorn ASGI
+  - SQLAlchemy 2.0 async ORM with asyncpg driver
+  - Alembic for database migrations
+  - Multi-tier translation caching system
+  - Rate limiting (token bucket algorithm)
+
+3.3 Database (PostgreSQL 16 + pgvector)
+  - Relational storage for schemes, categories, states, ministries
+  - pgvector extension for 1024-dimensional embedding storage
+  - Translation cache table with hash-based lookups
+  - Conversation and message storage for chat persistence
+
+3.4 IndicTrans2 Microservice (PyTorch + FastAPI)
+  - Standalone translation service running on GPU (CUDA)
+  - ai4bharat/indictrans2-en-indic-dist-200M model (200M parameters)
+  - Supports English to 20 Indian languages
+  - Beam search inference (num_beams=5)
+
+
+4. TECHNOLOGIES USED
+--------------------------------------------------------------------------------
+
+4.1 Programming Languages
+  - Python 3.12 (backend, IndicTrans microservice)
+  - TypeScript 5 (frontend)
+  - SQL (database queries, migrations)
+
+4.2 Frameworks and Libraries
+
+  Frontend:
+  - Next.js 16.1.6 (React framework with SSR, App Router)
+  - React 19.2.3 (UI library)
+  - Tailwind CSS 4 (utility-first CSS framework)
+  - clsx (conditional class name utility)
+
+  Backend:
+  - FastAPI 0.115.6 (async Python web framework)
+  - SQLAlchemy 2.0 (async ORM)
+  - Pydantic / Pydantic-Settings (data validation, config management)
+  - Alembic (database migration tool)
+  - asyncpg (PostgreSQL async driver)
+  - deep-translator (Google Translate wrapper)
+
+  IndicTrans Microservice:
+  - PyTorch 2.1+ (deep learning framework)
+  - HuggingFace Transformers 4.35+ (model loading and inference)
+  - IndicTransToolkit (Indic script preprocessing/postprocessing)
+  - SentencePiece (subword tokenization)
+
+4.3 AI/ML Services
+  - Mistral AI (LLM for chat, intent classification, embeddings)
+  - Groq (free fallback LLM using Llama 3.1 70B)
+  - IndicTrans2 (neural machine translation, self-hosted)
+  - Bhashini (Indian government translation, ASR, TTS APIs)
+  - Google Translate via deep-translator (fallback translation)
+
+4.4 Database
+  - PostgreSQL 16 (relational database)
+  - pgvector (vector similarity search extension)
+
+4.5 Infrastructure
+  - Docker & Docker Compose (containerization)
+  - Git (version control)
+  - Make (build automation)
+
+4.6 Hardware (Development)
+  - NVIDIA GTX 1650 (4GB VRAM) for IndicTrans2 GPU inference
+  - CUDA 11.8 + cuDNN 8
+
+
+5. METHODOLOGY
+--------------------------------------------------------------------------------
+
+5.1 Data Collection and Ingestion
+
+  The platform aggregates scheme data from multiple authoritative sources through
+  an automated ingestion pipeline:
+
+  Step 1: Seed Reference Data
+    - 18 scheme categories (Agriculture, Education, Health, etc.)
+    - 36 states and union territories with ISO codes
+    - 100+ central and state-level ministries
+    - 30+ cross-cutting tags
+
+  Step 2: MyScheme.gov.in API
+    - Official Indian government scheme portal
+    - Batch fetching: 50 schemes per request with 300ms delay
+    - Yields ~4,600 schemes with eligibility details
+    - Auto-maps to categories and states
+
+  Step 3: HuggingFace/Embedded Dataset
+    - Pre-curated dataset of central government schemes
+    - Supplements official data with additional descriptions
+
+  Step 4: Kaggle & data.gov.in
+    - Public datasets for broader coverage
+    - Credential-based authentication
+    - Duplicate detection via slug matching
+
+  Step 5: Embedding Generation
+    - Mistral-embed model generates 1024-dimensional vectors
+    - Text input: scheme name + description + benefits + eligibility
+    - Change detection via SHA256 hash (re-embeds only when content changes)
+    - Stored in pgvector for similarity search
+
+  Step 6: Pre-Translation
+    - Background task on server startup
+    - Pre-translates scheme names for Hindi (most requested language)
+    - Populates translation cache for instant access
+
+5.2 Conversational AI (Finite State Machine)
+
+  The chat system uses a Finite State Machine (FSM) with 6 states to manage
+  structured conversations:
+
+  +----------+     +-----------+     +---------------+
+  | GREETING +---->+ NEED      +---->+ SCHEME        |
+  |          |     | EXTRACTION|     | SEARCH        |
+  +----------+     +-----------+     +-------+-------+
+                                             |
+                   +----------------+  +-----+--------+
+                   | CLOSING        |<-+ SCHEME       |
+                   |                |  | DETAIL       |
+                   +----------------+  +--------------+
+                          ^
+                   +------+-------+
+                   | DISAMBIG-    |
+                   | UATION       |
+                   +--------------+
+
+  State Transitions:
+  - GREETING: Welcome message, detect initial intent
+  - NEED_EXTRACTION: Gather user profile (age, gender, state, category,
+    occupation, income) through natural dialogue
+  - SCHEME_SEARCH: Search database using accumulated context, present results
+  - DISAMBIGUATION: Clarify ambiguous requests
+  - SCHEME_DETAIL: Show detailed information for a selected scheme
+  - CLOSING: End conversation
+
+  Intent Classification:
+  - Primary: LLM-based classification via Mistral/Groq
+  - Fallback: Keyword matching in 12 languages for intents: greeting,
+    search_scheme, ask_detail, check_eligibility, clarify, goodbye
+
+  Entity Extraction:
+  - LLM extracts structured fields from natural language:
+    age, gender, state, category, occupation, income
+  - Context accumulates across conversation turns
+  - Used for filtering scheme recommendations
+
+5.3 Hybrid Search (Keyword + Semantic + RRF)
+
+  The search system combines two retrieval strategies using Reciprocal Rank
+  Fusion (RRF):
+
+  Query ----+---> Keyword Search (ILIKE pattern matching)
+            |         |
+            |         v
+            |     Ranked List A
+            |         |
+            +---> Semantic Search (pgvector cosine similarity)
+                      |
+                      v
+                  Ranked List B
+                      |
+            +---------+---------+
+            |    RRF Merge      |
+            |  score = SUM(     |
+            |   1/(k + rank))   |
+            |  k = 60           |
+            +-------------------+
+                      |
+                      v
+                Final Results (deduplicated, filtered)
+
+  Keyword Search:
+  - Splits query into terms (minimum 3 characters)
+  - ILIKE matching across name, description, benefits, eligibility fields
+  - Scores by matching term frequency
+
+  Semantic Search:
+  - Generates query embedding via Mistral-embed (1024 dimensions)
+  - Cosine distance similarity against scheme embeddings in pgvector
+  - Returns top-k most semantically similar schemes
+
+  RRF Merge:
+  - Combines both ranked lists using formula: score = SUM(1/(60 + rank))
+  - Deduplicates by scheme ID
+  - Applies post-filters (category, state, ministry, level)
+
+5.4 Eligibility Matching Engine
+
+  A structured matching algorithm scores schemes against user profiles:
+
+  Criteria (7 fields):
+  1. Gender match (exact match or scheme accepts "all")
+  2. Age range (min_age <= user_age <= max_age)
+  3. Social category (SC, ST, OBC, General, EWS)
+  4. Income threshold (user_income <= scheme_max_income)
+  5. Disability status
+  6. Student status
+  7. BPL (Below Poverty Line) status
+
+  Scoring:
+  - match_score = matched_criteria / total_applicable_criteria
+  - Range: 0.0 to 1.0 (higher = better match)
+  - Results sorted descending by match score
+  - Each result includes list of matched criteria for transparency
+
+5.5 Multi-Tier Translation System
+
+  Translation uses a cascading strategy for performance and reliability:
+
+  Request ---> [1] Pre-computed Cache (scheme_translations table)
+                  |  (instant, zero cost)
+                  | miss
+                  v
+              [2] Runtime Cache (translation_cache table, SHA256 hash key)
+                  |  (instant, zero cost)
+                  | miss
+                  v
+              [3] IndicTrans2 Microservice (self-hosted GPU)
+                  |  (fast, no external dependency)
+                  | fail/timeout
+                  v
+              [4] Google Translate via deep-translator (free fallback)
+                  |  (reliable, rate-limited)
+                  v
+              Cache result in translation_cache table
+
+  Batch Optimization:
+  - Multiple texts concatenated with newline separators
+  - Single API call translates all at once (~13x speedup)
+  - Falls back to individual translation if batch split fails
+  - Concurrent chunk processing for large batches (4500 char limit)
+
+5.6 Voice Pipeline
+
+  Full voice interaction is supported via the Bhashini API:
+
+  User Audio ---> ASR (Speech-to-Text)
+                    |
+                    v
+                  User text (in native language)
+                    |
+                    v
+                  Translate to English (NMT)
+                    |
+                    v
+                  Chat AI processing (in English)
+                    |
+                    v
+                  Translate reply to user's language (NMT)
+                    |
+                    v
+                  TTS (Text-to-Speech)
+                    |
+                    v
+                  Audio response to user
+
+
+6. DATABASE SCHEMA
+--------------------------------------------------------------------------------
+
+The database consists of 14 tables:
+
+  Core Entities:
+  +------------------+    +-------------------+    +-----------------+
+  | schemes          |    | categories        |    | states          |
+  |------------------|    |-------------------|    |-----------------|
+  | id (UUID, PK)    |    | id (UUID, PK)     |    | id (UUID, PK)   |
+  | name             |    | name              |    | name            |
+  | slug (unique)    |    | slug (unique)     |    | slug (unique)   |
+  | description      |    | icon              |    | code (unique)   |
+  | benefits         |    | display_order     |    | is_ut           |
+  | eligibility_     |    +-------------------+    +-----------------+
+  |   criteria       |
+  | application_     |    +-------------------+    +-----------------+
+  |   process        |    | ministries        |    | tags            |
+  | documents_       |    |-------------------|    |-----------------|
+  |   required       |    | id (UUID, PK)     |    | id (UUID, PK)   |
+  | official_link    |    | name              |    | name            |
+  | level            |    | slug (unique)     |    | slug (unique)   |
+  | status           |    | level             |    +-----------------+
+  | featured         |    +-------------------+
+  | source           |
+  | target_gender[]  |    Eligibility Fields:
+  | min_age          |    - target_gender (array)
+  | max_age          |    - min_age, max_age (integer)
+  | target_social_   |    - target_social_category (array)
+  |   category[]     |    - target_income_max (numeric)
+  | target_income_   |    - is_disability (boolean)
+  |   max            |    - is_student (boolean)
+  | is_disability    |    - is_bpl (boolean)
+  | is_student       |
+  | is_bpl           |
+  | category_id (FK) |
+  | ministry_id (FK) |
+  +------------------+
+
+  Junction Tables:
+  - scheme_states (scheme_id, state_id) -- Many-to-Many
+  - scheme_tags (scheme_id, tag_id)     -- Many-to-Many
+
+  AI/ML Tables:
+  +----------------------+    +------------------------+
+  | scheme_embeddings    |    | scheme_translations    |
+  |----------------------|    |------------------------|
+  | id (UUID, PK)        |    | id (UUID, PK)          |
+  | scheme_id (FK)       |    | scheme_id (FK)         |
+  | embedding (vector    |    | lang (varchar)         |
+  |   1024)              |    | name                   |
+  | text_hash            |    | description            |
+  +----------------------+    | benefits               |
+                              | eligibility_criteria   |
+  +----------------------+    | application_process    |
+  | translation_cache    |    | documents_required     |
+  |----------------------|    | tags_json (JSONB)      |
+  | id (UUID, PK)        |    +------------------------+
+  | hash_key (indexed)   |    Unique: (scheme_id, lang)
+  | source_text          |
+  | translated_text      |
+  | source_lang          |
+  | target_lang          |
+  +----------------------+
+
+  Chat Tables:
+  +----------------------+    +----------------------+
+  | conversations        |    | messages             |
+  |----------------------|    |----------------------|
+  | id (UUID, PK)        |    | id (UUID, PK)        |
+  | session_id (unique)  |    | conversation_id (FK) |
+  | language             |    | role (user/assistant)|
+  | fsm_state            |    | content              |
+  | context (JSONB)      |    | content_original     |
+  | created_at           |    | audio_url            |
+  | updated_at           |    | extra (JSONB)        |
+  +----------------------+    | created_at           |
+                              +----------------------+
+
+  Reference:
+  +----------------------+
+  | scheme_faqs          |
+  |----------------------|
+  | id (UUID, PK)        |
+  | scheme_id (FK)       |
+  | question             |
+  | answer               |
+  | display_order        |
+  +----------------------+
+
+
+7. API ENDPOINTS
+--------------------------------------------------------------------------------
+
+Base URL: /api/v1
+
+  Scheme Discovery:
+  - GET  /schemes                    List schemes (paginated, filterable)
+  - GET  /schemes/featured           Top 12 featured schemes
+  - GET  /schemes/{slug}             Scheme detail with FAQs
+  - GET  /categories                 List all 18 categories
+  - GET  /categories/{slug}          Category schemes (paginated)
+  - GET  /states                     List all 36 states/UTs
+  - GET  /states/{slug}              State schemes (paginated, level filter)
+  - GET  /ministries                 List all ministries
+  - GET  /ministries/{slug}          Ministry schemes (paginated)
+
+  Search:
+  - POST /search                     Hybrid keyword + semantic search
+  - GET  /search/suggest             Autocomplete suggestions
+
+  Chat:
+  - POST /chat/message               Send message, get AI response + schemes
+  - GET  /chat/history/{session_id}  Retrieve conversation history
+  - POST /chat/reset/{session_id}    Reset conversation state
+
+  Voice:
+  - POST /chat/voice                 Full voice pipeline (ASR+NMT+Chat+TTS)
+  - POST /voice/transcribe           Speech-to-text
+  - POST /voice/synthesize           Text-to-speech
+
+  Eligibility:
+  - POST /eligibility/check          Match user profile against schemes
+  - GET  /eligibility/options        Get form options (genders, categories)
+
+  Translation:
+  - POST /translate                  Translate text between languages
+  - GET  /languages                  List supported languages
+
+  Health:
+  - GET  /health                     Service health check
+
+  All endpoints accept a `lang` parameter (ISO 639-1 code) to return
+  translated content. Default is English.
+
+
+8. FRONTEND DESIGN
+--------------------------------------------------------------------------------
+
+8.1 Page Structure
+
+  /                           Homepage (hero, featured schemes, categories,
+                              states, embedded chat)
+  /schemes                    Scheme listing with search and filters
+  /schemes/[slug]             Scheme detail page
+  /categories                 Category grid
+  /categories/[slug]          Category detail with schemes
+  /states                     State/UT grid (separated)
+  /states/[slug]              State detail with schemes
+  /ministries                 Ministry listing
+  /ministries/[slug]          Ministry detail with schemes
+  /find-scheme                8-step eligibility wizard
+  /chat                       Full-page AI chat interface
+
+8.2 Key Components
+
+  Layout:
+  - Navbar (sticky, responsive, language switcher, mobile hamburger menu)
+  - Footer (4-column, links, attribution)
+  - Sidebar (desktop/mobile, chat history, navigation)
+
+  Chat:
+  - ChatWindow (message bubbles, scheme cards, audio player)
+  - ChatInput (textarea, suggestions, voice button)
+  - VoiceButton (MediaRecorder API, recording/processing states)
+  - AudioPlayer (base64 audio playback)
+  - ChatWidget (floating bubble on non-chat pages)
+
+  Scheme:
+  - SchemeCard (name, description, category badge, level, tags, featured label)
+  - ReadAloudButton (TTS for non-English content)
+
+  Eligibility:
+  - EligibilityWizard (8-step form: gender, age, state, social category,
+    disability, student, income, BPL; match scoring with criteria display)
+
+  UI:
+  - Pagination (smart page numbering with ellipsis)
+  - LanguageSwitcher (23 languages, native names)
+
+8.3 Design System
+
+  - Color scheme: Emerald primary (#059669), Gray secondary
+  - Font: Geist Sans (Next.js)
+  - Responsive: Mobile-first with sm/md/lg/xl breakpoints
+  - Animations: Bounce (loading dots), pulse (recording), spin (processing)
+  - Styling: Tailwind CSS 4 utility classes throughout
+
+
+9. MULTILINGUAL SUPPORT
+--------------------------------------------------------------------------------
+
+9.1 Supported Languages (23)
+
+  +------+-------------+------------------+
+  | Code | Language    | Script           |
+  +------+-------------+------------------+
+  | en   | English     | Latin            |
+  | hi   | Hindi       | Devanagari       |
+  | bn   | Bengali     | Bengali          |
+  | ta   | Tamil       | Tamil            |
+  | te   | Telugu      | Telugu           |
+  | mr   | Marathi     | Devanagari       |
+  | gu   | Gujarati    | Gujarati         |
+  | kn   | Kannada     | Kannada          |
+  | ml   | Malayalam   | Malayalam        |
+  | pa   | Punjabi     | Gurmukhi         |
+  | or   | Odia        | Odia             |
+  | ur   | Urdu        | Arabic           |
+  | as   | Assamese    | Bengali          |
+  | ne   | Nepali      | Devanagari       |
+  | sa   | Sanskrit    | Devanagari       |
+  | sd   | Sindhi      | Arabic           |
+  | mai  | Maithili    | Devanagari       |
+  | doi  | Dogri       | Devanagari       |
+  | kok  | Konkani     | Devanagari       |
+  | sat  | Santali     | Ol Chiki         |
+  | mni  | Manipuri    | Meetei Mayek     |
+  | bodo | Bodo        | Devanagari       |
+  | lus  | Mizo        | Latin            |
+  +------+-------------+------------------+
+
+9.2 Translation Architecture
+
+  Frontend UI Strings:
+  - JSON locale files at /public/locales/{lang}/common.json
+  - 175 translation keys per language covering all UI text
+  - Dynamic loading via LanguageContext when user switches language
+  - Persisted in localStorage
+
+  Backend Scheme Content:
+  - Real-time translation via IndicTrans2 or Google Translate
+  - Pre-computed translations stored in scheme_translations table
+  - Runtime cache with SHA256 hash keys
+  - Static maps for category/state/ministry names (zero API cost)
+
+  Chat Conversation:
+  - User message translated to English for AI processing
+  - AI response translated back to user's language
+  - Original user text preserved in content_original field
+
+
+10. RESULTS
+--------------------------------------------------------------------------------
+
+10.1 Data Coverage
+
+  - 4,743 government schemes indexed from multiple sources
+  - 18 categories covering all major sectors
+  - 36 states and union territories represented
+  - 100+ ministries (central and state-level)
+  - 30+ cross-cutting tags for fine-grained classification
+
+10.2 Language Coverage
+
+  - 23 Indian languages supported (covering 22 scheduled languages of India)
+  - All UI elements translated
+  - Real-time content translation with sub-second latency (cached)
+  - Voice interaction in supported Bhashini languages
+
+10.3 Search Performance
+
+  - Hybrid search combines keyword recall with semantic precision
+  - Reciprocal Rank Fusion provides better ranking than either method alone
+  - Vector embeddings (1024-dim, Mistral-embed) capture semantic meaning
+  - Autocomplete suggestions for scheme name discovery
+
+10.4 AI Chat Capabilities
+
+  - FSM-based conversation management ensures structured, predictable flow
+  - Multi-turn context accumulation (user profile built across messages)
+  - Intent classification with LLM primary + keyword fallback
+  - Inline scheme cards in chat responses
+  - Voice input/output for accessibility
+  - Rate limiting prevents abuse (30 chat/min, 10 voice/min per IP)
+
+10.5 Translation Performance
+
+  - IndicTrans2 on GTX 1650: Real-time batch translation
+  - Multi-tier caching eliminates redundant API calls
+  - Newline-batch optimization: ~13x speedup for multiple texts
+  - Graceful degradation: IndicTrans2 -> Google Translate fallback
+
+10.6 Eligibility Matching
+
+  - 7-criterion scoring algorithm with transparent match reporting
+  - Users see exactly which criteria they matched
+  - State-aware filtering (central + state-specific schemes)
+  - Match scores from 0-100% with color-coded display
+
+
+11. KEY DESIGN DECISIONS
+--------------------------------------------------------------------------------
+
+  1. Async-First Architecture: FastAPI + asyncpg enables high concurrency
+     for handling multiple simultaneous translation and chat requests.
+
+  2. Self-Hosted Translation: IndicTrans2 microservice provides Indian
+     language translation without external API dependencies or costs,
+     optimized for Indic scripts.
+
+  3. Hybrid Search over Pure Semantic: Combining keyword + semantic search
+     with RRF ensures both precision (exact term matches) and recall
+     (semantically similar schemes).
+
+  4. FSM for Chat: Finite State Machine provides predictable, structured
+     conversations rather than open-ended LLM responses, ensuring users
+     receive actionable scheme recommendations.
+
+  5. Multi-Tier Translation Cache: Aggressive caching (pre-computed +
+     runtime hash cache) minimizes translation latency and API costs.
+
+  6. pgvector over External Vector DB: Using PostgreSQL's pgvector extension
+     avoids the complexity of a separate vector database while providing
+     efficient similarity search.
+
+  7. Graceful Degradation: Every external service (LLM, translation, voice)
+     has a fallback path, ensuring the platform remains functional even when
+     individual services are unavailable.
+
+  8. Microservice Isolation: IndicTrans2 runs as a separate service, allowing
+     independent scaling, GPU allocation, and deployment.
+
+  9. Mobile-First Design: Responsive UI ensures accessibility on smartphones,
+     the primary internet device for most Indian citizens.
+
+  10. Data Source Aggregation: Combining MyScheme.gov.in, Kaggle, data.gov.in,
+      and HuggingFace ensures comprehensive scheme coverage.
+
+
+12. CHALLENGES AND SOLUTIONS
+--------------------------------------------------------------------------------
+
+  Challenge: Model Size and GPU Memory
+  Solution: Used the distilled 200M parameter variant of IndicTrans2 which
+  fits within 4GB VRAM (GTX 1650) using float16 precision.
+
+  Challenge: Translation Latency for Real-Time UI
+  Solution: Multi-tier caching (pre-computed, runtime hash cache), newline
+  batching (~13x speedup), and concurrent chunk processing.
+
+  Challenge: Diverse Indian Scripts and Languages
+  Solution: IndicTransToolkit handles script-specific preprocessing and
+  postprocessing; BCP-47 Flores language codes for accuracy.
+
+  Challenge: Structured Eligibility Data
+  Solution: Schemes store structured fields (target_gender, age range, income
+  threshold, social category) enabling SQL-based matching without LLM costs.
+
+  Challenge: Conversation Context Management
+  Solution: FSM with JSONB context field accumulates user profile across
+  multiple conversation turns, persisted in database.
+
+  Challenge: Search Quality
+  Solution: RRF merge of keyword and semantic search provides better ranking
+  than either method alone.
+
+
+13. DEPLOYMENT
+--------------------------------------------------------------------------------
+
+  Docker Compose orchestrates all services:
+
+  +-------------------+     +-------------------+     +-------------------+
+  | myscheme-frontend |     | myscheme-backend  |     | myscheme-db       |
+  | Node 20 Alpine    |     | Python 3.12 Slim  |     | pgvector/pg16     |
+  | Port 3000         |---->| Port 8000         |---->| Port 5432         |
+  | Next.js Standalone|     | FastAPI + Uvicorn  |     | PostgreSQL 16     |
+  +-------------------+     +-------------------+     +-------------------+
+                                    |
+                            +-------+-------+
+                            | indictrans    |
+                            | PyTorch CUDA  |
+                            | Port 7860     |
+                            +---------------+
+
+  Local Development:
+  - make db-up        Start PostgreSQL container
+  - make backend      Start FastAPI server (port 8000)
+  - make frontend     Start Next.js dev server (port 3000)
+  - make migrate      Run database migrations
+  - make ingest       Ingest scheme data from HuggingFace
+  - make embed        Generate scheme embeddings
+  - make download-model  Pre-download IndicTrans2 model
+
+
+14. FUTURE SCOPE
+--------------------------------------------------------------------------------
+
+  a) Push notifications for new schemes matching user profiles.
+  b) Integration with DigiLocker for automatic document verification.
+  c) WhatsApp/Telegram bot interface for wider accessibility.
+  d) Regional language voice models for better ASR/TTS quality.
+  e) Application tracking for schemes with online application portals.
+  f) Admin dashboard for scheme data management and analytics.
+  g) Offline mode with cached scheme data for low-connectivity areas.
+  h) Fine-tuned LLM specifically trained on Indian government scheme data.
+
+
+15. CONCLUSION
+--------------------------------------------------------------------------------
+
+SevanaGPT demonstrates how modern AI technologies -- large language models,
+neural machine translation, vector embeddings, and speech processing -- can be
+combined to solve a real civic problem: connecting Indian citizens with the
+government welfare schemes they are entitled to.
+
+The platform successfully aggregates 4,700+ schemes from official sources,
+supports 23 Indian languages through a self-hosted neural translation model
+(IndicTrans2), and provides multiple discovery paths: conversational AI chat,
+eligibility matching, semantic search, and traditional browsing. The FSM-based
+chat system ensures structured, goal-oriented conversations that gather user
+context and deliver actionable scheme recommendations.
+
+The architecture prioritizes accessibility (voice support, 23 languages,
+mobile-first design), reliability (graceful degradation with fallback chains),
+and performance (multi-tier caching, batch optimization, async processing).
+By hosting the translation model locally on consumer GPU hardware (GTX 1650),
+the platform minimizes external API dependencies and operational costs while
+maintaining real-time translation capabilities.
+
+SevanaGPT serves as a practical example of applying AI for social good,
+bridging the information gap between government welfare programs and the
+citizens who need them most.
+
+
+================================================================================
+                         END OF REPORT
+================================================================================

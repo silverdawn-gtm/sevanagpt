@@ -25,6 +25,9 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Models (large HuggingFace downloads)
+indictrans/models/
+
 # Misc
 *.log
 .vercel

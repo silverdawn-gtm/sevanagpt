@@ -4,8 +4,8 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import type { ChatMessage } from "@/lib/types";
 import clsx from "clsx";
-import AudioPlayer from "./AudioPlayer";
 import { useLanguage } from "@/context/LanguageContext";
+import ReadAloudButton from "@/components/ui/ReadAloudButton";
 
 interface ChatWindowProps {
   messages: ChatMessage[];
@@ -42,9 +42,11 @@ export default function ChatWindow({ messages, loading }: ChatWindowProps) {
           >
             <div className="whitespace-pre-wrap text-sm">{msg.content}</div>
 
-            {/* Audio player for voice responses */}
-            {msg.audioBase64 && (
-              <AudioPlayer audioBase64={msg.audioBase64} />
+            {/* Read aloud button for assistant messages */}
+            {msg.role === "assistant" && (
+              <div className="mt-2">
+                <ReadAloudButton text={msg.content} />
+              </div>
             )}
 
             {/* Scheme cards */}

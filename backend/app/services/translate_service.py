@@ -14,15 +14,31 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import TranslationCache
+from app.services import indictrans_client
 
 logger = logging.getLogger(__name__)
 
-# Language codes supported by Google Translate for Indian languages
-SUPPORTED_LANGS = {"hi", "bn", "ta", "te", "mr", "gu", "kn", "ml", "pa", "or", "ur"}
+# All supported Indian languages (IndicTrans2 primary, Google Translate fallback)
+SUPPORTED_LANGS = {
+    "hi", "bn", "ta", "te", "mr", "gu", "kn", "ml", "pa", "or", "ur",  # original 11
+    "as", "ne", "sa", "sd", "mai", "doi", "kok", "sat", "mni", "bodo", "lus",  # IndicTrans2 additional
+}
+
+# Map our internal language codes to Google Translate codes.
+# Missing keys = language not supported by Google Translate (IndicTrans2 only).
+GOOGLE_LANG_MAP: dict[str, str] = {
+    "hi": "hi", "bn": "bn", "ta": "ta", "te": "te", "mr": "mr",
+    "gu": "gu", "kn": "kn", "ml": "ml", "pa": "pa", "or": "or",
+    "ur": "ur", "as": "as", "ne": "ne", "sa": "sa", "sd": "sd",
+    "doi": "doi", "mai": "mai", "lus": "lus",
+    "mni": "mni-Mtei",  # Manipuri — Google uses BCP-47 script subtag
+    "kok": "gom",        # Konkani — Google uses Goan Konkani code
+    # "bodo" and "sat" are NOT supported by Google Translate
+}
 
 # Timeouts
-SINGLE_TIMEOUT = 4.0  # seconds per individual translation
-BATCH_TIMEOUT = 12.0  # seconds for entire batch operation
+SINGLE_TIMEOUT = 8.0   # seconds per individual translation
+BATCH_TIMEOUT = 20.0   # seconds for entire batch operation
 MAX_TEXT_LEN = 5000
 
 
@@ -30,27 +46,39 @@ def _cache_key(text: str, tgt_lang: str) -> str:
     return hashlib.sha256(f"{text}|en|{tgt_lang}".encode()).hexdigest()
 
 
-def _google_translate_sync(text: str, tgt_lang: str) -> str:
-    """Synchronous Google Translate via deep-translator."""
+def _google_translate_sync(text: str, tgt_lang: str) -> str | None:
+    """Synchronous Google Translate via deep-translator.
+
+    Returns None if the language is not supported by Google Translate.
+    """
+    google_code = GOOGLE_LANG_MAP.get(tgt_lang)
+    if not google_code:
+        return None
+
     from deep_translator import GoogleTranslator
 
-    return GoogleTranslator(source="en", target=tgt_lang).translate(text)
+    return GoogleTranslator(source="en", target=google_code).translate(text)
 
 
-def _google_translate_batch_sync(texts: list[str], tgt_lang: str) -> list[str]:
+def _google_translate_batch_sync(texts: list[str], tgt_lang: str) -> list[str] | None:
     """Translate multiple texts in ONE API call via newline concatenation.
 
     ~13x faster than individual calls. Falls back to individual on split failure.
+    Returns None if the language is not supported by Google Translate.
     """
+    google_code = GOOGLE_LANG_MAP.get(tgt_lang)
+    if not google_code:
+        return None
+
     from deep_translator import GoogleTranslator
 
     if not texts:
         return []
     if len(texts) == 1:
-        return [GoogleTranslator(source="en", target=tgt_lang).translate(texts[0])]
+        return [GoogleTranslator(source="en", target=google_code).translate(texts[0])]
 
     combined = "\n".join(texts)
-    translated = GoogleTranslator(source="en", target=tgt_lang).translate(combined)
+    translated = GoogleTranslator(source="en", target=google_code).translate(combined)
     parts = translated.split("\n")
 
     # If newline split matches, we're good
@@ -60,7 +88,7 @@ def _google_translate_batch_sync(texts: list[str], tgt_lang: str) -> list[str]:
     # Fallback: translate individually
     logger.debug("Batch split mismatch (%d vs %d), falling back to individual", len(parts), len(texts))
     results = []
-    translator = GoogleTranslator(source="en", target=tgt_lang)
+    translator = GoogleTranslator(source="en", target=google_code)
     for t in texts:
         try:
             results.append(translator.translate(t))
@@ -96,18 +124,25 @@ async def translate_text(
         except Exception:
             pass
 
-    # Translate with timeout
-    try:
-        translated = await asyncio.wait_for(
-            asyncio.to_thread(_google_translate_sync, source, tgt_lang),
-            timeout=SINGLE_TIMEOUT,
-        )
-    except asyncio.TimeoutError:
-        logger.warning("Translation timed out for lang=%s (text len=%d)", tgt_lang, len(source))
-        return text
-    except Exception as e:
-        logger.warning("Google translation failed for lang=%s: %s", tgt_lang, e)
-        return text
+    # Translate: try IndicTrans2 first, fall back to Google Translate
+    translated = await indictrans_client.translate_single(source, tgt_lang)
+    if translated is None:
+        if tgt_lang not in GOOGLE_LANG_MAP:
+            logger.debug("Lang %s not supported by Google Translate and IndicTrans2 unavailable", tgt_lang)
+            return text
+        try:
+            translated = await asyncio.wait_for(
+                asyncio.to_thread(_google_translate_sync, source, tgt_lang),
+                timeout=SINGLE_TIMEOUT,
+            )
+            if translated is None:
+                return text
+        except asyncio.TimeoutError:
+            logger.warning("Translation timed out for lang=%s (text len=%d)", tgt_lang, len(source))
+            return text
+        except Exception as e:
+            logger.warning("Google translation failed for lang=%s: %s", tgt_lang, e)
+            return text
 
     # Cache the result
     if db and translated and translated != source:
@@ -242,10 +277,21 @@ async def translate_texts_batch(
 
     # Step 3: Translate chunks with overall timeout
     async def _translate_chunk(indices: list[int], chunk_texts: list[str]) -> list[tuple[int, str]]:
-        translated = await asyncio.to_thread(
-            _google_translate_batch_sync, chunk_texts, tgt_lang
-        )
-        return list(zip(indices, translated))
+        # Try IndicTrans2 first, fall back to Google Translate
+        try:
+            translated = await indictrans_client.translate_batch(chunk_texts, tgt_lang)
+            if translated is None:
+                translated = await asyncio.to_thread(
+                    _google_translate_batch_sync, chunk_texts, tgt_lang
+                )
+            if translated is None:
+                # Language not supported by Google Translate
+                logger.debug("No translation engine available for lang=%s", tgt_lang)
+                return list(zip(indices, chunk_texts))
+            return list(zip(indices, translated))
+        except Exception as e:
+            logger.warning("Chunk translation failed for lang=%s: %s", tgt_lang, e)
+            return list(zip(indices, chunk_texts))
 
     try:
         tasks = [_translate_chunk(idx, txt) for idx, txt in chunks]
@@ -258,6 +304,9 @@ async def translate_texts_batch(
         all_to_cache_trans: list[str] = []
 
         for item in done:
+            if isinstance(item, Exception):
+                logger.warning("Batch chunk raised exception for lang=%s: %s", tgt_lang, item)
+                continue
             if isinstance(item, list):
                 for idx, translated in item:
                     results[idx] = translated

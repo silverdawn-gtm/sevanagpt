@@ -81,7 +81,6 @@ export interface ChatMessage {
   content_original?: string;
   schemes?: SchemeListItem[];
   suggestions?: { text: string }[];
-  audioBase64?: string;
 }
 
 export interface SearchResult {

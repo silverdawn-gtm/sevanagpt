@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
+from app.middleware.timing import TimingMiddleware, metrics_endpoint
 
 logger = logging.getLogger(__name__)
 
@@ -42,11 +43,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(TimingMiddleware)
 
 
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+app.add_route("/metrics", metrics_endpoint, methods=["GET"])
 
 
 # Import and register routers
@@ -57,7 +62,6 @@ from app.api.v1.ministries import router as ministries_router
 from app.api.v1.search import router as search_router
 from app.api.v1.chat import router as chat_router
 from app.api.v1.translate import router as translate_router
-from app.api.v1.voice import router as voice_router
 from app.api.v1.eligibility import router as eligibility_router
 
 app.include_router(schemes_router, prefix="/api/v1")
@@ -67,5 +71,4 @@ app.include_router(ministries_router, prefix="/api/v1")
 app.include_router(search_router, prefix="/api/v1")
 app.include_router(chat_router, prefix="/api/v1")
 app.include_router(translate_router, prefix="/api/v1")
-app.include_router(voice_router, prefix="/api/v1")
 app.include_router(eligibility_router, prefix="/api/v1")

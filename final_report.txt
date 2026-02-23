@@ -1,0 +1,1565 @@
+================================================================================
+                                 SEVANAGPT
+        An AI-Powered Indian Government Scheme Discovery Platform
+================================================================================
+
+                              PROJECT REPORT
+
+  Submitted in partial fulfillment of the requirements for the completion
+                        of the academic project.
+
+================================================================================
+
+
+                                 ABSTRACT
+--------------------------------------------------------------------------------
+
+SevanaGPT is an AI-powered web application designed to bridge the information
+gap between Indian citizens and the numerous government welfare schemes available
+to them. India operates over 4,600 central and state-level welfare schemes across
+categories such as agriculture, education, health, housing, and social welfare.
+However, citizens often remain unaware of the schemes they are eligible for due
+to fragmented information, language barriers, and complex eligibility criteria.
+
+SevanaGPT addresses this problem by providing a conversational AI chatbot, a
+hybrid search engine, and an eligibility-checking wizard that together make
+scheme discovery intuitive and accessible. The platform supports 12 Indian
+languages including Hindi, Tamil, Telugu, Bengali, Marathi, Gujarati, Kannada,
+Malayalam, Punjabi, Odia, and Urdu, ensuring inclusivity for a diverse user base.
+
+The system is built on a modern technology stack comprising a Next.js React
+frontend, a FastAPI Python backend, PostgreSQL with pgvector for vector-based
+semantic search, and integrations with Mistral AI for natural language
+understanding, Bhashini for voice interaction (ASR/TTS), and IndicTrans2 for
+neural machine translation. The dataset of 4,600+ schemes is aggregated from
+multiple authoritative sources including MyScheme.gov.in, curated Hugging Face
+datasets, and state-specific repositories.
+
+Key contributions of this project include: (1) a finite state machine (FSM)
+based conversational agent that guides users through scheme discovery, (2) a
+hybrid search pipeline combining keyword, semantic, and translation-aware search
+using Reciprocal Rank Fusion (RRF), (3) real-time multilingual support with
+caching and fallback mechanisms, and (4) voice-based interaction for users with
+limited literacy. The system is containerized using Docker Compose for
+reproducible deployment and is designed with scalability, modularity, and
+accessibility as core principles.
+
+
+================================================================================
+                     CHAPTER 1: INTRODUCTION
+================================================================================
+
+1.1  Background and Motivation
+--------------------------------------------------------------------------------
+
+The Government of India, along with various state governments, operates
+thousands of welfare schemes aimed at uplifting citizens across socioeconomic
+categories. These schemes cover a wide spectrum of domains including agriculture,
+education, healthcare, housing, employment, social security, and women and child
+development. As of 2024, the central government alone administers over 740
+schemes, while individual states add hundreds more, bringing the cumulative total
+to well over 4,600 documented schemes.
+
+Despite this extensive network of support, a significant portion of the target
+population remains unaware of the schemes available to them. The reasons for this
+disconnect are multifaceted:
+
+  - Fragmented Information: Scheme details are scattered across multiple
+    government portals, ministry websites, and state-level platforms with no
+    unified discovery interface.
+
+  - Language Barriers: Most scheme documentation is available primarily in
+    English or Hindi, excluding a large section of the population that
+    communicates in regional languages.
+
+  - Complex Eligibility Criteria: Schemes often have intricate eligibility
+    requirements based on age, gender, income, caste, occupation, disability
+    status, and geographic location. Citizens struggle to determine which
+    schemes apply to them without expert guidance.
+
+  - Digital Literacy Gap: Rural and semi-urban populations, who are often the
+    primary beneficiaries of welfare schemes, may lack the digital literacy
+    required to navigate complex web portals.
+
+These challenges create a critical need for an intelligent, multilingual, and
+accessible platform that can guide citizens toward the right schemes based on
+their individual profiles and needs.
+
+
+1.2  Problem Statement
+--------------------------------------------------------------------------------
+
+The core problem addressed by SevanaGPT is: "How can technology make government
+welfare scheme discovery accessible, personalized, and inclusive for every Indian
+citizen, regardless of their language, literacy level, or technical proficiency?"
+
+Specifically, the project tackles:
+
+  1. Information Overload: With 4,600+ schemes, users cannot manually browse
+     and evaluate every option. An intelligent search and recommendation system
+     is needed.
+
+  2. Language Exclusion: A system that operates only in English or Hindi
+     inherently excludes hundreds of millions of speakers of other Indian
+     languages.
+
+  3. Eligibility Confusion: Citizens need a guided mechanism to input their
+     demographic details and receive personalized scheme matches.
+
+  4. Accessibility: Voice-based interaction is essential for users who may not
+     be comfortable with text-based interfaces.
+
+
+1.3  Objectives
+--------------------------------------------------------------------------------
+
+The primary objectives of the SevanaGPT project are:
+
+  1. To develop an AI-powered conversational chatbot that understands user
+     needs in natural language and recommends relevant government schemes.
+
+  2. To implement a hybrid search engine that combines keyword matching,
+     semantic understanding, and translation-aware retrieval for accurate
+     scheme discovery.
+
+  3. To build an eligibility-checking wizard that matches user profiles
+     against scheme criteria and returns personalized recommendations.
+
+  4. To provide multilingual support for 12 Indian languages with real-time
+     translation capabilities.
+
+  5. To integrate voice interaction (speech-to-text and text-to-speech)
+     for inclusive access.
+
+  6. To aggregate scheme data from multiple authoritative sources into a
+     comprehensive and up-to-date knowledge base.
+
+  7. To design a scalable, containerized system architecture suitable for
+     production deployment.
+
+
+1.4  Scope of the Project
+--------------------------------------------------------------------------------
+
+SevanaGPT covers the following functional scope:
+
+  - Scheme browsing by category, state, ministry, and tags
+  - Free-text and voice-based scheme search
+  - AI chatbot with contextual conversation management
+  - Eligibility checking based on user demographics
+  - Multilingual interface and content translation
+  - Featured scheme highlights and recommendations
+
+The project does not include:
+
+  - Actual scheme application or form submission
+  - Integration with Aadhaar or DigiLocker for identity verification
+  - Real-time scheme status tracking or benefit disbursement
+  - Mobile native application (only responsive web)
+
+
+1.5  Organization of the Report
+--------------------------------------------------------------------------------
+
+The remainder of this report is organized as follows:
+
+  Chapter 2  describes the complete system implementation including frontend,
+             backend, and database components.
+  Chapter 3  details the dataset collection, preparation, and ingestion
+             pipeline.
+  Chapter 4  covers the system testing methodology and test cases.
+  Chapter 5  presents the results and discusses the system's performance.
+  Chapter 6  provides evaluation metrics and analytical insights.
+  Chapter 7  discusses the challenges faced and limitations of the system.
+  Chapter 8  concludes the report and outlines directions for future work.
+
+
+================================================================================
+                CHAPTER 2: SYSTEM IMPLEMENTATION
+================================================================================
+
+This chapter provides a comprehensive description of the system architecture and
+implementation details across the frontend, backend, and database layers.
+
+The system follows a microservices-oriented architecture with four primary
+components orchestrated via Docker Compose:
+
+  1. Frontend  - Next.js React web application (Port 3000)
+  2. Backend   - FastAPI Python API server (Port 8000)
+  3. Database  - PostgreSQL 16 with pgvector extension (Port 5433)
+  4. IndicTrans - Translation microservice with GPU support (Port 7860)
+
+The high-level data flow is:
+
+  User -> Frontend (Next.js/React) -> API (FastAPI) -> Database (PostgreSQL)
+       -> LLM/Services (Mistral/Bhashini) -> Response -> Frontend -> User
+
+
+--------------------------------------------------------------------------------
+2.1  Frontend Implementation
+--------------------------------------------------------------------------------
+
+2.1.1  Technology Stack
+
+The frontend is built using the following technologies:
+
+  Framework       : Next.js 16.1.6 (App Router with React Server Components)
+  UI Library      : React 19.2.3 with TypeScript
+  Styling         : Tailwind CSS 4 with PostCSS
+  Internationalization : next-intl 4.8.3 for multilingual UI
+  Icons           : Heroicons React 2.2.0
+  Utilities       : clsx 2.1.1 for conditional CSS class composition
+
+Next.js was chosen for its support of server-side rendering (SSR), static site
+generation (SSG), and the App Router which enables nested layouts and streaming.
+TypeScript provides compile-time type safety across the entire frontend codebase.
+
+
+2.1.2  Application Architecture
+
+The frontend follows the Next.js 13+ App Router convention with the following
+directory structure:
+
+  frontend/
+  ├── app/
+  │   ├── layout.tsx              # Root layout with Navbar and Footer
+  │   ├── page.tsx                # Home page
+  │   ├── chat/
+  │   │   └── page.tsx            # Chat interface
+  │   ├── (browse)/
+  │   │   ├── schemes/
+  │   │   │   ├── page.tsx        # Scheme listing with pagination
+  │   │   │   └── [slug]/
+  │   │   │       └── page.tsx    # Individual scheme detail
+  │   │   ├── categories/
+  │   │   │   ├── page.tsx        # Category grid
+  │   │   │   └── [slug]/
+  │   │   │       └── page.tsx    # Schemes by category
+  │   │   ├── states/
+  │   │   │   ├── page.tsx        # State listing
+  │   │   │   └── [slug]/
+  │   │   │       └── page.tsx    # Schemes by state
+  │   │   ├── ministries/
+  │   │   │   ├── page.tsx        # Ministry listing
+  │   │   │   └── [slug]/
+  │   │   │       └── page.tsx    # Schemes by ministry
+  │   │   └── find-scheme/
+  │   │       └── page.tsx        # Eligibility wizard
+  ├── components/
+  │   ├── Navbar.tsx              # Navigation bar with language switcher
+  │   ├── Footer.tsx              # Site footer
+  │   ├── ChatWidget.tsx          # Floating chat button
+  │   ├── ChatWindow.tsx          # Chat message display
+  │   ├── ChatInput.tsx           # Text and voice input
+  │   ├── EligibilityWizard.tsx   # Multi-step eligibility form
+  │   ├── SchemeCard.tsx          # Scheme preview card component
+  │   ├── LanguageSwitcher.tsx    # Language selector dropdown
+  │   └── T.tsx                   # Translation renderer component
+  ├── contexts/
+  │   └── LanguageContext.tsx     # Global language state management
+  ├── hooks/
+  │   ├── useChat.ts              # Chat session and message management
+  │   ├── useChatHistory.ts       # Persistent chat history
+  │   └── useVoiceRecorder.ts     # Audio recording and submission
+  ├── lib/
+  │   └── api.ts                  # API client for backend communication
+  └── messages/                   # Translation JSON files per language
+
+
+2.1.3  Pages and Routes
+
+Home Page (/):
+  The landing page features a hero section with a prominent call-to-action,
+  a carousel of featured government schemes, a grid of scheme categories with
+  descriptive icons, a listing of Indian states and union territories, and
+  aggregate statistics (total schemes, categories, states covered). The page
+  is designed for immediate engagement and quick navigation to relevant content.
+
+Scheme Browsing (/schemes):
+  This page provides a paginated list of all schemes with search and filter
+  capabilities. Each scheme is displayed as a card showing the scheme name,
+  a brief description, category, level (central/state), and tags. Users can
+  filter by category, state, level, and keyword. Pagination parameters are
+  managed via URL query strings for shareable links.
+
+Scheme Detail (/schemes/[slug]):
+  The detail page renders comprehensive information about a single scheme
+  including its full description, benefits, eligibility criteria, application
+  process, documents required, official links, and associated FAQs. Content
+  is dynamically translated based on the user's selected language.
+
+Category Browsing (/categories and /categories/[slug]):
+  The categories page displays a grid of 15+ scheme categories (Agriculture,
+  Education, Health, Housing, etc.) with icons and scheme counts. Clicking a
+  category navigates to a filtered list of schemes within that category.
+
+State Browsing (/states and /states/[slug]):
+  Provides browsing by Indian states and union territories. State-specific
+  pages include filters for scheme level (central, state, or both) and display
+  the relevant ministry/department information.
+
+Ministry Browsing (/ministries and /ministries/[slug]):
+  Lists government ministries and departments with their associated schemes.
+  Supports both central and state-level ministry browsing.
+
+Find Scheme (/find-scheme):
+  This page hosts the Eligibility Wizard, a multi-step questionnaire that
+  collects user demographics (age, gender, state, income, caste, occupation,
+  disability status, student status, BPL status) and matches them against
+  scheme eligibility criteria to return personalized recommendations.
+
+Chat (/chat):
+  The full-page chat interface provides a conversational experience with the
+  AI chatbot. Features include message history, scheme card rendering within
+  chat messages, quick-reply suggestion chips, and voice input/output
+  capabilities via the Bhashini ASR/TTS integration.
+
+
+2.1.4  Key Components
+
+ChatWidget and ChatWindow:
+  The ChatWidget is a floating action button (FAB) that appears on every page,
+  providing instant access to the AI chatbot without navigating away. When
+  activated, it opens the ChatWindow component which renders the conversation
+  history, manages the message input area, and displays scheme recommendations
+  as interactive cards within the chat flow.
+
+EligibilityWizard:
+  This component implements a step-by-step form with progressive disclosure.
+  Each step collects a specific demographic attribute. The wizard maintains
+  internal state and submits the complete profile to the eligibility API
+  endpoint. Results are displayed as a ranked list of matching schemes with
+  relevance indicators.
+
+LanguageSwitcher and Translation (T):
+  The LanguageSwitcher component renders a dropdown menu of 12 supported
+  languages. Language selection is managed globally via the LanguageContext,
+  which loads the appropriate translation JSON file and provides a translation
+  function to all child components. The T component is a convenience wrapper
+  that renders translated strings inline.
+
+SchemeCard:
+  A reusable card component that displays scheme metadata including name,
+  description snippet, category badge, level indicator (central/state), and
+  action buttons. It is used across the browse pages, search results, chat
+  messages, and eligibility wizard results.
+
+
+2.1.5  State Management and Hooks
+
+LanguageContext:
+  A React Context provider that manages the application's current language
+  state. It stores the selected language code (e.g., "en", "hi", "ta"),
+  loads the corresponding translation dictionary from JSON files in the
+  messages/ directory, and exposes a translate function that accepts a key
+  and returns the localized string. The context persists language selection
+  across page navigations.
+
+useChat Hook:
+  This custom hook encapsulates all chat-related logic including:
+    - Session ID generation and management
+    - Message history state (array of user and assistant messages)
+    - API communication with the chat endpoint
+    - Scheme card extraction from chat responses
+    - Suggestion/quick-reply management
+    - Voice response handling (receiving TTS audio URLs)
+
+useVoiceRecorder Hook:
+  Manages the browser's MediaRecorder API for capturing audio input. It
+  handles microphone permission requests, audio recording start/stop,
+  audio blob creation, and submission to the voice transcription endpoint.
+  The transcribed text is then fed into the chat pipeline.
+
+
+2.1.6  API Client
+
+The frontend communicates with the backend through a centralized API client
+module (lib/api.ts). This module:
+
+  - Configures the base URL from the NEXT_PUBLIC_API_URL environment variable
+    (defaulting to http://localhost:8000/api/v1)
+  - Provides typed GET and POST methods with JSON serialization
+  - Appends the current language as a query parameter to all requests
+  - Handles error responses and network failures
+  - Defines TypeScript interfaces for all API request and response shapes
+
+2.1.7  Styling and Design
+
+The application uses a consistent emerald/teal color scheme (#10b981, #14b8a6)
+throughout all pages. The UI follows a mobile-first responsive design approach
+using Tailwind CSS utility classes. Layouts are built with CSS Grid and Flexbox.
+The design prioritizes readability and accessibility with appropriate contrast
+ratios, clear typography, and intuitive navigation patterns.
+
+
+--------------------------------------------------------------------------------
+2.2  Backend Implementation
+--------------------------------------------------------------------------------
+
+2.2.1  Technology Stack
+
+The backend is built using:
+
+  Framework       : FastAPI 0.115.6 (async Python web framework)
+  ASGI Server     : Uvicorn 0.34.0 with standard extras
+  ORM             : SQLAlchemy 2.0.36 with async extensions
+  Database Driver : asyncpg 0.30.0 (async PostgreSQL adapter)
+  Migrations      : Alembic 1.14.0
+  HTTP Client     : httpx 0.28.1 (async HTTP requests)
+  Validation      : Pydantic Settings 2.7.1
+  LLM Integration : mistralai 1.3.1
+  Translation     : deep-translator 1.11.4 (Google Translate fallback)
+
+FastAPI was selected for its native async/await support, automatic OpenAPI
+documentation generation, Pydantic-based request/response validation, and
+high performance under concurrent loads.
+
+
+2.2.2  Application Architecture
+
+The backend follows a layered service-oriented architecture:
+
+  backend/
+  ├── app/
+  │   ├── main.py                 # Application entry point and configuration
+  │   ├── config.py               # Environment variable configuration
+  │   ├── database.py             # Database engine and session management
+  │   ├── models/
+  │   │   └── scheme.py           # SQLAlchemy ORM models
+  │   ├── schemas/
+  │   │   └── scheme.py           # Pydantic request/response schemas
+  │   ├── routes/
+  │   │   ├── schemes.py          # Scheme CRUD endpoints
+  │   │   ├── categories.py       # Category endpoints
+  │   │   ├── states.py           # State endpoints
+  │   │   ├── ministries.py       # Ministry endpoints
+  │   │   ├── search.py           # Search endpoints
+  │   │   ├── chat.py             # Chat and voice endpoints
+  │   │   ├── translate.py        # Translation endpoint
+  │   │   └── eligibility.py      # Eligibility endpoints
+  │   ├── services/
+  │   │   ├── chat_service.py     # Chat orchestration logic
+  │   │   ├── search_service.py   # Hybrid search implementation
+  │   │   ├── translate_service.py # Translation orchestration
+  │   │   ├── mistral_service.py  # Mistral AI LLM client
+  │   │   ├── bhashini_service.py # Bhashini voice services
+  │   │   └── indictrans_service.py # IndicTrans2 client
+  │   ├── chatbot/
+  │   │   ├── fsm.py              # Finite State Machine definitions
+  │   │   └── prompts.py          # LLM prompt templates
+  │   ├── middleware/
+  │   │   └── timing.py           # Request timing middleware
+  │   └── utils/
+  │       ├── languages.py        # Language code mappings
+  │       ├── translations.py     # Static translation dictionaries
+  │       ├── scheme_translate.py # Scheme translation helper
+  │       ├── rate_limit.py       # Token-bucket rate limiter
+  │       └── slug.py             # URL slug generation
+  ├── scripts/
+  │   ├── seed.py                 # Reference data seeding
+  │   ├── ingest_hf.py            # Hugging Face dataset ingestion
+  │   ├── ingest_state_schemes.py # State scheme ingestion
+  │   ├── ingest_myscheme.py      # MyScheme.gov.in API ingestion
+  │   ├── ingest_kaggle.py        # Kaggle dataset ingestion
+  │   ├── ingest_datagov.py       # data.gov.in ingestion
+  │   ├── generate_embeddings.py  # Vector embedding generation
+  │   └── pre_translate.py        # Pre-translation script
+  ├── alembic/                    # Database migration scripts
+  ├── tests/                      # Test suite
+  ├── requirements.txt            # Python dependencies
+  └── Dockerfile                  # Container build instructions
+
+
+2.2.3  API Endpoints
+
+The backend exposes a RESTful API versioned under /api/v1 with the following
+endpoint groups:
+
+Scheme Endpoints (/api/v1/schemes):
+  GET  /schemes              - List schemes with pagination and filters
+  GET  /schemes/featured     - Get featured/highlighted schemes
+  GET  /schemes/{slug}       - Get detailed scheme information by slug
+
+Category Endpoints (/api/v1/categories):
+  GET  /categories           - List all categories with scheme counts
+  GET  /categories/{slug}    - Get schemes within a specific category
+
+State Endpoints (/api/v1/states):
+  GET  /states               - List all states and union territories
+  GET  /states/{slug}        - Get schemes available in a specific state
+
+Ministry Endpoints (/api/v1/ministries):
+  GET  /ministries           - List all ministries with scheme counts
+  GET  /ministries/{slug}    - Get schemes under a specific ministry
+
+Search Endpoints (/api/v1/search):
+  POST /search               - Perform hybrid search with query and filters
+  GET  /search/suggest       - Get search autocomplete suggestions
+
+Chat Endpoints (/api/v1/chat):
+  POST /chat/message         - Send a text message and receive AI response
+  POST /chat/voice           - Send voice audio and receive AI response
+  GET  /chat/history/{id}    - Retrieve chat history for a session
+  POST /chat/reset/{id}      - Reset a chat session
+
+Voice Endpoints (/api/v1/voice):
+  POST /voice/transcribe     - Convert speech audio to text (ASR)
+  POST /voice/synthesize     - Convert text to speech audio (TTS)
+
+Translation Endpoint (/api/v1/translate):
+  POST /translate            - Translate text between supported languages
+
+Eligibility Endpoints (/api/v1/eligibility):
+  POST /eligibility/check    - Check eligibility against scheme criteria
+  GET  /eligibility/options  - Get available options for eligibility form
+
+System Endpoints:
+  GET  /health               - Health check (database connectivity)
+  GET  /metrics              - Performance metrics
+
+
+2.2.4  Chatbot Implementation
+
+The chatbot is the core interactive component of SevanaGPT. It uses a Finite
+State Machine (FSM) architecture to manage conversation flow:
+
+  States:
+    GREETING         - Initial state; welcome message and topic suggestions
+    NEED_EXTRACTION  - Clarifying user intent (category, location, demographics)
+    SCHEME_SEARCH    - Performing search and presenting matched schemes
+    DISAMBIGUATION   - Narrowing down results when too many matches found
+    SCHEME_DETAIL    - Providing detailed information about a specific scheme
+    CLOSING          - Concluding the conversation
+
+  Transitions:
+    GREETING -> NEED_EXTRACTION     (on: search_scheme intent)
+    GREETING -> SCHEME_DETAIL       (on: ask_detail intent)
+    NEED_EXTRACTION -> SCHEME_SEARCH (on: sufficient context gathered)
+    SCHEME_SEARCH -> SCHEME_DETAIL  (on: user selects a scheme)
+    SCHEME_SEARCH -> DISAMBIGUATION (on: too many results)
+    ANY STATE -> CLOSING            (on: goodbye intent)
+
+Intent Classification:
+  User messages are classified into intents using Mistral AI with a structured
+  prompt. The supported intents are: search_scheme, ask_detail,
+  check_eligibility, clarify, goodbye, greeting, and other. A keyword-based
+  fallback mechanism handles cases where the LLM is unavailable.
+
+Chat Pipeline:
+  1. Receive user message (text or transcribed voice)
+  2. Classify intent using LLM or keyword fallback
+  3. Determine FSM state transition based on current state and intent
+  4. Extract entities from conversation context (age, gender, state, category)
+  5. If in SCHEME_SEARCH state, perform hybrid search
+  6. Generate contextual response using LLM with scheme data as context
+  7. Translate response to user's preferred language if not English
+  8. Return response with scheme cards and suggestion chips
+  9. Persist conversation state and messages to database
+
+
+2.2.5  Hybrid Search Engine
+
+The search system implements a multi-strategy approach combined using
+Reciprocal Rank Fusion (RRF):
+
+  Strategy 1 - Keyword Search:
+    Performs PostgreSQL ILIKE pattern matching on scheme name, description,
+    and benefits fields. Handles partial matches and case-insensitive queries.
+
+  Strategy 2 - Semantic Search:
+    Converts the user query to a 1024-dimensional embedding using Mistral
+    Embed, then performs cosine similarity search against pre-computed scheme
+    embeddings stored in the pgvector column. This captures meaning-based
+    matches even when exact keywords are absent.
+
+  Strategy 3 - Translation-Aware Search:
+    Searches the scheme_translations table which contains pre-translated
+    scheme content in multiple languages. This enables users searching in
+    Hindi or other languages to find schemes whose original content is in
+    English.
+
+  Fusion - Reciprocal Rank Fusion (RRF):
+    Results from all three strategies are merged using the RRF formula:
+
+      score(scheme) = SUM over lists [ 1 / (k + rank_in_list + 1) ]
+
+    where k = 60 (smoothing constant). Schemes appearing in multiple result
+    lists receive boosted scores, promoting high-confidence matches.
+
+
+2.2.6  Translation Services
+
+SevanaGPT employs a multi-tier translation strategy:
+
+  Tier 1 - Static Dictionaries:
+    Pre-computed translations for fixed UI content such as category names,
+    state names, ministry names, and common labels in all 12 languages.
+    These are stored in Python dictionaries for instant lookup.
+
+  Tier 2 - Pre-computed Scheme Translations:
+    The scheme_translations database table stores translated versions of
+    scheme names, descriptions, benefits, eligibility criteria, and other
+    fields. These are generated in batch using the pre_translate.py script.
+
+  Tier 3 - Bhashini NMT (Neural Machine Translation):
+    For dynamic content (chat responses, search results), the Bhashini API
+    provides real-time translation. This is the primary translation service
+    for the voice pipeline.
+
+  Tier 4 - IndicTrans2 Microservice:
+    An optional GPU-accelerated translation service running the AI4Bharat
+    IndicTrans2 model (200M parameters). Provides high-quality English-to-
+    Indic language translation with batch processing support.
+
+  Tier 5 - Google Translate Fallback:
+    When Bhashini and IndicTrans are unavailable, the deep-translator
+    library provides Google Translate as a final fallback. Results are
+    cached in the translation_cache database table to minimize API calls.
+
+
+2.2.7  Voice Interaction
+
+Voice interaction is powered by the Bhashini platform:
+
+  Speech-to-Text (ASR):
+    - Accepts audio input from the browser's MediaRecorder API
+    - Sends audio to Bhashini ASR with the appropriate language model
+    - Returns transcribed text which is then processed by the chat pipeline
+    - Supports all 12 languages
+
+  Text-to-Speech (TTS):
+    - Converts the chatbot's text response to speech audio
+    - Uses language-specific Bhashini TTS models
+    - Returns audio data that is played back in the browser
+    - Enables fully voice-based interaction for users with limited literacy
+
+  Rate Limiting:
+    Voice endpoints are rate-limited more strictly (10 requests per 60 seconds
+    per IP) compared to text chat (30 requests per 60 seconds per IP) due to
+    higher computational cost.
+
+
+2.2.8  Middleware and Utilities
+
+Request Timing Middleware:
+  Tracks response times for all API endpoints and exposes aggregate metrics
+  (average, P95, P99 latencies) via the /metrics endpoint for performance
+  monitoring.
+
+Rate Limiting:
+  Implements a token-bucket algorithm for per-IP rate limiting on chat and
+  voice endpoints. Returns HTTP 429 (Too Many Requests) when limits are
+  exceeded.
+
+Slug Generation:
+  Creates URL-friendly identifiers from scheme, category, state, and ministry
+  names. Used throughout the application for clean, shareable URLs (e.g.,
+  /schemes/pm-kisan, /states/maharashtra).
+
+
+--------------------------------------------------------------------------------
+2.3  Database Implementation
+--------------------------------------------------------------------------------
+
+2.3.1  Database Selection
+
+PostgreSQL 16 was selected as the database engine for the following reasons:
+
+  - Robust relational data modeling for structured scheme metadata
+  - pgvector extension for native vector similarity search (semantic search)
+  - JSONB column support for flexible, schema-less data (chat context, extras)
+  - Full-text search capabilities for keyword matching
+  - Mature async driver support via asyncpg
+  - Strong indexing and query optimization features
+  - Production-proven reliability and scalability
+
+The pgvector extension is critical as it enables storing and querying 1024-
+dimensional embedding vectors directly in the database, eliminating the need
+for a separate vector database like Pinecone or Weaviate.
+
+
+2.3.2  Database Schema
+
+The database consists of the following tables:
+
+Core Tables:
+
+  schemes
+  ├── id                    : Integer, Primary Key, Auto-increment
+  ├── name                  : String, Not Null
+  ├── slug                  : String, Unique, Indexed
+  ├── description           : Text
+  ├── benefits              : Text
+  ├── eligibility_criteria  : Text
+  ├── application_process   : Text
+  ├── documents_required    : Text
+  ├── official_link         : String
+  ├── category_id           : Integer, Foreign Key -> categories.id
+  ├── ministry_id           : Integer, Foreign Key -> ministries.id
+  ├── level                 : String (central/state)
+  ├── target_gender         : ARRAY(String)
+  ├── min_age               : Integer
+  ├── max_age               : Integer
+  ├── target_social_category: ARRAY(String)
+  ├── target_income_max     : Integer
+  ├── is_disability         : Boolean
+  ├── is_student            : Boolean
+  ├── is_bpl                : Boolean
+  ├── featured              : Boolean, Default False
+  ├── source                : String
+  ├── status                : String, Default 'active', Indexed
+  ├── created_at            : DateTime
+  └── updated_at            : DateTime
+
+  categories
+  ├── id                    : Integer, Primary Key
+  ├── name                  : String, Not Null
+  ├── slug                  : String, Unique
+  ├── icon                  : String
+  └── display_order         : Integer
+
+  states
+  ├── id                    : Integer, Primary Key
+  ├── name                  : String, Not Null
+  ├── slug                  : String, Unique
+  ├── code                  : String
+  └── is_ut                 : Boolean (Union Territory flag)
+
+  ministries
+  ├── id                    : Integer, Primary Key
+  ├── name                  : String, Not Null
+  ├── slug                  : String, Unique
+  ├── level                 : String (central/state)
+  └── state_id              : Integer, Foreign Key -> states.id
+
+  tags
+  ├── id                    : Integer, Primary Key
+  ├── name                  : String, Not Null
+  └── slug                  : String, Unique
+
+Join Tables:
+
+  scheme_states
+  ├── scheme_id             : Integer, Foreign Key -> schemes.id
+  └── state_id              : Integer, Foreign Key -> states.id
+
+  scheme_tags
+  ├── scheme_id             : Integer, Foreign Key -> schemes.id
+  └── tag_id                : Integer, Foreign Key -> tags.id
+
+AI/ML Tables:
+
+  scheme_embeddings
+  ├── id                    : Integer, Primary Key
+  ├── scheme_id             : Integer, Foreign Key -> schemes.id, Unique
+  ├── embedding             : Vector(1024) (pgvector type)
+  └── text_hash             : String (for detecting stale embeddings)
+
+  scheme_translations
+  ├── id                    : Integer, Primary Key
+  ├── scheme_id             : Integer, Foreign Key -> schemes.id
+  ├── lang                  : String (language code)
+  ├── name                  : Text
+  ├── description           : Text
+  ├── benefits              : Text
+  ├── eligibility_criteria  : Text
+  ├── application_process   : Text
+  ├── documents_required    : Text
+  └── tags_json             : Text (JSON string of translated tags)
+  (Unique constraint on scheme_id + lang)
+
+Conversation Tables:
+
+  conversations
+  ├── id                    : Integer, Primary Key
+  ├── session_id            : String, Unique, Indexed
+  ├── language              : String, Default 'en'
+  ├── fsm_state             : String (current FSM state)
+  ├── context               : JSONB (extracted entities and metadata)
+  ├── created_at            : DateTime
+  └── updated_at            : DateTime
+
+  messages
+  ├── id                    : Integer, Primary Key
+  ├── conversation_id       : Integer, Foreign Key -> conversations.id
+  ├── role                  : String (user/assistant)
+  ├── content               : Text (message in user's language)
+  ├── content_original      : Text (original English content)
+  ├── audio_url             : String (TTS audio URL, if applicable)
+  ├── extra                 : JSONB (scheme cards, suggestions, metadata)
+  └── created_at            : DateTime
+
+Cache Tables:
+
+  translation_cache
+  ├── id                    : Integer, Primary Key
+  ├── hash_key              : String, Unique, Indexed
+  ├── source_text           : Text
+  ├── translated_text       : Text
+  ├── src_lang              : String
+  ├── tgt_lang              : String
+  └── created_at            : DateTime
+
+FAQ Table:
+
+  scheme_faqs
+  ├── id                    : Integer, Primary Key
+  ├── scheme_id             : Integer, Foreign Key -> schemes.id
+  ├── question              : Text
+  ├── answer                : Text
+  └── display_order         : Integer
+
+
+2.3.3  Entity Relationships
+
+The database schema enforces the following relationships:
+
+  - One-to-Many: Category -> Schemes (a category contains many schemes)
+  - One-to-Many: Ministry -> Schemes (a ministry manages many schemes)
+  - Many-to-Many: Schemes <-> States (schemes can be available in multiple
+    states, and states have multiple schemes; via scheme_states join table)
+  - Many-to-Many: Schemes <-> Tags (schemes can have multiple tags, and tags
+    can apply to many schemes; via scheme_tags join table)
+  - One-to-Many: Scheme -> SchemeEmbeddings (one embedding per scheme)
+  - One-to-Many: Scheme -> SchemeTranslations (one translation per language)
+  - One-to-Many: Scheme -> SchemeFAQs (multiple FAQ pairs per scheme)
+  - One-to-Many: Conversation -> Messages (a conversation has many messages)
+  - One-to-One: Ministry -> State (state-level ministries link to their state)
+
+
+2.3.4  Migrations
+
+Database migrations are managed using Alembic with three migration files:
+
+  1. initial_schema (6736873b8656): Creates all core tables including schemes,
+     categories, states, ministries, tags, join tables, scheme_embeddings,
+     conversations, messages, and translation_cache. Enables the pgvector
+     extension.
+
+  2. add_source_column: Adds the 'source' column to the schemes table for
+     tracking which data source each scheme was ingested from (hf, myscheme,
+     kaggle, datagov, state_specific).
+
+  3. add_scheme_translations (b2c3d4e5f6a7): Creates the scheme_translations
+     table with unique constraints on (scheme_id, lang) for efficient
+     multilingual content retrieval.
+
+
+================================================================================
+              CHAPTER 3: DATASET COLLECTION AND PREPARATION
+================================================================================
+
+3.1  Data Sources
+--------------------------------------------------------------------------------
+
+SevanaGPT aggregates government scheme data from five distinct sources to build
+a comprehensive knowledge base of 4,600+ schemes:
+
+  Source 1 - Curated Hugging Face Dataset (~100 schemes):
+    A manually curated dataset of major central and state government schemes
+    hosted on Hugging Face. This dataset provides high-quality, well-structured
+    entries with complete metadata including eligibility criteria, benefits,
+    application process, and documents required. It covers schemes from the
+    central government and four major states. Ingested via ingest_hf.py.
+
+  Source 2 - State-Specific Schemes (~113 schemes):
+    A custom-compiled dataset covering schemes from 14 Indian states that
+    are not well-represented in other sources. These schemes are defined
+    directly in the ingestion script with complete metadata and are mapped
+    to appropriate categories, states, and ministries. Ingested via
+    ingest_state_schemes.py.
+
+  Source 3 - MyScheme.gov.in API (~4,530 schemes):
+    The largest data source, accessing the official Government of India
+    MyScheme portal API. The ingestion script fetches schemes in batches
+    of 50, extracting scheme names, descriptions, benefits, eligibility
+    criteria, categories, and state/ministry associations. The script handles
+    category name normalization (e.g., comma variations), state name mapping,
+    and deduplication. Ingested via ingest_myscheme.py.
+
+  Source 4 - Kaggle Datasets (Variable):
+    Optional integration with Kaggle datasets related to Indian government
+    schemes. Requires Kaggle API credentials. Provides supplementary data
+    that may include historical or analytical scheme information. Ingested
+    via ingest_kaggle.py.
+
+  Source 5 - data.gov.in (Variable):
+    Optional integration with India's Open Government Data platform. Requires
+    a data.gov.in API key. Can provide official scheme data from the national
+    open data repository. Ingested via ingest_datagov.py.
+
+
+3.2  Data Ingestion Pipeline
+--------------------------------------------------------------------------------
+
+The data ingestion follows a sequential pipeline managed through Makefile
+commands:
+
+  Step 1 - Reference Data Seeding (seed.py):
+    Populates the database with foundational reference data:
+    - 15+ Categories with icons and display order
+      (Agriculture, Education, Health, Housing, Employment, Women & Child,
+       Social Welfare, Banking & Insurance, Science & Technology, etc.)
+    - 36 States and Union Territories with ISO codes and UT flags
+    - 50+ Ministries at both central and state levels
+    - Tags for scheme classification (Cash Transfer, Subsidy, Loan,
+      Scholarship, Training, Infrastructure, etc.)
+
+  Step 2 - Curated Schemes (ingest_hf.py):
+    Downloads and processes the Hugging Face dataset. Each scheme is:
+    - Parsed for structured fields (name, description, benefits, etc.)
+    - Mapped to existing categories using fuzzy matching
+    - Associated with relevant states via the scheme_states join table
+    - Assigned appropriate ministry links
+    - Tagged with relevant scheme type tags
+    - Saved with source='hf' for provenance tracking
+
+  Step 3 - State Schemes (ingest_state_schemes.py):
+    Processes the state-specific scheme collection covering 14 states
+    including Meghalaya, Mizoram, Nagaland, Manipur, Tripura, Sikkim,
+    Arunachal Pradesh, Goa, Jharkhand, Chhattisgarh, Uttarakhand, Himachal
+    Pradesh, Haryana, and Punjab. Each scheme includes complete metadata
+    and is mapped to the appropriate state and state-level ministry.
+
+  Step 4 - MyScheme.gov.in (ingest_myscheme.py):
+    The largest ingestion step, which:
+    - Calls the MyScheme API at https://api.myscheme.gov.in/search/v6/schemes
+    - Fetches schemes in paginated batches of 50
+    - Extracts and normalizes category names
+    - Maps state names (handling variations like "dadra & nagar haveli"
+      vs "Dadra and Nagar Haveli and Daman and Diu")
+    - Creates new ministry entries when encountered
+    - Performs deduplication based on scheme slug
+    - Marks source='myscheme' for provenance
+    - Is idempotent (safe to re-run without creating duplicates)
+
+  Step 5 - Embedding Generation (generate_embeddings.py):
+    After all scheme data is ingested, vector embeddings are generated:
+    - For each scheme, a text representation is composed:
+      "{scheme_name} {description} {benefits}"
+    - This text is sent to the Mistral Embed API to produce a
+      1024-dimensional vector
+    - The vector is stored in the scheme_embeddings table using pgvector
+    - A text hash is stored to detect when embeddings need regeneration
+    - Existing embeddings are skipped (incremental processing)
+
+  Step 6 - Pre-Translation (pre_translate.py):
+    Optionally pre-computes translations for scheme content:
+    - Translates scheme names and descriptions into Hindi (and optionally
+      other languages)
+    - Stores results in the scheme_translations table
+    - Reduces runtime translation latency for frequently accessed content
+    - Additional languages are translated on-demand and cached
+
+
+3.3  Data Quality and Normalization
+--------------------------------------------------------------------------------
+
+Several data quality measures are implemented across the ingestion pipeline:
+
+  Category Normalization:
+    Category names from different sources may use inconsistent formatting
+    (e.g., "Agriculture, Rural & Environment" vs "Agriculture,Rural &
+    Environment"). The ingestion scripts normalize category names by
+    standardizing comma spacing and matching against the seeded categories.
+
+  State Name Mapping:
+    State names vary across sources. A mapping dictionary handles variations
+    such as "Andaman & Nicobar Islands" vs "Andaman and Nicobar Islands",
+    "Dadra & Nagar Haveli" vs "Dadra and Nagar Haveli and Daman and Diu".
+
+  Deduplication:
+    Scheme slugs serve as unique identifiers. Before inserting a new scheme,
+    the ingestion scripts check for existing schemes with the same slug.
+    If found, the existing record is updated rather than duplicated.
+
+  Source Tracking:
+    Each scheme record includes a 'source' field indicating its data origin
+    (hf, myscheme, kaggle, datagov, state_specific). This enables data
+    quality analysis and source-specific updates.
+
+  Missing Data Handling:
+    Schemes with incomplete metadata are still ingested but with NULL values
+    for missing fields. The frontend gracefully handles missing data by
+    showing "Information not available" placeholders.
+
+
+================================================================================
+                    CHAPTER 4: SYSTEM TESTING
+================================================================================
+
+4.1  Testing Framework and Setup
+--------------------------------------------------------------------------------
+
+The project employs pytest as the primary testing framework with the following
+extensions:
+
+  - pytest-asyncio (0.24.0): Enables testing of async/await functions and
+    async database operations.
+  - pytest-benchmark (5.1.0): Provides benchmarking capabilities for
+    performance testing and regression detection.
+  - sacrebleu (2.4.3): Implements BLEU score evaluation for measuring
+    translation quality against reference translations.
+
+Test configuration is centralized in conftest.py, which provides shared
+fixtures including mock database sessions, sample scheme data, and test
+configuration overrides.
+
+
+4.2  Test Categories and Coverage
+--------------------------------------------------------------------------------
+
+4.2.1  Chatbot FSM Tests (test_chat_service.py)
+
+These tests validate the Finite State Machine that governs conversation flow:
+
+  - State transition correctness: Verifies that each (state, intent) pair
+    produces the expected next state. For example:
+      GREETING + search_scheme -> NEED_EXTRACTION
+      NEED_EXTRACTION + clarify -> NEED_EXTRACTION (stays in same state)
+      SCHEME_SEARCH + ask_detail -> SCHEME_DETAIL
+      ANY + goodbye -> CLOSING
+
+  - Edge cases: Tests invalid state-intent combinations to ensure graceful
+    handling without crashes.
+
+  - Context persistence: Validates that extracted entities (age, gender,
+    state) are correctly maintained across state transitions.
+
+
+4.2.2  Eligibility Matching Tests (test_eligibility.py)
+
+These tests verify the eligibility-checking algorithm:
+
+  - Demographic matching: Tests that user profiles with specific age, gender,
+    income, and caste criteria correctly match or exclude schemes.
+
+  - Boundary conditions: Validates age range boundaries (e.g., a user aged
+    exactly 18 matches a scheme with min_age=18).
+
+  - Multi-criteria matching: Tests scenarios where eligibility depends on
+    multiple simultaneous conditions (e.g., female + BPL + student).
+
+  - Empty/null criteria: Ensures schemes with unspecified criteria are not
+    incorrectly excluded.
+
+
+4.2.3  Search Algorithm Tests (test_search.py)
+
+These tests validate the Reciprocal Rank Fusion (RRF) implementation:
+
+  - Single list ranking: Verifies correct score calculation for results from
+    a single search strategy.
+
+  - Multi-list fusion: Tests that schemes appearing in multiple result lists
+    receive appropriately boosted scores.
+
+  - Score ordering: Validates that final results are correctly sorted by
+    fused RRF scores in descending order.
+
+  - Empty results: Tests behavior when one or more search strategies return
+    no results.
+
+
+4.2.4  API Endpoint Tests (test_schemes_api.py)
+
+These tests verify the REST API endpoints:
+
+  - Response format: Validates JSON response structure against Pydantic schemas.
+  - Pagination: Tests page_size and page parameters for correct result counts.
+  - Filtering: Validates category, state, level, and keyword filters.
+  - Error handling: Tests 404 responses for invalid slugs and 422 for malformed
+    requests.
+
+
+4.2.5  Performance Tests (test_performance.py)
+
+Benchmark tests for critical operations:
+
+  - Search latency: Measures time for keyword, semantic, and hybrid searches
+    under various query complexities.
+  - Database query performance: Benchmarks common database queries including
+    scheme listing, category aggregation, and embedding lookups.
+  - Translation throughput: Measures translation service response times.
+
+
+4.2.6  Search Quality Tests (test_search_quality.py)
+
+These tests evaluate search relevance:
+
+  - Known-good queries: Tests that specific queries return expected schemes
+    in the top results (e.g., "PM KISAN" should return the PM-KISAN scheme).
+  - Category relevance: Validates that category-specific searches return
+    schemes from the correct category.
+  - Semantic understanding: Tests that semantically similar but lexically
+    different queries return relevant results.
+
+
+4.2.7  Translation Tests (test_translate_service.py and test_translation_quality.py)
+
+  - Language support: Validates that all 12 supported languages produce
+    valid translations.
+  - Service fallback: Tests the translation tier fallback chain (Bhashini ->
+    IndicTrans -> Google Translate).
+  - BLEU score evaluation: Measures translation quality against reference
+    translations using the BLEU metric from the sacrebleu library.
+
+
+4.3  Test Execution
+--------------------------------------------------------------------------------
+
+Tests are executed using pytest from the backend directory:
+
+  pytest tests/                    # Run all tests
+  pytest tests/test_chat_service.py # Run specific test module
+  pytest --benchmark-only          # Run only benchmark tests
+
+The test suite is designed to be run in both local development and CI/CD
+environments. Mock objects are used for external service dependencies (Mistral
+API, Bhashini API) to ensure tests run without network access.
+
+
+================================================================================
+                  CHAPTER 5: RESULTS AND DISCUSSION
+================================================================================
+
+5.1  System Capabilities
+--------------------------------------------------------------------------------
+
+The completed SevanaGPT system delivers the following capabilities:
+
+  Scheme Knowledge Base:
+    - 4,600+ government schemes from central and state governments
+    - 15+ categories covering all major welfare domains
+    - 36 states and union territories represented
+    - 50+ ministries and departments catalogued
+    - Complete metadata for each scheme including eligibility, benefits,
+      application process, and required documents
+
+  Conversational AI:
+    - Natural language understanding for scheme-related queries
+    - Context-aware conversation with FSM-based state management
+    - Intent classification with 7 distinct intent categories
+    - Personalized scheme recommendations based on user context
+    - Quick-reply suggestions for guided interaction
+
+  Search and Discovery:
+    - Hybrid search combining keyword, semantic, and translation strategies
+    - Sub-second search response times for most queries
+    - Relevant results even for colloquial or non-standard query phrasing
+    - Search suggestions and autocomplete
+
+  Multilingual Access:
+    - Full UI localization in 12 Indian languages
+    - Real-time content translation with multi-tier fallback
+    - Translation caching for improved performance
+    - Voice interaction in all supported languages
+
+  Eligibility Matching:
+    - Profile-based scheme matching across 9 demographic parameters
+    - Ranked results by match quality
+    - Support for multi-criteria intersection queries
+
+
+5.2  User Interface Results
+--------------------------------------------------------------------------------
+
+The frontend provides a responsive, accessible interface that functions across
+devices:
+
+  Desktop Experience:
+    - Full navigation with category, state, and ministry browsing
+    - Side-panel chat widget for contextual assistance
+    - Detailed scheme pages with tabbed information sections
+    - Search with real-time autocomplete
+
+  Mobile Experience:
+    - Responsive layouts that adapt to smaller screens
+    - Touch-friendly chat interface with voice input
+    - Simplified navigation with hamburger menu
+    - Optimized scheme cards for vertical scrolling
+
+  Accessibility:
+    - Voice input and output for users with limited literacy
+    - Multilingual support reducing language barriers
+    - Clear visual hierarchy and readable typography
+    - Intuitive navigation patterns
+
+
+5.3  Search Performance
+--------------------------------------------------------------------------------
+
+The hybrid search engine demonstrates strong performance across different
+query types:
+
+  Keyword Queries:
+    Exact and partial keyword matches provide fast, accurate results for
+    users who know the scheme name or specific terminology.
+
+  Semantic Queries:
+    The 1024-dimensional Mistral embeddings capture conceptual relationships,
+    enabling queries like "help for poor farmers" to surface relevant
+    agricultural schemes even without exact keyword matches.
+
+  Cross-lingual Queries:
+    Translation-aware search enables users searching in Hindi or other
+    languages to discover schemes whose content is primarily in English.
+
+  Reciprocal Rank Fusion:
+    The RRF algorithm effectively combines results from all three strategies,
+    promoting schemes that rank well across multiple strategies and providing
+    more robust results than any single strategy alone.
+
+
+5.4  Chatbot Interaction Quality
+--------------------------------------------------------------------------------
+
+The FSM-based chatbot provides structured yet natural conversations:
+
+  Conversation Flow:
+    The finite state machine ensures conversations progress logically from
+    greeting through need extraction to scheme recommendation and detail
+    exploration. Users are guided without being rigidly constrained.
+
+  Intent Understanding:
+    Mistral AI's intent classification accurately identifies user goals in
+    most cases. The keyword fallback mechanism ensures basic functionality
+    even when the LLM service is unavailable.
+
+  Response Quality:
+    LLM-generated responses are contextual, informative, and appropriately
+    scoped. The prompt engineering ensures responses focus on scheme
+    information rather than generating unsupported claims.
+
+  Scheme Presentation:
+    Recommended schemes are presented as interactive cards within the chat
+    interface, allowing users to explore details without leaving the
+    conversation context.
+
+
+================================================================================
+                CHAPTER 6: EVALUATION AND ANALYSIS
+================================================================================
+
+6.1  Architecture Evaluation
+--------------------------------------------------------------------------------
+
+Modularity:
+  The service-oriented architecture with clear separation between routes,
+  services, and models enables independent development and testing of
+  components. New features (e.g., a new data source) can be added without
+  modifying existing code.
+
+Scalability:
+  The async-first approach using FastAPI and asyncpg enables handling
+  concurrent requests efficiently. The PostgreSQL database with proper
+  indexing supports large datasets. Docker Compose orchestration allows
+  horizontal scaling of individual services.
+
+Maintainability:
+  TypeScript on the frontend and Pydantic schemas on the backend provide
+  type safety. Alembic migrations ensure database schema changes are
+  versioned and reversible. The Makefile provides standardized development
+  commands.
+
+
+6.2  Search Quality Evaluation
+--------------------------------------------------------------------------------
+
+The hybrid search approach was evaluated against individual search strategies:
+
+  Keyword-Only:
+    Effective for exact matches but fails for semantically related queries.
+    Users must know the exact scheme name or terminology.
+
+  Semantic-Only:
+    Captures conceptual similarity but may surface loosely related results.
+    Works well for descriptive, natural language queries.
+
+  Hybrid (RRF):
+    Combines the precision of keyword search with the recall of semantic
+    search. Schemes matching both keyword and semantic criteria are ranked
+    highest, providing the best user experience.
+
+
+6.3  Translation Quality Evaluation
+--------------------------------------------------------------------------------
+
+Translation quality was assessed using BLEU scores against reference
+translations:
+
+  Bhashini NMT:
+    Provides high-quality translations for most Indian language pairs,
+    particularly for Hindi, Tamil, and Telugu.
+
+  IndicTrans2:
+    The AI4Bharat model shows strong performance for English-to-Indic
+    translation, particularly for formal/government language.
+
+  Google Translate Fallback:
+    Adequate for general content but may produce less accurate translations
+    for domain-specific government terminology.
+
+The multi-tier fallback architecture ensures translation is always available,
+with quality degrading gracefully rather than failing completely.
+
+
+6.4  Technology Stack Analysis
+--------------------------------------------------------------------------------
+
+  FastAPI (Backend):
+    Excellent choice for this project due to async support, automatic
+    documentation, and high performance. The Pydantic integration provides
+    robust input validation with minimal boilerplate.
+
+  Next.js (Frontend):
+    The App Router and Server Components enable efficient page rendering.
+    The file-based routing convention reduces configuration overhead.
+    TypeScript integration provides development-time error detection.
+
+  PostgreSQL + pgvector:
+    Consolidating relational data and vector embeddings in a single database
+    simplifies the architecture and eliminates the operational overhead of
+    managing a separate vector database. Query performance is adequate for
+    the current dataset size.
+
+  Mistral AI:
+    Provides capable intent classification and response generation at a
+    lower cost compared to larger models. The embedding model generates
+    high-quality 1024-dimensional vectors suitable for semantic search.
+
+  Docker Compose:
+    Enables reproducible multi-service deployment with a single command.
+    The GPU passthrough configuration for IndicTrans2 is well-supported.
+
+
+================================================================================
+              CHAPTER 7: CHALLENGES AND LIMITATIONS
+================================================================================
+
+7.1  Technical Challenges
+--------------------------------------------------------------------------------
+
+  Vector Search Scalability:
+    While pgvector performs well for the current dataset of 4,600+ schemes,
+    performance may degrade with significantly larger datasets. At scale,
+    approximate nearest neighbor (ANN) indexes (e.g., IVFFlat or HNSW in
+    pgvector) would need to be tuned or a dedicated vector database
+    considered.
+
+  LLM Dependency:
+    The chatbot's quality is directly tied to the Mistral AI API. Network
+    latency, API rate limits, and service outages can impact user experience.
+    While a Groq fallback is implemented, it uses a different model family
+    which may produce inconsistent responses.
+
+  Translation Accuracy:
+    Automated translation of government scheme content, which contains
+    legal and technical terminology, poses accuracy challenges. Machine
+    translation may not capture the precise meaning of eligibility criteria
+    or legal provisions, potentially leading to user confusion.
+
+  Voice Recognition in Noisy Environments:
+    The Bhashini ASR service performs well in controlled environments but
+    may struggle with background noise, regional accents, and code-mixed
+    speech (e.g., Hindi-English mixing), which is common among Indian users.
+
+  Data Freshness:
+    Government schemes are frequently updated, modified, or discontinued.
+    The current system requires manual re-ingestion to update scheme data.
+    There is no automated mechanism for detecting and incorporating scheme
+    changes in real-time.
+
+
+7.2  Limitations
+--------------------------------------------------------------------------------
+
+  No Scheme Application:
+    SevanaGPT is limited to scheme discovery and information. It does not
+    support actual scheme application or form submission. Users must visit
+    official portals to apply for schemes.
+
+  No Identity Verification:
+    The eligibility checker relies on self-reported user data. There is no
+    integration with Aadhaar, DigiLocker, or other identity verification
+    systems to validate user claims.
+
+  Limited Offline Support:
+    The application requires an active internet connection for all features.
+    There is no offline mode or progressive web app (PWA) functionality,
+    which limits access in areas with poor connectivity.
+
+  Single Language per Session:
+    While the application supports 12 languages, users must select one
+    language for their session. Code-mixed queries (e.g., mixing Hindi and
+    English) may not be handled optimally.
+
+  No Personalization Persistence:
+    User preferences and eligibility profiles are not persisted across
+    sessions. Each visit requires re-entering demographic information for
+    eligibility checking.
+
+  No Mobile Native App:
+    The current implementation is a responsive web application. A native
+    mobile application could provide better voice interaction, push
+    notifications for new schemes, and offline caching.
+
+  GPU Requirement for IndicTrans:
+    The IndicTrans2 translation microservice requires GPU hardware for
+    efficient operation. This increases deployment costs and limits hosting
+    options.
+
+
+================================================================================
+            CHAPTER 8: CONCLUSION AND FUTURE SCOPE
+================================================================================
+
+8.1  Conclusion
+--------------------------------------------------------------------------------
+
+SevanaGPT successfully demonstrates that AI and modern web technologies can
+significantly improve the accessibility of government welfare scheme information
+for Indian citizens. The project addresses the critical gap between the
+availability of thousands of welfare schemes and citizens' awareness of their
+entitlements.
+
+The key accomplishments of this project include:
+
+  1. Comprehensive Scheme Knowledge Base: Successfully aggregated 4,600+
+     schemes from five different data sources into a unified, searchable
+     database with complete metadata.
+
+  2. Intelligent Search: The hybrid search engine combining keyword, semantic,
+     and translation-aware strategies with Reciprocal Rank Fusion provides
+     accurate and relevant results across diverse query types and languages.
+
+  3. Conversational AI: The FSM-based chatbot provides structured yet natural
+     conversations that guide users from vague needs to specific scheme
+     recommendations, making the discovery process intuitive.
+
+  4. Multilingual Inclusivity: Support for 12 Indian languages with a
+     multi-tier translation architecture ensures that language is not a
+     barrier to accessing scheme information.
+
+  5. Voice Accessibility: Integration with Bhashini ASR/TTS enables voice-
+     based interaction, extending access to users with limited text literacy.
+
+  6. Production-Ready Architecture: The containerized microservices
+     architecture with Docker Compose, async-first design, rate limiting,
+     and performance monitoring demonstrates production-grade engineering
+     practices.
+
+The project validates the thesis that conversational AI, combined with robust
+data aggregation and multilingual capabilities, can democratize access to
+government services and empower citizens to claim their rightful benefits.
+
+
+8.2  Future Scope
+--------------------------------------------------------------------------------
+
+Several enhancements are planned or envisioned for future development:
+
+  1. Scheme Application Integration:
+     Integrate with government portals to enable end-to-end scheme
+     application directly through SevanaGPT, reducing the friction of
+     navigating to external websites.
+
+  2. Aadhaar/DigiLocker Integration:
+     Implement identity verification to auto-fill eligibility profiles
+     and enable verified scheme applications.
+
+  3. Real-Time Data Updates:
+     Develop an automated monitoring system that detects changes in
+     government scheme portals and updates the knowledge base in near
+     real-time.
+
+  4. Mobile Native Application:
+     Build native Android and iOS applications with enhanced voice
+     interaction, push notifications for new or updated schemes, and
+     offline caching of previously viewed schemes.
+
+  5. Progressive Web App (PWA):
+     Implement PWA capabilities for offline access, home screen
+     installation, and background sync.
+
+  6. Personalized User Profiles:
+     Allow users to create accounts and save their demographic profiles,
+     enabling persistent eligibility matching and proactive notifications
+     when new matching schemes are announced.
+
+  7. Community Features:
+     Add scheme reviews, success stories, and community forums where
+     beneficiaries can share their experiences and help others navigate
+     the application process.
+
+  8. Analytics Dashboard:
+     Build an administrative dashboard showing search trends, popular
+     schemes, regional demand patterns, and user engagement metrics to
+     inform policy decisions.
+
+  9. Advanced NLP Capabilities:
+     Incorporate code-mixed language understanding (Hinglish, Tanglish,
+     etc.), dialect recognition, and more sophisticated intent
+     classification using fine-tuned models.
+
+  10. WhatsApp/Telegram Integration:
+      Extend the chatbot to messaging platforms where users already spend
+      their time, eliminating the need to visit a separate website.
+
+  11. Document Assistance:
+      Help users understand and prepare the documents required for scheme
+      applications, including guidance on obtaining certificates and
+      filling forms.
+
+  12. Scheme Comparison:
+      Enable side-by-side comparison of similar schemes to help users
+      choose the most beneficial option.
+
+
+================================================================================
+                            REFERENCES
+================================================================================
+
+  1. MyScheme - Government of India
+     https://www.myscheme.gov.in
+
+  2. FastAPI Documentation
+     https://fastapi.tiangolo.com
+
+  3. Next.js Documentation
+     https://nextjs.org/docs
+
+  4. PostgreSQL and pgvector
+     https://github.com/pgvector/pgvector
+
+  5. Mistral AI Platform
+     https://docs.mistral.ai
+
+  6. Bhashini - AI-based Language Technology Solutions
+     https://bhashini.gov.in
+
+  7. IndicTrans2: Towards High-Quality and Accessible Machine Translation
+     Models for all 22 Scheduled Indian Languages
+     AI4Bharat, 2023
+
+  8. Reciprocal Rank Fusion (RRF)
+     Cormack, G.V., Clarke, C.L.A., Buettcher, S. (2009). Reciprocal Rank
+     Fusion Outperforms Condorcet and Individual Rank Learning Methods.
+     SIGIR 2009.
+
+  9. SQLAlchemy 2.0 Documentation
+     https://docs.sqlalchemy.org
+
+  10. Tailwind CSS Documentation
+      https://tailwindcss.com/docs
+
+  11. Docker Compose Documentation
+      https://docs.docker.com/compose
+
+  12. data.gov.in - Open Government Data Platform India
+      https://data.gov.in
+
+
+================================================================================
+                          END OF REPORT
+================================================================================

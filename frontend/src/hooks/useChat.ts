@@ -1,14 +1,22 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { sendChatMessage } from "@/lib/api";
 import { useLanguage } from "@/context/LanguageContext";
 import type { ChatMessage } from "@/lib/types";
 
+let sessionCounter = 0;
+
 export function useChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
-  const [sessionId] = useState(() => `session_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
+  const sessionIdRef = useRef<string>("");
+  if (!sessionIdRef.current) {
+    sessionIdRef.current = typeof window !== "undefined"
+      ? `session_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+      : `session_ssr_${++sessionCounter}`;
+  }
+  const sessionId = sessionIdRef.current;
   const { language, t } = useLanguage();
 
   const sendMessage = useCallback(
@@ -46,21 +54,6 @@ export function useChat() {
     [loading, sessionId, language, t]
   );
 
-  const addVoiceResponse = useCallback(
-    (transcript: string, reply: string, audioBase64?: string, schemes?: ChatMessage["schemes"], suggestions?: ChatMessage["suggestions"]) => {
-      const userMsg: ChatMessage = { role: "user", content: transcript };
-      const assistantMsg: ChatMessage = {
-        role: "assistant",
-        content: reply,
-        schemes,
-        suggestions,
-        audioBase64: audioBase64 || undefined,
-      };
-      setMessages((prev) => [...prev, userMsg, assistantMsg]);
-    },
-    []
-  );
-
   const reset = useCallback(() => {
     setMessages([]);
     fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1"}/chat/reset/${sessionId}`, {
@@ -68,5 +61,5 @@ export function useChat() {
     }).catch(() => {});
   }, [sessionId]);
 
-  return { messages, loading, setLoading, sendMessage, addVoiceResponse, reset, sessionId };
+  return { messages, loading, sendMessage, reset, sessionId };
 }

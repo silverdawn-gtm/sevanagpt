@@ -4,24 +4,14 @@ import { useState, useRef, useEffect } from "react";
 import VoiceButton from "./VoiceButton";
 import { useLanguage } from "@/context/LanguageContext";
 
-interface VoiceResponse {
-  transcript: string;
-  reply: string;
-  reply_audio_base64: string | null;
-  schemes: unknown[];
-  suggestions: { text: string }[];
-  session_id: string;
-}
-
 interface ChatInputProps {
   onSend: (message: string) => void;
-  onVoiceResponse?: (response: VoiceResponse) => void;
   disabled?: boolean;
   suggestions?: { text: string }[];
-  sessionId?: string;
+  language: string;
 }
 
-export default function ChatInput({ onSend, onVoiceResponse, disabled, suggestions, sessionId }: ChatInputProps) {
+export default function ChatInput({ onSend, disabled, suggestions, language }: ChatInputProps) {
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const { t } = useLanguage();
@@ -74,13 +64,7 @@ export default function ChatInput({ onSend, onVoiceResponse, disabled, suggestio
           rows={1}
           className="flex-1 px-4 py-2 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:bg-gray-50"
         />
-        {sessionId && onVoiceResponse && (
-          <VoiceButton
-            onVoiceResponse={onVoiceResponse}
-            disabled={disabled}
-            sessionId={sessionId}
-          />
-        )}
+        <VoiceButton onSend={onSend} language={language} disabled={disabled} />
         <button
           type="submit"
           disabled={disabled || !input.trim()}

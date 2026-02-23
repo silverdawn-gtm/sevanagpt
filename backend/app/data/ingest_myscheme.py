@@ -91,7 +91,7 @@ async def fetch_all_schemes() -> list[dict]:
     all_items = []
     offset = 0
 
-    async with httpx.AsyncClient(timeout=30.0) as client:
+    async with httpx.AsyncClient(timeout=30.0, verify=False) as client:
         # First request to get the total count
         resp = await client.get(
             f"{API_BASE}/schemes",
@@ -304,13 +304,16 @@ async def ingest():
             # Collect state and tag IDs for batch insert after flush
             state_ids = set()
             state_names = fields.get("beneficiaryState", [])
-            for state_name in state_names:
-                if state_name == "All":
-                    continue
-                normalized_name = normalize_state_name(state_name)
-                state_obj = states_lookup.get(normalized_name.lower().strip())
-                if state_obj:
-                    state_ids.add(state_obj.id)
+            has_all = "All" in state_names
+            if has_all or level == "central":
+                # Central/national schemes apply to all states
+                state_ids = {s.id for s in states_lookup.values()}
+            else:
+                for state_name in state_names:
+                    normalized_name = normalize_state_name(state_name)
+                    state_obj = states_lookup.get(normalized_name.lower().strip())
+                    if state_obj:
+                        state_ids.add(state_obj.id)
 
             tag_ids = set()
             tag_names = fields.get("tags", [])

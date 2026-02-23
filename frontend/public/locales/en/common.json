@@ -86,8 +86,11 @@
     "years": "years",
     "faqs": "FAQs",
     "yes": "Yes",
+    "no": "No",
     "featured": "Featured",
-    "match": "match"
+    "match": "match",
+    "listen": "Listen",
+    "stop": "Stop"
   },
   "eligibility": {
     "title": "Find Schemes For You",

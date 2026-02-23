@@ -1,0 +1,6 @@
+torch>=2.1.0
+transformers>=4.35.0
+IndicTransToolkit
+sentencepiece
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0

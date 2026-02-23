@@ -18,12 +18,13 @@ export default function StateDetailPage() {
   const [schemes, setSchemes] = useState<SchemeListItem[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
+  const [level, setLevel] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!params.slug) return;
     setLoading(true);
-    getState(params.slug, language, page, PAGE_SIZE)
+    getState(params.slug, language, page, PAGE_SIZE, level)
       .then((data) => {
         setState(data.state);
         setSchemes(data.schemes);
@@ -31,9 +32,9 @@ export default function StateDetailPage() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [params.slug, language, page]);
+  }, [params.slug, language, page, level]);
 
-  useEffect(() => { setPage(1); }, [language]);
+  useEffect(() => { setPage(1); }, [language, level]);
 
   if (loading) {
     return <div className="max-w-7xl mx-auto px-4 py-8 text-center text-gray-500">{t("schemes_page.loading")}</div>;
@@ -54,7 +55,28 @@ export default function StateDetailPage() {
       </nav>
 
       <h1 className="text-3xl font-bold text-gray-900 mb-2">{state.name}</h1>
-      <p className="text-gray-600 mb-8">{total} {t("browse.schemes")}</p>
+      <p className="text-gray-600 mb-4">{total} {t("browse.schemes")}</p>
+
+      <div className="flex items-center gap-2 mb-6">
+        <button
+          onClick={() => setLevel("")}
+          className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${level === "" ? "bg-emerald-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
+        >
+          {t("common.all_levels")}
+        </button>
+        <button
+          onClick={() => setLevel("state")}
+          className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${level === "state" ? "bg-emerald-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
+        >
+          {t("common.state")} {t("browse.schemes")}
+        </button>
+        <button
+          onClick={() => setLevel("central")}
+          className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${level === "central" ? "bg-emerald-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
+        >
+          {t("common.central")} {t("browse.schemes")}
+        </button>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {schemes.map((scheme) => (

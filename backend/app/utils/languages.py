@@ -18,12 +18,13 @@ LANGUAGE_MAP = {
     "sa": {"code": "sa", "name": "Sanskrit", "native": "संस्कृतम्"},
     "ne": {"code": "ne", "name": "Nepali", "native": "नेपाली"},
     "sd": {"code": "sd", "name": "Sindhi", "native": "سنڌي"},
-    "ks": {"code": "ks", "name": "Kashmiri", "native": "कॉशुर"},
     "doi": {"code": "doi", "name": "Dogri", "native": "डोगरी"},
     "mai": {"code": "mai", "name": "Maithili", "native": "मैथिली"},
     "mni": {"code": "mni", "name": "Manipuri", "native": "মৈতৈলোন্"},
     "sat": {"code": "sat", "name": "Santali", "native": "ᱥᱟᱱᱛᱟᱲᱤ"},
-    "bo": {"code": "bo", "name": "Bodo", "native": "बड़ो"},
+    "bodo": {"code": "bodo", "name": "Bodo", "native": "बड़ो"},
+    "kok": {"code": "kok", "name": "Konkani", "native": "कोंकणी"},
+    "lus": {"code": "lus", "name": "Mizo", "native": "Mizo ṭawng"},
 }
 
 SUPPORTED_LANGUAGES = list(LANGUAGE_MAP.keys())

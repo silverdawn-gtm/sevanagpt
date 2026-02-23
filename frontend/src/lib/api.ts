@@ -66,8 +66,8 @@ export async function getStates(lang?: string) {
   return fetchAPI<import("./types").State[]>(`/states${qs ? `?${qs}` : ""}`);
 }
 
-export async function getState(slug: string, lang?: string, page?: number, pageSize?: number) {
-  const qs = buildQS({ lang: lang !== "en" ? lang : undefined, page, page_size: pageSize });
+export async function getState(slug: string, lang?: string, page?: number, pageSize?: number, level?: string) {
+  const qs = buildQS({ lang: lang !== "en" ? lang : undefined, page, page_size: pageSize, level: level || undefined });
   return fetchAPI<{ state: import("./types").State; schemes: import("./types").SchemeListItem[]; total?: number }>(
     `/states/${slug}${qs}`
   );

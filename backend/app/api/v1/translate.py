@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.services.bhashini_service import translate_text
+from app.services.translate_service import translate_text
 from app.utils.languages import LANGUAGE_MAP
 
 router = APIRouter(tags=["translate"])
@@ -23,7 +23,7 @@ class TranslateResponse(BaseModel):
 
 @router.post("/translate", response_model=TranslateResponse)
 async def translate(body: TranslateRequest, db: AsyncSession = Depends(get_db)):
-    translated = await translate_text(body.text, body.src_lang, body.tgt_lang, session=db)
+    translated = await translate_text(body.text, body.tgt_lang, db=db)
     return TranslateResponse(
         translated_text=translated,
         src_lang=body.src_lang,

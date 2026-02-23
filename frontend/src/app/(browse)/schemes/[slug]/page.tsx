@@ -6,6 +6,7 @@ import Link from "next/link";
 import { getScheme } from "@/lib/api";
 import type { SchemeDetail } from "@/lib/types";
 import { useLanguage } from "@/context/LanguageContext";
+import ReadAloudButton from "@/components/ui/ReadAloudButton";
 
 export default function SchemeDetailPage() {
   const params = useParams<{ slug: string }>();
@@ -100,7 +101,10 @@ export default function SchemeDetailPage() {
         (section) =>
           section.content && (
             <div key={section.key} className="bg-white border border-gray-200 rounded-lg p-6 mb-4">
-              <h2 className="text-lg font-semibold text-gray-900 mb-3">{t(`scheme_detail.${section.key}`)}</h2>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lg font-semibold text-gray-900">{t(`scheme_detail.${section.key}`)}</h2>
+                <ReadAloudButton text={section.content} />
+              </div>
               <div className="text-gray-700 whitespace-pre-line">{section.content}</div>
             </div>
           )
@@ -136,7 +140,7 @@ export default function SchemeDetailPage() {
             {scheme.target_income_max && (
               <div>
                 <div className="text-xs text-gray-500 uppercase">{t("scheme_detail.max_income")}</div>
-                <div className="text-sm font-medium">Rs. {scheme.target_income_max.toLocaleString()}</div>
+                <div className="text-sm font-medium">Rs. {scheme.target_income_max.toLocaleString("en-IN")}</div>
               </div>
             )}
             {scheme.is_disability && (

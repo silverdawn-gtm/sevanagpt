@@ -30,7 +30,6 @@ class Message(Base):
     role = Column(String(20), nullable=False)  # user / assistant
     content = Column(Text, nullable=False)  # English
     content_original = Column(Text, nullable=True)  # user's language
-    audio_url = Column(String(1000), nullable=True)
     extra = Column("extra", JSONB, default=dict)
     created_at = Column(DateTime, server_default=func.now())
 

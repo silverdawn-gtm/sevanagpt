@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: myscheme_dev
       POSTGRES_DB: myscheme
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -30,8 +30,8 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://myscheme:myscheme_dev@db:5432/myscheme
       MISTRAL_API_KEY: ${MISTRAL_API_KEY:-}
-      BHASHINI_USER_ID: ${BHASHINI_USER_ID:-}
-      BHASHINI_API_KEY: ${BHASHINI_API_KEY:-}
+      # IndicTrans2 runs standalone; point to host machine
+      INDICTRANS_URL: ${INDICTRANS_URL:-}
       CORS_ORIGINS: '["http://localhost:3000"]'
     depends_on:
       db:

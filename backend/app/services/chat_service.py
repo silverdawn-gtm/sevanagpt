@@ -19,6 +19,8 @@ from app.models import Conversation, Message, Scheme
 from app.schemas.scheme import SchemeListItem
 from app.services.mistral_service import chat_complete, chat_configured, classify_intent
 from app.services.search_service import hybrid_search
+from app.services.translate_service import translate_text
+from app.utils.scheme_translate import translate_scheme_list_items
 
 # ── Language-aware suggestions ──────────────────────────────────────
 
@@ -462,6 +464,21 @@ async def process_message(
     context = conversation.context or {}
     current_state = ChatState(conversation.fsm_state)
 
+    # Translate user message to English for search/intent (keep original for display)
+    message_for_llm = user_message
+    if language != "en":
+        try:
+            from deep_translator import GoogleTranslator
+            import asyncio
+            en_msg = await asyncio.to_thread(
+                GoogleTranslator(source=language, target="en").translate,
+                user_message[:500],
+            )
+            if en_msg:
+                message_for_llm = en_msg
+        except Exception:
+            pass
+
     # Save user message
     session.add(Message(
         id=uuid.uuid4(),
@@ -471,10 +488,10 @@ async def process_message(
         content_original=user_message,
     ))
 
-    # Classify intent
+    # Classify intent (use English version for better accuracy)
     intent_data = {"intent": "other", "entities": {}}
     try:
-        intent_data = await classify_intent(user_message, str(context))
+        intent_data = await classify_intent(message_for_llm, str(context))
     except Exception:
         # Fallback: multilingual keyword-based classification
         msg_lower = user_message.lower()
@@ -514,7 +531,7 @@ async def process_message(
         system_prompt = need_extraction_prompt(context, language)
 
     elif next_state == ChatState.SCHEME_SEARCH:
-        search_query = user_message
+        search_query = message_for_llm  # Use English for better search results
         if context.get("category"):
             search_query += f" {context['category']}"
 
@@ -539,6 +556,8 @@ async def process_message(
             SchemeListItem.model_validate(scheme)
             for scheme, _ in schemes_result[:5]
         ]
+        if language != "en" and scheme_cards:
+            scheme_cards = await translate_scheme_list_items(scheme_cards, language, session)
         if schemes_result:
             suggestions = [
                 {"text": f"Tell me more about {schemes_result[0][0].name}"}
@@ -575,6 +594,8 @@ async def process_message(
         if scheme:
             system_prompt = scheme_detail_prompt(format_scheme_detail(scheme), language)
             scheme_cards = [SchemeListItem.model_validate(scheme)]
+            if language != "en":
+                scheme_cards = await translate_scheme_list_items(scheme_cards, language, session)
         else:
             system_prompt = need_extraction_prompt(context, language)
 
@@ -609,6 +630,15 @@ async def process_message(
             reply = _get_fallback(FALLBACK_CLOSING, language)
         else:
             reply = _get_fallback(FALLBACK_DEFAULT, language)
+
+    # Translate reply to user's language if LLM responded in English
+    if language != "en" and reply.isascii():
+        try:
+            translated_reply = await translate_text(reply, language, session)
+            if translated_reply and translated_reply != reply:
+                reply = translated_reply
+        except Exception:
+            pass
 
     # Save assistant message
     session.add(Message(
