@@ -27,7 +27,7 @@ export default function MinistryDetailPage() {
       .then((data) => {
         setMinistry(data.ministry);
         setSchemes(data.schemes);
-        setTotal(data.total ?? data.schemes.length);
+        setTotal(data.total !== undefined ? data.total : data.schemes.length);
       })
       .catch(() => {})
       .finally(() => setLoading(false));

@@ -60,6 +60,14 @@ export interface SchemeDetail extends SchemeListItem {
   is_disability: boolean | null;
   is_student: boolean | null;
   is_bpl: boolean | null;
+  // Link enrichment fields
+  extra_details: Record<string, unknown> | null;
+  link_status: string | null;
+  link_checked_at: string | null;
+  launch_date: string | null;
+  application_deadline: string | null;
+  helpline: string | null;
+  benefit_type: string | null;
   status: string;
   ministry: Ministry | null;
   states: State[];
@@ -78,7 +86,6 @@ export interface PaginatedSchemes {
 export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
-  content_original?: string;
   schemes?: SchemeListItem[];
   suggestions?: { text: string }[];
 }

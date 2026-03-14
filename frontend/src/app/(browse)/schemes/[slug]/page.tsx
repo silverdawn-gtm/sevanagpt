@@ -96,6 +96,39 @@ export default function SchemeDetailPage() {
         </a>
       </div>
 
+      {/* Scheme Info Card - launch date, helpline, benefit type, deadline */}
+      {(scheme.launch_date || scheme.application_deadline || scheme.helpline || scheme.benefit_type) && (
+        <div className="bg-white border border-gray-200 rounded-lg p-6 mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 mb-3">{t("scheme_detail.scheme_info")}</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {scheme.launch_date && (
+              <div>
+                <div className="text-xs text-gray-500 uppercase">{t("scheme_detail.launch_date")}</div>
+                <div className="text-sm font-medium">{new Date(scheme.launch_date).toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" })}</div>
+              </div>
+            )}
+            {scheme.application_deadline && (
+              <div>
+                <div className="text-xs text-gray-500 uppercase">{t("scheme_detail.deadline")}</div>
+                <div className="text-sm font-medium">{new Date(scheme.application_deadline).toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" })}</div>
+              </div>
+            )}
+            {scheme.benefit_type && (
+              <div>
+                <div className="text-xs text-gray-500 uppercase">{t("scheme_detail.benefit_type")}</div>
+                <div className="text-sm font-medium">{scheme.benefit_type}</div>
+              </div>
+            )}
+            {scheme.helpline && (
+              <div className="col-span-2 md:col-span-3">
+                <div className="text-xs text-gray-500 uppercase">{t("scheme_detail.helpline")}</div>
+                <div className="text-sm font-medium">{scheme.helpline}</div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Content Sections */}
       {sectionKeys.map(
         (section) =>
@@ -118,7 +151,7 @@ export default function SchemeDetailPage() {
             {scheme.target_gender && (
               <div>
                 <div className="text-xs text-gray-500 uppercase">{t("scheme_detail.gender")}</div>
-                <div className="text-sm font-medium capitalize">{scheme.target_gender.join(", ")}</div>
+                <div className="text-sm font-medium capitalize">{(scheme.target_gender ?? []).join(", ")}</div>
               </div>
             )}
             {(scheme.min_age || scheme.max_age) && (
@@ -134,7 +167,7 @@ export default function SchemeDetailPage() {
             {scheme.target_social_category && (
               <div>
                 <div className="text-xs text-gray-500 uppercase">{t("scheme_detail.social_category")}</div>
-                <div className="text-sm font-medium">{scheme.target_social_category.join(", ")}</div>
+                <div className="text-sm font-medium">{(scheme.target_social_category ?? []).join(", ")}</div>
               </div>
             )}
             {scheme.target_income_max && (

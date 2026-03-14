@@ -90,7 +90,12 @@
     "featured": "ବିଶେଷ",
     "match": "ମେଳ",
     "listen": "ଶୁଣନ୍ତୁ",
-    "stop": "ବନ୍ଦ କରନ୍ତୁ"
+    "stop": "ବନ୍ଦ କରନ୍ତୁ",
+    "scheme_info": "ଯୋଜନା ସୂଚନା",
+    "launch_date": "ଆରମ୍ଭ ତାରିଖ",
+    "deadline": "ଆବେଦନ ଶେଷ ତାରିଖ",
+    "benefit_type": "ଲାଭ ପ୍ରକାର",
+    "helpline": "ହେଲ୍ପଲାଇନ୍"
   },
   "eligibility": {
     "title": "ଆପଣଙ୍କ ପାଇଁ ଯୋଜନା ଖୋଜନ୍ତୁ",

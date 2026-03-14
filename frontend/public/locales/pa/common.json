@@ -90,7 +90,12 @@
     "featured": "ਵਿਸ਼ੇਸ਼",
     "match": "ਮੇਲ",
     "listen": "ਸੁਣੋ",
-    "stop": "ਰੋਕੋ"
+    "stop": "ਰੋਕੋ",
+    "scheme_info": "ਯੋਜਨਾ ਜਾਣਕਾਰੀ",
+    "launch_date": "ਸ਼ੁਰੂਆਤ ਮਿਤੀ",
+    "deadline": "ਅਰਜ਼ੀ ਦੀ ਆਖਰੀ ਮਿਤੀ",
+    "benefit_type": "ਲਾਭ ਦੀ ਕਿਸਮ",
+    "helpline": "ਹੈਲਪਲਾਈਨ"
   },
   "eligibility": {
     "title": "ਤੁਹਾਡੇ ਲਈ ਯੋਜਨਾਵਾਂ ਲੱਭੋ",

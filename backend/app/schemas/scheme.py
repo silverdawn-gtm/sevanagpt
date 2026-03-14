@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import date, datetime
+from typing import Any
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -83,6 +84,16 @@ class SchemeDetail(BaseModel):
     is_disability: bool | None = None
     is_student: bool | None = None
     is_bpl: bool | None = None
+    # Link enrichment fields
+    extra_details: dict[str, Any] | None = None
+    link_status: str | None = None
+    link_checked_at: datetime | None = None
+    launch_date: date | None = None
+    application_deadline: date | None = None
+    helpline: str | None = None
+    benefit_type: str | None = None
+
+    source: str = "manual"
     status: str = "active"
     featured: bool = False
     category: CategoryOut | None = None
@@ -91,6 +102,7 @@ class SchemeDetail(BaseModel):
     tags: list[TagOut] = []
     faqs: list[FAQOut] = []
     created_at: datetime | None = None
+    updated_at: datetime | None = None
 
     model_config = {"from_attributes": True}
 

@@ -5,6 +5,7 @@ from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
     Boolean,
     Column,
+    Date,
     DateTime,
     Float,
     ForeignKey,
@@ -115,9 +116,18 @@ class Scheme(Base):
     is_student = Column(Boolean, nullable=True)
     is_bpl = Column(Boolean, nullable=True)
 
+    # Link enrichment fields
+    extra_details = Column(JSONB, nullable=True)
+    link_status = Column(String(20), nullable=True)  # working/broken/unknown/redirected
+    link_checked_at = Column(DateTime, nullable=True)
+    launch_date = Column(Date, nullable=True)
+    application_deadline = Column(Date, nullable=True)
+    helpline = Column(String(500), nullable=True)
+    benefit_type = Column(String(50), nullable=True)  # Cash/In Kind/Composite
+
     status = Column(String(20), default="active")
     featured = Column(Boolean, default=False)
-    source = Column(String(50), default="manual")  # manual, kaggle, datagov, huggingface
+    source = Column(String(50), default="manual")  # manual, kaggle, datagov, huggingface, myscheme, embedded
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 

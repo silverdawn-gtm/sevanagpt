@@ -90,7 +90,12 @@
     "featured": "نماياں",
     "match": "ملاپ",
     "listen": "ٻڌو",
-    "stop": "بند ڪريو"
+    "stop": "بند ڪريو",
+    "scheme_info": "اسڪيم جي ڄاڻ",
+    "launch_date": "شروعات تاريخ",
+    "deadline": "درخواست آخري تاريخ",
+    "benefit_type": "فائدي جو قسم",
+    "helpline": "هيلپ لائين"
   },
   "eligibility": {
     "title": "پنهنجي لاءِ اسڪيمون ڳوليو",

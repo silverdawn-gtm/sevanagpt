@@ -16,9 +16,14 @@ _client: httpx.AsyncClient | None = None
 
 def _get_client() -> httpx.AsyncClient | None:
     global _client
-    if not settings.INDICTRANS_URL or not settings.INDICTRANS_ENABLED:
+    if not settings.INDICTRANS_ENABLED:
+        logger.debug("IndicTrans2 disabled via INDICTRANS_ENABLED=false")
+        return None
+    if not settings.INDICTRANS_URL:
+        logger.debug("IndicTrans2 disabled: INDICTRANS_URL is empty")
         return None
     if _client is None:
+        logger.info("Initializing IndicTrans2 client at %s", settings.INDICTRANS_URL)
         _client = httpx.AsyncClient(base_url=settings.INDICTRANS_URL)
     return _client
 

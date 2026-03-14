@@ -90,7 +90,12 @@
     "featured": "Featured",
     "match": "match",
     "listen": "Listen",
-    "stop": "Stop"
+    "stop": "Stop",
+    "scheme_info": "Scheme Information",
+    "launch_date": "Launch Date",
+    "deadline": "Application Deadline",
+    "benefit_type": "Benefit Type",
+    "helpline": "Helpline"
   },
   "eligibility": {
     "title": "Find Schemes For You",

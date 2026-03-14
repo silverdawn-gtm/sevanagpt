@@ -90,7 +90,12 @@
     "featured": "વિશેષ",
     "match": "મેળ",
     "listen": "સાંભળો",
-    "stop": "રોકો"
+    "stop": "રોકો",
+    "scheme_info": "યોજનાની માહિતી",
+    "launch_date": "શરૂઆત તારીખ",
+    "deadline": "અરજીની છેલ્લી તારીખ",
+    "benefit_type": "લાભનો પ્રકાર",
+    "helpline": "હેલ્પલાઇન"
   },
   "eligibility": {
     "title": "તમારા માટે યોજનાઓ શોધો",

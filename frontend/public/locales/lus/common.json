@@ -90,7 +90,12 @@
     "featured": "Langsar",
     "match": "inhmeh",
     "listen": "Ngai rawh",
-    "stop": "Chawlh rawh"
+    "stop": "Chawlh rawh",
+    "scheme_info": "Scheme thuchhuah",
+    "launch_date": "Tan ni",
+    "deadline": "Thawn theih hun tawp ni",
+    "benefit_type": "Hlawkna chi",
+    "helpline": "Helpline"
   },
   "eligibility": {
     "title": "I Tan Scheme-te Zawn Rawh",

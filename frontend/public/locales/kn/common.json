@@ -90,7 +90,12 @@
     "featured": "ವಿಶೇಷ",
     "match": "ಹೊಂದಾಣಿಕೆ",
     "listen": "ಕೇಳಿ",
-    "stop": "ನಿಲ್ಲಿಸಿ"
+    "stop": "ನಿಲ್ಲಿಸಿ",
+    "scheme_info": "ಯೋಜನೆ ಮಾಹಿತಿ",
+    "launch_date": "ಆರಂಭ ದಿನಾಂಕ",
+    "deadline": "ಅರ್ಜಿ ಗಡುವು",
+    "benefit_type": "ಪ್ರಯೋಜನ ವಿಧ",
+    "helpline": "ಸಹಾಯವಾಣಿ"
   },
   "eligibility": {
     "title": "ನಿಮಗಾಗಿ ಯೋಜನೆಗಳನ್ನು ಹುಡುಕಿ",

@@ -50,5 +50,14 @@ services:
     depends_on:
       - backend
 
+  indictrans:
+    build:
+      context: ./indictrans
+      dockerfile: Dockerfile
+    container_name: myscheme-indictrans
+    restart: unless-stopped
+    ports:
+      - "7860:7860"
+
 volumes:
   pgdata:

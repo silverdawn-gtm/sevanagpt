@@ -90,7 +90,12 @@
     "featured": "ᱢᱩᱞ",
     "match": "ᱢᱤᱞᱟᱹᱣ",
     "listen": "ᱟᱸᱡᱚᱢ ᱢᱮ",
-    "stop": "ᱛᱷᱟᱢᱟ ᱢᱮ"
+    "stop": "ᱛᱷᱟᱢᱟ ᱢᱮ",
+    "scheme_info": "ᱡᱚᱡᱚᱢ ᱠᱷᱚᱵᱚᱨ",
+    "launch_date": "ᱮᱦᱚᱵ ᱢᱟᱦᱟᱸ",
+    "deadline": "ᱟᱨᱡᱤ ᱢᱩᱪᱟᱹᱫ ᱢᱟᱦᱟᱸ",
+    "benefit_type": "ᱞᱟᱵᱷ ᱨᱮᱭᱟᱜ",
+    "helpline": "ᱜᱚᱲᱚ ᱞᱟᱭᱤᱱ"
   },
   "eligibility": {
     "title": "ᱟᱢᱟᱜ ᱞᱟᱹᱜᱤᱫ ᱡᱚᱡᱚᱱᱟ ᱠᱚ ᱯᱟᱱᱛᱮ ᱢᱮ",

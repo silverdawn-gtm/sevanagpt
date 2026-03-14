@@ -25,5 +25,6 @@ class ChatHistoryMessage(BaseModel):
     role: str
     content: str
     content_original: str | None = None
+    extra: dict | None = None
 
     model_config = {"from_attributes": True}

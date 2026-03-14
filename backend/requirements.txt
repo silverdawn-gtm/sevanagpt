@@ -12,6 +12,13 @@ kaggle==1.6.17
 pandas==2.2.3
 deep-translator==1.11.4
 
+# Link extraction & enrichment
+playwright==1.49.0
+beautifulsoup4==4.12.3
+tqdm==4.67.0
+duckduckgo-search>=7.0.0
+datasets==3.2.0
+
 # Testing
 pytest==8.3.4
 pytest-asyncio==0.24.0

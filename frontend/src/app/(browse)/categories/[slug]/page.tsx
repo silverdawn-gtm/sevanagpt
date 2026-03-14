@@ -27,7 +27,7 @@ export default function CategoryDetailPage() {
       .then((data) => {
         setCategory(data.category);
         setSchemes(data.schemes);
-        setTotal(data.total ?? data.schemes.length);
+        setTotal(data.total !== undefined ? data.total : data.schemes.length);
       })
       .catch(() => {})
       .finally(() => setLoading(false));

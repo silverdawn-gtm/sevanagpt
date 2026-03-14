@@ -28,6 +28,7 @@ def get_schemes_data():
             "eligibility_criteria": "Any Indian citizen above 10 years of age who does not have a bank account.",
             "application_process": "Visit any bank branch or Banking Correspondent outlet. Fill the account opening form. Submit KYC documents.",
             "documents_required": "Aadhaar Card or any officially valid document. If address is different, self-declaration of current address.",
+            "official_link": "https://pmjdy.gov.in",
             "category": "Banking, Financial Services and Insurance",
             "ministry": "Ministry of Finance",
             "level": "central",
@@ -1519,6 +1520,7 @@ async def ingest():
                 eligibility_criteria=data.get("eligibility_criteria"),
                 application_process=data.get("application_process"),
                 documents_required=data.get("documents_required"),
+                official_link=data.get("official_link"),
                 category_id=cat.id if cat else None,
                 ministry_id=ministry.id if ministry else None,
                 level=data.get("level", "central"),
@@ -1532,6 +1534,7 @@ async def ingest():
                 is_bpl=data.get("is_bpl"),
                 status="active",
                 featured=(i < 12),
+                source="huggingface",
             )
             session.add(scheme)
             await session.flush()

@@ -35,6 +35,7 @@ interface LanguageContextType {
   languages: typeof LANGUAGES;
   t: (key: string) => string;
   translations: Record<string, any>;
+  translationsReady: boolean;
 }
 
 const LanguageContext = createContext<LanguageContextType>({
@@ -43,33 +44,46 @@ const LanguageContext = createContext<LanguageContextType>({
   languages: LANGUAGES,
   t: (key) => key,
   translations: enTranslations,
+  translationsReady: true,
 });
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [mounted, setMounted] = useState(false);
-  const [language, setLanguageState] = useState("en");
-  const [translations, setTranslations] = useState<Record<string, any>>(enTranslations);
-
-  // After hydration: read saved language from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem("myscheme_lang");
-    if (saved && LANGUAGES.some((l) => l.code === saved)) {
-      setLanguageState(saved);
-      document.documentElement.lang = saved;
+  // Read saved language synchronously during init to avoid flash of English
+  const [language, setLanguageState] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("myscheme_lang");
+      if (saved && LANGUAGES.some((l) => l.code === saved)) {
+        return saved;
+      }
     }
-    setMounted(true);
-  }, []);
+    return "en";
+  });
+  const [translations, setTranslations] = useState<Record<string, any>>(enTranslations);
+  const [translationsReady, setTranslationsReady] = useState(language === "en");
+
+  // Set document lang on mount
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
 
   // Load translations whenever language changes (skip English — already bundled)
   useEffect(() => {
     if (language === "en") {
       setTranslations(enTranslations);
+      setTranslationsReady(true);
       return;
     }
+    setTranslationsReady(false);
     fetch(`/locales/${language}/common.json`)
       .then((res) => res.json())
-      .then(setTranslations)
-      .catch(() => setTranslations(enTranslations));
+      .then((data) => {
+        setTranslations(data);
+        setTranslationsReady(true);
+      })
+      .catch(() => {
+        setTranslations(enTranslations);
+        setTranslationsReady(true);
+      });
   }, [language]);
 
   const setLanguage = useCallback((lang: string) => {
@@ -91,7 +105,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   );
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, languages: LANGUAGES, t, translations }}>
+    <LanguageContext.Provider value={{ language, setLanguage, languages: LANGUAGES, t, translations, translationsReady }}>
       {children}
     </LanguageContext.Provider>
   );

@@ -26,7 +26,6 @@ class Settings(BaseSettings):
     CORS_ORIGINS: list[str] = [
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "http://192.168.0.244:3000",
     ]
 
     EMBEDDING_DIM: int = 1024

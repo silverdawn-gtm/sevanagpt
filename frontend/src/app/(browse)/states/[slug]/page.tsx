@@ -28,7 +28,7 @@ export default function StateDetailPage() {
       .then((data) => {
         setState(data.state);
         setSchemes(data.schemes);
-        setTotal(data.total ?? data.schemes.length);
+        setTotal(data.total !== undefined ? data.total : data.schemes.length);
       })
       .catch(() => {})
       .finally(() => setLoading(false));

@@ -126,7 +126,10 @@ async def translate_text(
 
     # Translate: try IndicTrans2 first, fall back to Google Translate
     translated = await indictrans_client.translate_single(source, tgt_lang)
-    if translated is None:
+    if translated is not None:
+        logger.debug("IndicTrans2 translated text for lang=%s (len=%d)", tgt_lang, len(source))
+    else:
+        logger.debug("IndicTrans2 returned None for lang=%s, trying Google Translate", tgt_lang)
         if tgt_lang not in GOOGLE_LANG_MAP:
             logger.debug("Lang %s not supported by Google Translate and IndicTrans2 unavailable", tgt_lang)
             return text

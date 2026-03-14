@@ -90,7 +90,12 @@
     "featured": "ప్రత్యేక",
     "match": "సరిపోలిక",
     "listen": "వినండి",
-    "stop": "ఆపండి"
+    "stop": "ఆపండి",
+    "scheme_info": "పథకం సమాచారం",
+    "launch_date": "ప్రారంభ తేదీ",
+    "deadline": "దరఖాస్తు గడువు",
+    "benefit_type": "ప్రయోజన రకం",
+    "helpline": "హెల్ప్‌లైన్"
   },
   "eligibility": {
     "title": "మీ కోసం పథకాలను కనుగొనండి",

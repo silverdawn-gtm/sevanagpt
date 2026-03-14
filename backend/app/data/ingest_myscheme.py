@@ -291,7 +291,7 @@ async def ingest():
                 name=name,
                 slug=slug,
                 description=fields.get("briefDescription", ""),
-                official_link=f"https://www.myscheme.gov.in/schemes/{slug}",
+                official_link=None,
                 category_id=category_obj.id if category_obj else None,
                 ministry_id=ministry_obj.id if ministry_obj else None,
                 level=level,

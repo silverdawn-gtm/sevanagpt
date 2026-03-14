@@ -90,7 +90,12 @@
     "featured": "نمایاں",
     "match": "مماثلت",
     "listen": "سنیں",
-    "stop": "رکیں"
+    "stop": "رکیں",
+    "scheme_info": "اسکیم کی معلومات",
+    "launch_date": "آغاز تاریخ",
+    "deadline": "درخواست کی آخری تاریخ",
+    "benefit_type": "فائدے کی قسم",
+    "helpline": "ہیلپ لائن"
   },
   "eligibility": {
     "title": "اپنے لیے اسکیمیں تلاش کریں",

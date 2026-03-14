@@ -90,7 +90,12 @@
     "featured": "বৈশিষ্ট্যযুক্ত",
     "match": "মিল",
     "listen": "শুনুন",
-    "stop": "থামুন"
+    "stop": "থামুন",
+    "scheme_info": "প্রকল্প তথ্য",
+    "launch_date": "প্রকাশের তারিখ",
+    "deadline": "আবেদনের শেষ তারিখ",
+    "benefit_type": "সুবিধার ধরন",
+    "helpline": "হেল্পলাইন"
   },
   "eligibility": {
     "title": "আপনার জন্য প্রকল্প খুঁজুন",

@@ -90,7 +90,12 @@
     "featured": "प्रमुख",
     "match": "मिलान",
     "listen": "सुनू",
-    "stop": "रोकू"
+    "stop": "रोकू",
+    "scheme_info": "योजना जानकारी",
+    "launch_date": "शुरुआत तिथि",
+    "deadline": "आवेदन अंतिम तिथि",
+    "benefit_type": "लाभक प्रकार",
+    "helpline": "हेल्पलाइन"
   },
   "eligibility": {
     "title": "अहाँक लेल योजना सभ खोजू",

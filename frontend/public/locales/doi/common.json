@@ -90,7 +90,12 @@
     "featured": "प्रमुख",
     "match": "मिलान",
     "listen": "सुणो",
-    "stop": "रोको"
+    "stop": "रोको",
+    "scheme_info": "योजना जानकारी",
+    "launch_date": "शुरुआत तारीख",
+    "deadline": "अर्जी दी आखरी तारीख",
+    "benefit_type": "लाभ दा प्रकार",
+    "helpline": "हेल्पलाइन"
   },
   "eligibility": {
     "title": "तुंदे आस्तै योजनाएं तलाश करो",

@@ -90,7 +90,12 @@
     "featured": "प्रमुख",
     "match": "मिलान",
     "listen": "सुनें",
-    "stop": "रोकें"
+    "stop": "रोकें",
+    "scheme_info": "योजना की जानकारी",
+    "launch_date": "प्रारंभ तिथि",
+    "deadline": "आवेदन की अंतिम तिथि",
+    "benefit_type": "लाभ का प्रकार",
+    "helpline": "हेल्पलाइन"
   },
   "eligibility": {
     "title": "आपके लिए योजनाएं खोजें",

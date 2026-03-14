@@ -90,7 +90,12 @@
     "featured": "বিশেষ",
     "match": "মিল",
     "listen": "শুনক",
-    "stop": "বন্ধ কৰক"
+    "stop": "বন্ধ কৰক",
+    "scheme_info": "আঁচনি তথ্য",
+    "launch_date": "আৰম্ভ তাৰিখ",
+    "deadline": "আবেদনৰ শেষ তাৰিখ",
+    "benefit_type": "সুবিধাৰ ধৰণ",
+    "helpline": "হেল্পলাইন"
   },
   "eligibility": {
     "title": "আপোনাৰ বাবে আঁচনি বিচাৰক",
