@@ -1,0 +1,2487 @@
+================================================================================
+                    SEVANAGPT — FULL PROJECT REPORT
+           AI-Powered Indian Government Scheme Discovery Platform
+================================================================================
+
+                         TABLE OF CONTENTS
+
+  CHAPTER 1  — PROJECT OVERVIEW ........................................  Line  30
+    1.1  What Is SevanaGPT? ...........................................  Line  32
+    1.2  Key Statistics ...............................................  Line  45
+    1.3  Technology Stack Summary .....................................  Line  55
+    1.4  Repository Structure .........................................  Line  75
+
+  CHAPTER 2  — ARCHITECTURE & INFRASTRUCTURE ..........................  Line 110
+    2.1  Four-Service Docker Stack ....................................  Line 112
+    2.2  Docker Compose Configuration .................................  Line 130
+    2.3  Networking & Ports ...........................................  Line 175
+    2.4  Volumes & Persistence ........................................  Line 190
+    2.5  Environment Variables (Complete List) .........................  Line 205
+    2.6  Makefile Commands ............................................  Line 265
+
+  CHAPTER 3  — DATABASE LAYER .........................................  Line 295
+    3.1  PostgreSQL + pgvector Setup ..................................  Line 297
+    3.2  Data Models (Complete Schema) ................................  Line 310
+    3.3  Relationships & Indexes ......................................  Line 430
+    3.4  Alembic Migrations ...........................................  Line 470
+
+  CHAPTER 4  — BACKEND (FastAPI) ......................................  Line 520
+    4.1  Application Setup & Middleware ................................  Line 522
+    4.2  API Endpoints (All Routes) ...................................  Line 570
+    4.3  Schemas (Request/Response Models) .............................  Line 710
+    4.4  Services Layer ...............................................  Line 830
+    4.5  Chatbot FSM (Finite State Machine) ...........................  Line 1040
+    4.6  Utilities ....................................................  Line 1130
+    4.7  Data Ingestion Pipeline ......................................  Line 1220
+    4.8  Testing ......................................................  Line 1370
+
+  CHAPTER 5  — FRONTEND (Next.js) .....................................  Line 1420
+    5.1  Configuration & Build ........................................  Line 1422
+    5.2  App Router & Pages ...........................................  Line 1470
+    5.3  Components (Complete List) ...................................  Line 1620
+    5.4  Hooks ........................................................  Line 1780
+    5.5  Context & State Management ...................................  Line 1840
+    5.6  API Client Library ...........................................  Line 1890
+    5.7  Internationalization (i18n) ..................................  Line 1950
+    5.8  Design System & Styling ......................................  Line 2020
+
+  CHAPTER 6  — INDICTRANS2 MICROSERVICE ...............................  Line 2060
+    6.1  Model & Architecture .........................................  Line 2062
+    6.2  API Endpoints ................................................  Line 2095
+    6.3  Language Code Mapping ........................................  Line 2130
+    6.4  LoRA Adapter Support .........................................  Line 2185
+    6.5  OOM Handling & Performance ...................................  Line 2210
+
+  CHAPTER 7  — TRANSLATION SYSTEM .....................................  Line 2240
+    7.1  Multi-Engine Architecture ....................................  Line 2242
+    7.2  Language Support Matrix ......................................  Line 2270
+    7.3  Caching Strategy .............................................  Line 2320
+    7.4  Batch Optimization ...........................................  Line 2350
+    7.5  Static Translation Maps ......................................  Line 2380
+    7.6  Scheme Translation Orchestration ..............................  Line 2410
+
+  CHAPTER 8  — FINE-TUNING PIPELINE ...................................  Line 2460
+    8.1  Pipeline Overview ............................................  Line 2462
+    8.2  Data Extraction ..............................................  Line 2490
+    8.3  Dataset Preparation ..........................................  Line 2520
+    8.4  LoRA Training Configuration ..................................  Line 2570
+    8.5  Evaluation Metrics ...........................................  Line 2620
+    8.6  Model Export & Deployment ....................................  Line 2650
+
+  CHAPTER 9  — SEARCH SYSTEM .........................................  Line 2680
+    9.1  Hybrid Search Architecture ...................................  Line 2682
+    9.2  Keyword Search ...............................................  Line 2700
+    9.3  Semantic Search (pgvector) ...................................  Line 2720
+    9.4  Reciprocal Rank Fusion (RRF) .................................  Line 2740
+    9.5  Embedding Generation .........................................  Line 2770
+
+  CHAPTER 10 — GIT HISTORY & DEVELOPMENT ..............................  Line 2800
+    10.1 Commit History ...............................................  Line 2802
+    10.2 Known Issues & Gotchas .......................................  Line 2830
+    10.3 File Statistics ..............................................  Line 2870
+
+  APPENDIX A — COMPLETE FILE TREE .....................................  Line 2900
+  APPENDIX B — API ENDPOINT REFERENCE .................................  Line 2990
+  APPENDIX C — DATABASE SCHEMA DIAGRAM (TEXT) .........................  Line 3060
+  APPENDIX D — FSM STATE DIAGRAM (TEXT) ...............................  Line 3130
+
+================================================================================
+
+================================================================================
+  CHAPTER 1 — PROJECT OVERVIEW
+================================================================================
+
+1.1  WHAT IS SEVANAGPT?
+────────────────────────
+
+SevanaGPT is an AI-powered Indian government scheme discovery platform that
+helps citizens find, browse, and understand 4,668 government welfare schemes
+across 22 Indian languages. The platform combines:
+
+  • Hybrid search (keyword + semantic via pgvector)
+  • FSM-based conversational chatbot with LLM integration
+  • Multilingual translation via IndicTrans2 (GPU-accelerated) with
+    Google Translate fallback
+  • Eligibility matching engine that scores user profiles against schemes
+  • Voice input/output via Web Speech API
+
+The name "Sevana" (സേവന) means "service" in Malayalam, reflecting the
+project's goal of making government services accessible to all Indians
+in their native language.
+
+
+1.2  KEY STATISTICS
+───────────────────
+
+  Schemes in Database:     4,668
+  Languages Supported:     22 Indian languages + English
+  Categories:              18
+  States & UTs:            36 (28 states + 8 union territories)
+  Ministries:              50+
+  Embedding Dimensions:    1,024 (Mistral)
+  Backend Python Files:    ~65
+  Frontend TS/TSX Files:   ~40
+  Total Source Files:      ~140
+  Docker Services:         4 (db, backend, frontend, indictrans)
+  Database Migrations:     5
+  Test Files:              10+
+
+
+1.3  TECHNOLOGY STACK SUMMARY
+─────────────────────────────
+
+  LAYER          TECHNOLOGY                  VERSION
+  ─────────────  ──────────────────────────  ──────────
+  Database       PostgreSQL + pgvector       16
+  Backend        FastAPI (Python)            3.12
+  ORM            SQLAlchemy (async)          2.0.36
+  DB Driver      asyncpg                     0.30.0
+  Migrations     Alembic                     1.14.0
+  Frontend       Next.js (React)             16.1.6
+  React          React                       19.2.3
+  TypeScript     TypeScript                  5
+  Styling        Tailwind CSS                4
+  LLM Primary    Mistral AI                  mistral-small-latest
+  LLM Fallback   Groq (Llama 3.1 70B)       llama-3.1-70b-versatile
+  Embeddings     Mistral Embed               1024-dim
+  Translation    IndicTrans2                 200M distilled
+  Trans Fallback Google Translate            deep-translator
+  Fine-tuning    peft (LoRA)                 0.7-0.11
+  Containerization Docker Compose            3.9
+  GPU Runtime    NVIDIA CUDA                 11.8
+
+
+1.4  REPOSITORY STRUCTURE
+─────────────────────────
+
+  sevanagpt/
+  ├── docker-compose.yml          # 4-service orchestration
+  ├── Makefile                    # Development commands
+  ├── CLAUDE.md                   # Project documentation
+  ├── .gitignore                  # Git exclusions
+  ├── agriculture_schemes.csv     # Sample CSV data (276 KB)
+  │
+  ├── backend/                    # FastAPI backend service
+  │   ├── Dockerfile
+  │   ├── requirements.txt        # 15+ Python packages
+  │   ├── alembic.ini             # Migration config
+  │   ├── .env.txt                # API keys (MISTRAL, GROQ)
+  │   ├── alembic/
+  │   │   ├── env.py              # Async migration runner
+  │   │   └── versions/           # 5 migration files
+  │   ├── app/
+  │   │   ├── main.py             # FastAPI app + routers
+  │   │   ├── config.py           # Pydantic settings
+  │   │   ├── database.py         # Async engine + session
+  │   │   ├── models/             # SQLAlchemy ORM (3 files)
+  │   │   ├── schemas/            # Pydantic schemas (4 files)
+  │   │   ├── api/v1/             # API routers (8 files)
+  │   │   ├── services/           # Business logic (7 files)
+  │   │   ├── chatbot/            # FSM + prompts (2 files)
+  │   │   ├── utils/              # Helpers (5 files)
+  │   │   ├── middleware/         # Request timing (1 file)
+  │   │   └── data/               # Ingestion pipeline (19 files)
+  │   └── tests/                  # pytest suite (10+ files)
+  │
+  ├── frontend/                   # Next.js frontend service
+  │   ├── Dockerfile              # Multi-stage Node 20 build
+  │   ├── package.json
+  │   ├── next.config.ts          # Standalone output
+  │   ├── tsconfig.json           # Path alias @/* → src/*
+  │   ├── public/
+  │   │   └── locales/            # 23 language JSON files
+  │   └── src/
+  │       ├── app/                # App Router pages (12 pages)
+  │       ├── components/         # React components (14 files)
+  │       ├── hooks/              # Custom hooks (3 files)
+  │       ├── context/            # Language context (1 file)
+  │       └── lib/                # API client, types (4 files)
+  │
+  ├── indictrans/                 # IndicTrans2 translation service
+  │   ├── Dockerfile              # PyTorch CUDA runtime
+  │   ├── requirements.txt        # 8 packages
+  │   ├── download_model.py       # Pre-cache script
+  │   ├── adapters/               # LoRA adapter mount point
+  │   └── app/                    # FastAPI microservice (5 files)
+  │
+  └── Fine-tuning/                # LoRA fine-tuning pipeline
+      ├── config.py               # Hyperparameters
+      ├── requirements.txt        # ML dependencies
+      ├── extract_parallel_data.py
+      ├── build_glossary.py
+      ├── prepare_dataset.py
+      ├── train_lora.py
+      ├── evaluate.py
+      ├── export_model.py
+      ├── precache_ui_strings.py
+      └── data/                   # Training data (~11 MB)
+
+
+================================================================================
+  CHAPTER 2 — ARCHITECTURE & INFRASTRUCTURE
+================================================================================
+
+2.1  FOUR-SERVICE DOCKER STACK
+──────────────────────────────
+
+The application runs as four Docker containers orchestrated by
+docker-compose.yml:
+
+  ┌─────────────────────────────────────────────────────────┐
+  │                    Docker Network                        │
+  │                                                          │
+  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌─────────┐ │
+  │  │    db     │  │ backend  │  │ frontend │  │indictrans│ │
+  │  │ Postgres  │  │ FastAPI  │  │ Next.js  │  │IndicTrans│ │
+  │  │ +pgvector │  │ Python   │  │  React   │  │  PyTorch │ │
+  │  │          ◄├──┤          │  │          │  │  + CUDA  │ │
+  │  │ :5432     │  │ :8000   ◄├──┤ :3000    │  │ :7860   ◄├─┤
+  │  └──────────┘  │         ◄├──┼──────────┘  │          │ │
+  │                │          ├──►             │          │ │
+  │                └──────────┘  └──────────┘  └─────────┘ │
+  └─────────────────────────────────────────────────────────┘
+
+  Service Flow:
+    Browser → Frontend (3000) → Backend (8000) → DB (5432)
+                                        │
+                                        └──→ IndicTrans (7860)
+
+
+2.2  DOCKER COMPOSE CONFIGURATION
+─────────────────────────────────
+
+SERVICE: db
+  Image:        pgvector/pgvector:pg16
+  Container:    myscheme-db
+  Port:         5433:5432 (host:container)
+  Restart:      unless-stopped
+  Environment:
+    POSTGRES_USER:     myscheme
+    POSTGRES_PASSWORD: myscheme_dev
+    POSTGRES_DB:       myscheme
+  Volumes:      pgdata:/var/lib/postgresql/data
+  Healthcheck:  pg_isready -U myscheme (every 5s, 5 retries)
+
+SERVICE: backend
+  Build:        ./backend/Dockerfile (Python 3.12-slim)
+  Container:    myscheme-backend
+  Port:         8000:8000
+  Restart:      unless-stopped
+  env_file:     ./backend/.env.txt
+  Environment:
+    DATABASE_URL:   postgresql+asyncpg://myscheme:myscheme_dev@db:5432/myscheme
+    INDICTRANS_URL: http://indictrans:7860
+    CORS_ORIGINS:   ["http://localhost:3000"]
+  Depends On:   db (condition: service_healthy)
+  CMD:          alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+SERVICE: frontend
+  Build:        ./frontend/Dockerfile (Node 20-alpine, multi-stage)
+  Container:    myscheme-frontend
+  Port:         3000:3000
+  Restart:      unless-stopped
+  Environment:
+    NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+  Depends On:   backend
+
+SERVICE: indictrans
+  Build:        ./indictrans/Dockerfile (pytorch/pytorch:2.1.0-cuda11.8-cudnn8-runtime)
+  Container:    myscheme-indictrans
+  Port:         7860:7860
+  Restart:      unless-stopped
+  Build Args:
+    HF_TOKEN:   (HuggingFace gated model token)
+  Build Network: host
+  Environment:
+    INDICTRANS_LORA_ADAPTER_PATH: /app/adapters/ml_govscheme
+  Volumes:
+    - indictrans_models:/app/models       (model cache)
+    - ./indictrans/adapters:/app/adapters  (LoRA adapters bind-mount)
+  GPU:          NVIDIA driver, 1 GPU, capabilities: [gpu]
+
+
+2.3  NETWORKING & PORTS
+───────────────────────
+
+  PORT   SERVICE      PURPOSE                     EXTERNAL ACCESS
+  ─────  ───────────  ──────────────────────────   ───────────────
+  5433   db           PostgreSQL                   localhost only
+  8000   backend      FastAPI REST API             localhost only
+  3000   frontend     Next.js web application      Browser-facing
+  7860   indictrans   IndicTrans2 translation API  Internal only
+
+  Inter-Service Communication:
+    backend → db:          postgresql+asyncpg://...@db:5432/myscheme
+    backend → indictrans:  http://indictrans:7860 (HTTP REST)
+    frontend → backend:    http://localhost:8000/api/v1 (client-side fetch)
+
+
+2.4  VOLUMES & PERSISTENCE
+──────────────────────────
+
+  VOLUME NAME         MOUNT POINT                    PURPOSE
+  ──────────────────  ─────────────────────────────   ──────────────────────
+  pgdata              /var/lib/postgresql/data        Database files
+  indictrans_models   /app/models                     HuggingFace model cache
+  ./indictrans/adapters /app/adapters                 LoRA adapter files
+
+
+2.5  ENVIRONMENT VARIABLES (COMPLETE LIST)
+──────────────────────────────────────────
+
+BACKEND (backend/app/config.py + docker-compose):
+  Variable                 Default                              Description
+  ───────────────────────  ─────────────────────────────────────  ───────────────────────────────
+  DATABASE_URL             postgresql+asyncpg://...@localhost:5433/myscheme  Async DB connection
+  DATABASE_URL_SYNC        postgresql://...@localhost:5433/myscheme          Sync DB connection
+  MISTRAL_API_KEY          ""                                   Mistral AI API key
+  MISTRAL_CHAT_MODEL       "mistral-small-latest"               Chat model name
+  MISTRAL_EMBED_MODEL      "mistral-embed"                      Embedding model (1024-dim)
+  GROQ_API_KEY             ""                                   Groq fallback LLM key
+  GROQ_MODEL               "llama-3.1-70b-versatile"            Groq model name
+  KAGGLE_USERNAME          ""                                   Kaggle data source creds
+  KAGGLE_KEY               ""                                   Kaggle API key
+  DATAGOV_API_KEY          ""                                   data.gov.in API key
+  INDICTRANS_URL           ""                                   IndicTrans2 service URL
+  INDICTRANS_TIMEOUT       10.0                                 Single request timeout (s)
+  INDICTRANS_BATCH_TIMEOUT 60.0                                 Batch request timeout (s)
+  INDICTRANS_ENABLED       True                                 Toggle IndicTrans2 on/off
+  CORS_ORIGINS             ["http://localhost:3000",...]         Allowed CORS origins
+  EMBEDDING_DIM            1024                                 Vector embedding dimensions
+
+FRONTEND:
+  Variable                 Default                              Description
+  ───────────────────────  ─────────────────────────────────────  ───────────────────────────────
+  NEXT_PUBLIC_API_URL      "http://localhost:8000/api/v1"        Backend API base URL
+
+INDICTRANS (indictrans/app/config.py):
+  Variable                       Default                         Description
+  ─────────────────────────────  ──────────────────────────────   ───────────────────────────────
+  INDICTRANS_MODEL               ai4bharat/indictrans2-en-indic-dist-200M  HuggingFace model name
+  INDICTRANS_CACHE_DIR           indictrans/models/              Local model cache
+  INDICTRANS_DEVICE              auto (cuda or cpu)              Inference device
+  INDICTRANS_MAX_LENGTH          256                             Max token length
+  INDICTRANS_NUM_BEAMS           1                               Beam search (1=greedy)
+  INDICTRANS_MAX_BATCH_SIZE      4                               GPU batch limit (6GB VRAM)
+  INDICTRANS_LORA_ADAPTER_PATH   ""                              LoRA adapter directory
+  INDICTRANS_HOST                0.0.0.0                         Server bind host
+  INDICTRANS_PORT                7860                            Server port
+  HUGGING_FACE_HUB_TOKEN         (from HF_TOKEN build arg)       Gated model access
+
+SECRETS (backend/.env.txt — NOT committed to git):
+  MISTRAL_API_KEY          Mistral AI provider key
+  GROQ_API_KEY             Groq free-tier fallback key
+
+
+2.6  MAKEFILE COMMANDS
+──────────────────────
+
+  Command          Description
+  ───────────────  ──────────────────────────────────────────
+  make db-up       Start PostgreSQL container
+  make db-down     Stop all containers
+  make backend     uvicorn with --reload on port 8000
+  make frontend    npm run dev on port 3000
+  make indictrans  uvicorn on port 7860
+  make migrate     alembic upgrade head
+  make seed        Seed categories, states, ministries, tags
+  make ingest      Run full data ingestion pipeline
+  make embed       Generate Mistral embeddings
+  make download-model  Pre-download IndicTrans2 model
+  make test        pytest (backend only)
+
+
+================================================================================
+  CHAPTER 3 — DATABASE LAYER
+================================================================================
+
+3.1  POSTGRESQL + PGVECTOR SETUP
+────────────────────────────────
+
+  Engine:     PostgreSQL 16 with pgvector extension
+  Image:      pgvector/pgvector:pg16
+  Connection: Async via SQLAlchemy 2.0 + asyncpg
+  ORM:        SQLAlchemy DeclarativeBase
+  Sessions:   Async dependency injection via get_db()
+  Extensions: pgvector (for Vector(1024) column type)
+
+
+3.2  DATA MODELS (COMPLETE SCHEMA)
+──────────────────────────────────
+
+TABLE: categories
+  Column         Type         Constraints       Description
+  ─────────────  ───────────  ────────────────   ─────────────────────
+  id             UUID         PK                 Unique identifier
+  name           String       NOT NULL           Category name (English)
+  slug           String       UNIQUE, NOT NULL   URL-safe identifier
+  icon           String       nullable           Heroicons icon name
+  display_order  Integer      default 0          Sort order
+
+TABLE: states
+  Column         Type         Constraints       Description
+  ─────────────  ───────────  ────────────────   ─────────────────────
+  id             UUID         PK                 Unique identifier
+  name           String       NOT NULL           State/UT name
+  slug           String       UNIQUE, NOT NULL   URL-safe identifier
+  code           String(2)    UNIQUE, NOT NULL   2-letter state code
+  is_ut          Boolean      default False      Is union territory?
+
+TABLE: ministries
+  Column         Type         Constraints       Description
+  ─────────────  ───────────  ────────────────   ─────────────────────
+  id             UUID         PK                 Unique identifier
+  name           String       NOT NULL           Ministry name
+  slug           String       UNIQUE, NOT NULL   URL-safe identifier
+  level          String       NOT NULL           "central" or "state"
+  state_id       UUID         FK → states.id     Parent state (if state-level)
+
+TABLE: tags
+  Column         Type         Constraints       Description
+  ─────────────  ───────────  ────────────────   ─────────────────────
+  id             UUID         PK                 Unique identifier
+  name           String       UNIQUE, NOT NULL   Tag name
+  slug           String       UNIQUE, NOT NULL   URL-safe identifier
+
+TABLE: schemes (CORE — 4,668 rows)
+  Column                  Type            Constraints         Description
+  ──────────────────────  ──────────────  ──────────────────   ─────────────────────
+  id                      UUID            PK                   Unique identifier
+  name                    String          NOT NULL             Scheme name (English)
+  slug                    String          UNIQUE, NOT NULL     URL-safe identifier
+  description             Text            nullable             Brief description
+  benefits                Text            nullable             Benefit details
+  eligibility_criteria    Text            nullable             Eligibility text
+  application_process     Text            nullable             How to apply
+  documents_required      Text            nullable             Required documents
+  official_link           String          nullable             Official URL
+  category_id             UUID            FK → categories.id   Parent category
+  ministry_id             UUID            FK → ministries.id   Responsible ministry
+  level                   String          NOT NULL             "central" or "state"
+  --- Eligibility Fields ---
+  target_gender           ARRAY[String]   nullable             ["male","female","transgender"]
+  min_age                 Integer         nullable             Minimum age
+  max_age                 Integer         nullable             Maximum age
+  target_social_category  ARRAY[String]   nullable             ["SC","ST","OBC","General","EWS"]
+  target_income_max       Float           nullable             Max annual income (₹)
+  is_disability           Boolean         default False        Disability-specific
+  is_student              Boolean         default False        Student-specific
+  is_bpl                  Boolean         default False        Below Poverty Line
+  --- Link Enrichment Fields ---
+  extra_details           JSONB           nullable             Scraped extra data
+  link_status             String          nullable             working/broken/unknown/redirected
+  link_checked_at         DateTime        nullable             Last link check timestamp
+  launch_date             Date            nullable             Scheme launch date
+  application_deadline    Date            nullable             Application deadline
+  helpline                String          nullable             Helpline number
+  benefit_type            String          nullable             Cash/In Kind/Composite
+  --- Metadata ---
+  status                  String          default "active"     active/inactive
+  featured                Boolean         default False        Homepage featured
+  source                  String          default "manual"     Data source
+  created_at              DateTime        auto                 Record creation
+  updated_at              DateTime        auto                 Last update
+
+TABLE: scheme_faqs
+  Column         Type         Constraints          Description
+  ─────────────  ───────────  ───────────────────   ─────────────────────
+  id             UUID         PK                    Unique identifier
+  scheme_id      UUID         FK → schemes.id       Parent scheme
+  question       Text         NOT NULL              FAQ question
+  answer         Text         NOT NULL              FAQ answer
+  display_order  Integer      default 0             Sort order
+
+TABLE: scheme_embeddings
+  Column         Type         Constraints          Description
+  ─────────────  ───────────  ───────────────────   ─────────────────────
+  id             UUID         PK                    Unique identifier
+  scheme_id      UUID         FK, UNIQUE            One embedding per scheme
+  embedding      Vector(1024) NOT NULL              Mistral embedding
+  text_hash      String       nullable              SHA-256 of source text
+  created_at     DateTime     auto                  Generation timestamp
+
+TABLE: scheme_translations
+  Column                  Type         Constraints          Description
+  ──────────────────────  ───────────  ───────────────────   ─────────────────────
+  id                      UUID         PK                    Unique identifier
+  scheme_id               UUID         FK → schemes.id       Parent scheme
+  lang                    String       NOT NULL              ISO 639-1 code
+  name                    Text         nullable              Translated name
+  description             Text         nullable              Translated description
+  benefits                Text         nullable              Translated benefits
+  eligibility_criteria    Text         nullable              Translated eligibility
+  application_process     Text         nullable              Translated process
+  documents_required      Text         nullable              Translated documents
+  tags_json               JSONB        nullable              Translated tag names
+  UNIQUE INDEX: (scheme_id, lang)
+
+TABLE: scheme_states (many-to-many junction)
+  Column         Type         Constraints          Description
+  ─────────────  ───────────  ───────────────────   ─────────────────────
+  scheme_id      UUID         FK → schemes.id       Cascade delete
+  state_id       UUID         FK → states.id        Cascade delete
+
+TABLE: scheme_tags (many-to-many junction)
+  Column         Type         Constraints          Description
+  ─────────────  ───────────  ───────────────────   ─────────────────────
+  scheme_id      UUID         FK → schemes.id       Cascade delete
+  tag_id         UUID         FK → tags.id          Cascade delete
+
+TABLE: conversations
+  Column         Type         Constraints          Description
+  ─────────────  ───────────  ───────────────────   ─────────────────────
+  id             UUID         PK                    Unique identifier
+  session_id     String       INDEXED              Client session ID
+  language       String       default "en"          Conversation language
+  fsm_state      String       default "GREETING"    Current chatbot state
+  context        JSONB        nullable              Accumulated context
+  created_at     DateTime     auto                  Session start
+  updated_at     DateTime     auto                  Last activity
+
+TABLE: messages
+  Column            Type         Constraints          Description
+  ────────────────  ───────────  ───────────────────   ─────────────────────
+  id                UUID         PK                    Unique identifier
+  conversation_id   UUID         FK → conversations.id Cascade delete
+  role              String       NOT NULL              "user" or "assistant"
+  content           Text         NOT NULL              Message in English
+  content_original  Text         nullable              Message in user's language
+  extra             JSONB        nullable              Metadata (schemes, etc.)
+  created_at        DateTime     auto                  Message timestamp
+
+TABLE: translation_cache
+  Column           Type         Constraints          Description
+  ───────────────  ───────────  ───────────────────   ─────────────────────
+  id               UUID         PK                    Unique identifier
+  hash_key         String       UNIQUE, INDEXED       SHA-256(text|src|tgt)
+  source_text      Text         NOT NULL              Original text
+  translated_text  Text         NOT NULL              Translated text
+  src_lang         String       NOT NULL              Source language code
+  tgt_lang         String       NOT NULL              Target language code
+  created_at       DateTime     auto                  Cache timestamp
+
+
+3.3  RELATIONSHIPS & INDEXES
+────────────────────────────
+
+  One-to-Many:
+    Category    → Schemes
+    Ministry    → Schemes
+    State       → Ministries (state-level)
+    Scheme      → SchemeFAQs (cascade delete)
+    Scheme      → SchemeTranslations
+    Conversation → Messages (cascade delete)
+
+  One-to-One:
+    Scheme      → SchemeEmbedding
+
+  Many-to-Many:
+    Scheme ↔ State  (via scheme_states)
+    Scheme ↔ Tag    (via scheme_tags)
+
+  Indexes:
+    categories.slug         UNIQUE
+    states.slug             UNIQUE
+    states.code             UNIQUE
+    ministries.slug         UNIQUE
+    tags.name               UNIQUE
+    tags.slug               UNIQUE
+    schemes.slug            UNIQUE
+    scheme_embeddings.scheme_id  UNIQUE
+    scheme_translations.(scheme_id, lang)  UNIQUE
+    conversations.session_id  INDEX
+    translation_cache.hash_key  UNIQUE INDEX
+
+
+3.4  ALEMBIC MIGRATIONS
+───────────────────────
+
+  Migration 1: 6736873b8656_initial_schema.py (Feb 20, 2026)
+    - Creates pgvector extension
+    - Creates all base tables: categories, states, tags, ministries, schemes,
+      scheme_embeddings, scheme_faqs, conversations, messages, translation_cache,
+      scheme_states, scheme_tags
+
+  Migration 2: add_source_column.py
+    - Adds `source` column to schemes table
+
+  Migration 3: b2c3d4e5f6a7_add_scheme_translations.py (Feb 21, 2026)
+    - Creates scheme_translations table
+    - Adds unique index on (scheme_id, lang)
+
+  Migration 4: c3d4e5f6a7b8_add_scheme_extra_fields.py (Feb 23, 2026)
+    - Adds link enrichment fields: extra_details (JSONB), link_status,
+      link_checked_at, launch_date, application_deadline, helpline, benefit_type
+
+  Migration 5: d4e5f6a7b8c9_fix_column_defaults.py
+    - Fixes column default values
+
+
+================================================================================
+  CHAPTER 4 — BACKEND (FastAPI)
+================================================================================
+
+4.1  APPLICATION SETUP & MIDDLEWARE
+───────────────────────────────────
+
+File: backend/app/main.py
+
+  Application:    FastAPI (title="SevanaGPT API", version="1.0.0")
+
+  Startup Lifespan:
+    - Background task: Pre-translates Hindi scheme names on startup
+      (waits 5s, then runs pre_translate_language("hi"))
+
+  CORS Middleware:
+    - Allow origins: ["http://localhost:3000", "http://127.0.0.1:3000"]
+    - Allow methods: all
+    - Allow headers: all
+    - Allow credentials: true
+
+  Custom Middleware:
+    - TimingMiddleware: Measures request latency per route
+      - Stores last 1000 samples per endpoint
+      - Adds X-Process-Time header
+      - Logs slow requests (>2s) as warnings
+
+  Health Endpoints:
+    GET /health  → {"status": "ok"}
+    GET /metrics → Latency percentiles per endpoint (p50, p95, p99, max, mean)
+
+  Registered Routers (all under /api/v1):
+    /api/v1/schemes        — Scheme CRUD + listing
+    /api/v1/categories     — Category listing
+    /api/v1/states         — State listing
+    /api/v1/ministries     — Ministry listing
+    /api/v1/search         — Hybrid search
+    /api/v1/chat           — Chatbot
+    /api/v1/translate      — Translation API
+    /api/v1/eligibility    — Eligibility matching
+
+
+4.2  API ENDPOINTS (ALL ROUTES)
+───────────────────────────────
+
+SCHEMES (/api/v1/schemes)
+  GET  /schemes
+    Params: category, state, ministry, level, tag, search, page, page_size, lang
+    Returns: PaginatedSchemes (items[], total, page, page_size, total_pages)
+    Features: Eager-loads relationships, translates based on lang param
+    Pagination: limit 1-100, default 20
+
+  GET  /schemes/featured
+    Params: lang
+    Returns: SchemeListItem[] (12 featured schemes)
+
+  GET  /schemes/{slug}
+    Params: lang
+    Returns: SchemeDetail (full scheme with all relationships, FAQs, translations)
+
+SEARCH (/api/v1/search)
+  POST /search
+    Body: SearchRequest (query, language, category_slug, state_slug,
+          ministry_slug, level, tags[], page, page_size)
+    Returns: SearchResponse (results[], total, query)
+    Strategy: Hybrid search (keyword + semantic via RRF)
+
+  GET  /search/suggest
+    Params: q (min length 2), lang
+    Returns: SuggestResponse (suggestions[])
+
+CHAT (/api/v1/chat)
+  POST /chat/message
+    Body: ChatMessageRequest (message, session_id, language)
+    Returns: ChatMessageResponse (reply, schemes[], suggestions[], session_id, fsm_state)
+    Rate Limit: 30 requests / 60 seconds per IP
+
+  GET  /chat/history/{session_id}
+    Returns: ChatHistoryMessage[] (role, content, content_original, extra)
+
+  POST /chat/reset/{session_id}
+    Returns: {"status": "reset"}
+    Deletes conversation and all messages for session
+
+CATEGORIES (/api/v1/categories)
+  GET  /categories
+    Params: lang
+    Returns: CategoryOut[] with scheme_count, translated names
+
+  GET  /categories/{slug}
+    Params: page, page_size, lang
+    Returns: {category: CategoryOut, schemes: PaginatedSchemes}
+
+STATES (/api/v1/states)
+  GET  /states
+    Params: lang
+    Returns: StateOut[] with scheme_count
+
+  GET  /states/{slug}
+    Params: page, page_size, level, lang
+    Returns: {state: StateOut, schemes: PaginatedSchemes}
+
+MINISTRIES (/api/v1/ministries)
+  GET  /ministries
+    Params: lang
+    Returns: MinistryOut[] with scheme_count
+
+  GET  /ministries/{slug}
+    Params: page, page_size, lang
+    Returns: {ministry: MinistryOut, schemes: PaginatedSchemes}
+
+TRANSLATE (/api/v1/translate)
+  POST /translate
+    Body: {text, src_lang="en", tgt_lang="hi"}
+    Returns: {translated_text, src_lang, tgt_lang}
+
+  GET  /languages
+    Returns: LANGUAGE_MAP (all 23+ supported languages with metadata)
+
+ELIGIBILITY (/api/v1/eligibility)
+  POST /eligibility/check
+    Body: EligibilityCheckRequest (gender, age, state_code, social_category,
+          income, is_disability, is_student, is_bpl)
+    Returns: EligibilityResponse (results[], total, profile)
+    Results sorted by match_score (0.0 to 1.0)
+
+  GET  /eligibility/options
+    Params: lang
+    Returns: {genders[], social_categories[], states[]}
+
+
+4.3  SCHEMAS (REQUEST/RESPONSE MODELS)
+──────────────────────────────────────
+
+File: backend/app/schemas/scheme.py
+  CategoryOut:     id, name, slug, icon, display_order, scheme_count
+  StateOut:        id, name, slug, code, is_ut, scheme_count
+  MinistryOut:     id, name, slug, level, scheme_count
+  TagOut:          id, name, slug
+  FAQOut:          question, answer
+  SchemeListItem:  id, name, slug, description, level, category, tags, featured
+  SchemeDetail:    (extends SchemeListItem) + benefits, eligibility_criteria,
+                   application_process, documents_required, official_link,
+                   target_gender, min_age, max_age, target_social_category,
+                   target_income_max, is_disability, is_student, is_bpl,
+                   extra_details, link_status, link_checked_at, launch_date,
+                   application_deadline, helpline, benefit_type, status,
+                   ministry, states[], tags[], faqs[], created_at
+  PaginatedSchemes: items[], total, page, page_size, total_pages
+
+File: backend/app/schemas/chat.py
+  ChatMessageRequest:  message, session_id, language
+  SuggestedQuestion:   text
+  ChatMessageResponse: reply, schemes[], suggestions[], session_id, fsm_state
+  ChatHistoryMessage:  role, content, content_original, extra
+
+File: backend/app/schemas/search.py
+  SearchRequest:   query, language, category_slug, state_slug, ministry_slug,
+                   level, tags[], page, page_size
+  SearchResult:    scheme (SchemeListItem), score
+  SearchResponse:  results[], total, query
+  SuggestResponse: suggestions[]
+
+File: backend/app/schemas/eligibility.py
+  EligibilityCheckRequest: gender, age, state_code, social_category, income,
+                           is_disability, is_student, is_bpl
+  EligibilityResult:       scheme, match_score, matched_criteria[]
+  EligibilityResponse:     results[], total, profile
+
+
+4.4  SERVICES LAYER
+───────────────────
+
+SERVICE: chat_service.py
+  Purpose: Orchestrates the conversational chatbot
+  Core Function: process_message(session, session_id, user_message, language) → dict
+  Flow:
+    1. Load or create Conversation record
+    2. Extract accumulated context (age, gender, state, category, occupation)
+    3. Classify user intent via LLM (7 intents: greeting, search_scheme,
+       ask_detail, check_eligibility, clarify, goodbye, other)
+    4. Determine next FSM state based on intent + current state
+    5. Generate LLM response with state-specific prompt
+    6. Search schemes if in SCHEME_SEARCH state
+    7. Return: reply, schemes[], suggestions[], fsm_state
+  Multi-Language:
+    - Pre-defined suggestions in 12 languages
+    - User message translated to English for LLM processing
+    - Response generated in target language via LLM instruction
+  Supporting Functions:
+    - get_chat_history(session, session_id) → message list
+    - reset_conversation(session, session_id) → deletes conversation
+
+SERVICE: search_service.py
+  Purpose: Hybrid search combining keyword and semantic search
+  Functions:
+    keyword_search(session, query, limit=20)
+      - Splits query into terms (min 3 chars each)
+      - ILIKE search on name, description, benefits, eligibility_criteria
+      - Score = matching_terms / total_terms
+    keyword_search_translated(session, query, lang, limit=20)
+      - Searches scheme_translations for non-English queries
+    semantic_search(session, query, limit=20)
+      - Embeds query via Mistral (1024-dim)
+      - Cosine distance search on scheme_embeddings
+      - Score = 1.0 - distance
+    reciprocal_rank_fusion(*result_lists, k=60)
+      - RRF formula: score = 1/(k + rank + 1) per list
+      - Deduplicates by scheme ID, sums scores
+    hybrid_search(session, query, filters..., limit=10)
+      - Calls keyword_search + semantic_search
+      - Merges via RRF
+      - Applies post-filters (category, level, state, ministry)
+      - Returns top 10
+
+SERVICE: embedding_service.py
+  Purpose: Generate and manage Mistral embeddings
+  Functions:
+    scheme_to_text(scheme) → str
+      - Concatenates: name + description + "Benefits: " + benefits +
+        "Eligibility: " + eligibility_criteria
+      - Truncates to 8000 chars
+    generate_embeddings_batch(session, schemes, batch_size=10) → int
+      - Batch of 10 schemes per API call
+      - Checks text_hash to skip unchanged schemes
+      - Exponential backoff on 429: 5s, 10s, 20s, 40s, 80s (5 attempts)
+      - Deletes stale rows before inserting new
+      - 1s sleep between batches for rate limiting
+
+SERVICE: mistral_service.py
+  Purpose: LLM provider management (Mistral primary, Groq fallback)
+  Provider Detection:
+    - mistral_configured() → bool (checks MISTRAL_API_KEY)
+    - groq_configured() → bool (checks GROQ_API_KEY)
+    - chat_configured() → bool (either provider)
+  Embedding Functions:
+    - embed_texts(texts) → list[list[float]] (Mistral only)
+    - embed_single(text) → list[float]
+  Chat Functions:
+    - _groq_chat(messages, temperature, max_tokens) → str
+      OpenAI-compatible API via httpx, 30s timeout
+    - _mistral_chat(messages, temperature, max_tokens) → str
+      Mistral SDK
+    - chat_complete(messages, temperature=0.7, max_tokens=1024) → str
+      Tries Mistral first, falls back to Groq
+  Intent Classification:
+    - classify_intent(user_message, context) → {"intent": str, "entities": dict}
+      7 intents: greeting, search_scheme, ask_detail, check_eligibility,
+      clarify, goodbye, other
+      temperature=0.1, max_tokens=256
+
+SERVICE: translate_service.py
+  Purpose: On-demand translation with aggressive caching
+  Supported Languages: 22 (11 original + 11 IndicTrans2 additional)
+  Engine Priority: IndicTrans2 → Google Translate → return original
+  Key Functions:
+    translate_text(text, tgt_lang, db) → str
+      - Cache check (SHA-256 hash key)
+      - IndicTrans2 first, Google Translate fallback
+      - 8s timeout per translation
+      - Caches result in translation_cache
+    translate_texts_batch(texts, tgt_lang, db) → list[str]
+      - Batch cache lookup
+      - Chunks by 4500 char limit
+      - Newline concatenation for batch Google Translate (~13x faster)
+      - 20s overall timeout
+      - Caches all new translations
+  Google Translate Special Codes:
+    mni → mni-Mtei (Manipuri with script subtag)
+    kok → gom (Goan Konkani)
+    bodo, sat → NOT SUPPORTED (IndicTrans2 only)
+
+SERVICE: eligibility_service.py
+  Purpose: Match user profiles against scheme eligibility criteria
+  Functions:
+    check_eligibility(session, profile) → list[dict]
+      - Loads all active schemes
+      - Filters by state if provided
+      - Computes match_score (0-1) based on matching criteria count
+      - Returns results sorted by score desc
+    _compute_match(scheme, profile) → (float, list[str])
+      - Checks: gender, age range, social category, income ceiling,
+        disability, student, BPL status
+      - Returns: (matched/total, matched_criteria descriptions)
+    get_eligibility_options(session) → dict
+      - Returns available: genders, social_categories, states
+
+SERVICE: indictrans_client.py
+  Purpose: HTTP client for IndicTrans2 microservice
+  Design: Returns None on all failures (triggers fallback gracefully)
+  Functions:
+    is_available() → bool (GET /health)
+    translate_single(text, target_lang) → str | None
+      POST /translate, timeout: INDICTRANS_TIMEOUT
+    translate_batch(texts, target_lang) → list[str] | None
+      POST /translate/batch, timeout: INDICTRANS_BATCH_TIMEOUT
+
+
+4.5  CHATBOT FSM (FINITE STATE MACHINE)
+────────────────────────────────────────
+
+File: backend/app/chatbot/fsm.py
+
+  States:
+    GREETING         Welcome user, show topic suggestions
+    NEED_EXTRACTION  Ask clarifying questions (age, state, category)
+    SCHEME_SEARCH    Present matching schemes
+    DISAMBIGUATION   Handle ambiguous queries
+    SCHEME_DETAIL    Show full scheme details
+    CLOSING          End conversation
+
+  Intents (classified by LLM):
+    greeting         User says hello
+    search_scheme    User wants to find schemes
+    ask_detail       User wants scheme details
+    check_eligibility User wants eligibility check
+    clarify          User provides additional info
+    goodbye          User ends conversation
+    other            Anything else
+
+  Transition Map:
+    FROM              INTENT              → TO
+    ────────────────  ──────────────────  ─────────────────
+    GREETING          greeting            → GREETING
+    GREETING          search_scheme       → NEED_EXTRACTION
+    GREETING          check_eligibility   → NEED_EXTRACTION
+    GREETING          other               → NEED_EXTRACTION
+    NEED_EXTRACTION   search_scheme       → SCHEME_SEARCH
+    NEED_EXTRACTION   check_eligibility   → SCHEME_SEARCH
+    NEED_EXTRACTION   other               → SCHEME_SEARCH
+    SCHEME_SEARCH     ask_detail          → SCHEME_DETAIL
+    SCHEME_SEARCH     clarify             → DISAMBIGUATION
+    SCHEME_SEARCH     other               → DISAMBIGUATION
+    DISAMBIGUATION    search_scheme       → SCHEME_SEARCH
+    DISAMBIGUATION    clarify             → SCHEME_SEARCH
+    DISAMBIGUATION    other               → DISAMBIGUATION
+    SCHEME_DETAIL     search_scheme       → NEED_EXTRACTION
+    SCHEME_DETAIL     other               → NEED_EXTRACTION
+    CLOSING           greeting            → GREETING
+    CLOSING           search_scheme       → NEED_EXTRACTION
+    ANY               goodbye             → CLOSING
+
+File: backend/app/chatbot/prompts.py
+
+  System Prompt:
+    "SevanaGPT: helpful government scheme assistant for India"
+    Guidelines: friendly, clear, ask clarifying questions, structured info
+
+  Per-State Prompts:
+    greeting_prompt(language)
+      - Welcome + topic suggestions (education, agriculture, housing, etc.)
+    need_extraction_prompt(context, language)
+      - Include accumulated context, ask for missing info
+    scheme_search_prompt(schemes_context, user_query, context, language)
+      - Show top 3-5 schemes with name, brief description, key benefit
+    scheme_detail_prompt()
+      - Full scheme information display
+
+  Language Support:
+    LANGUAGE_NAMES dict: 12 languages with native script
+    _lang_instruction(language): Generates "Respond in [script]" instruction
+
+
+4.6  UTILITIES
+──────────────
+
+File: backend/app/utils/languages.py
+  LANGUAGE_MAP: 28 language codes → {code, name, native_script}
+  Covers: en, hi, bn, ta, te, mr, gu, kn, ml, pa, or, ur, as, ne, sa, sd,
+          doi, mai, mni, sat, bodo, kok, lus
+
+File: backend/app/utils/scheme_translate.py
+  Purpose: Translation orchestration for API responses
+  translate_scheme_list_items(items, lang, db):
+    Priority:
+      1. scheme_translations cache (instant, bulk lookup)
+      2. Batch translate names (fast, batched API calls)
+      3. Batch translate descriptions (if ≤30 items)
+      4. Static category names (11 languages) or on-demand
+  translate_scheme_detail(detail, lang, db):
+    Priority:
+      1. scheme_translations cache
+      2. On-demand batch translate: name, description, benefits,
+         eligibility, application_process, documents_required
+      3. Nested names: category, ministry, states
+      4. Display values: target_gender, target_social_category
+  _STATIC_LANGS: {hi, bn, ta, te, mr, gu, kn, ml, pa, or, ur}
+
+File: backend/app/utils/translations.py
+  Static Translation Maps (no API keys needed):
+    CATEGORY_TRANSLATIONS:  18 categories × 11 languages
+    STATE_TRANSLATIONS:     36 states/UTs × 11 languages
+    MINISTRY_TRANSLATIONS:  Major ministries × 11 languages
+  translate_name(english_name, lang, translation_dict) → str
+
+File: backend/app/utils/rate_limit.py
+  RateLimiter: Token-bucket implementation
+    - max_requests=30, window_seconds=60
+    - Keyed by client IP
+    - Shared instance: chat_limiter
+  get_client_ip(request): Extracts from X-Forwarded-For or socket
+
+File: backend/app/utils/slug.py
+  slugify(text) → str
+    - NFKD normalization → ASCII
+    - Remove non-word chars → lowercase → single hyphens
+
+
+4.7  DATA INGESTION PIPELINE
+─────────────────────────────
+
+File: backend/app/data/ingest_all.py (Orchestrator)
+  Runs in sequence:
+    1. seed_all()              — Reference data (categories, states, ministries, tags)
+    2. ingest_hf()             — HuggingFace embedded dataset
+    3. ingest_state_schemes()  — State-specific schemes
+    4. ingest_myscheme()       — MyScheme.gov.in API
+    5. ingest_kaggle()         — Kaggle dataset
+    6. ingest_datagov()        — data.gov.in
+    7. generate_embeddings()   — Mistral embeddings for all schemes
+  Each step has error handling; failures don't block others.
+
+File: backend/app/data/seed.py (Reference Data)
+  Categories: 18 categories with icons and display_order
+  States: 28 states + 8 union territories with codes and is_ut flags
+  Ministries: 50+ central and state-level ministries
+  Tags: Government scheme tags
+
+File: backend/app/data/ingest_hf.py (1,592 lines)
+  Source: HuggingFace embedded dataset
+  Method: Downloads and parses scheme data
+  Idempotent: Slug-based deduplication
+
+File: backend/app/data/ingest_myscheme.py (412 lines)
+  Source: MyScheme.gov.in API (api.myscheme.gov.in/search/v6)
+  API Key: tYTy5eEhlu9rFjyxuCr7ra7ACp4dv1RH8gWuHTDc
+  Batch Size: 50 schemes per request
+  Rate Limit: 0.3s delay between batches
+
+File: backend/app/data/ingest_state_schemes.py (1,733 lines)
+  Source: State-specific scheme data
+  Data File: state_schemes_data.py (1,679 lines of curated data)
+
+File: backend/app/data/ingest_kaggle.py (221 lines)
+  Source: Kaggle datasets
+  Requires: KAGGLE_USERNAME, KAGGLE_KEY
+
+File: backend/app/data/ingest_datagov.py (225 lines)
+  Source: data.gov.in API
+  Requires: DATAGOV_API_KEY
+
+File: backend/app/data/ingest_translations.py (203 lines)
+  Source: MyScheme API translations (re-fetches in each language)
+  Languages: 11 (hi, bn, ta, te, mr, gu, kn, ml, pa, or, ur)
+  Features:
+    - Deduplicates by scheme_id (set-based)
+    - Skips translations identical to English
+    - Batch inserts (500 per flush)
+
+File: backend/app/data/pre_translate.py (232 lines)
+  Purpose: Pre-populate translation cache for instant page loads
+  Languages: 22 (11 original + 11 IndicTrans2)
+  Config: BATCH_SIZE=8, CHUNK_CHAR_LIMIT=4500, CONCURRENT_WORKERS=2
+  Engine: IndicTrans2 first, Google Translate fallback
+
+File: backend/app/data/run_translations.py (114 lines)
+  Wrapper: Runs pre_translate_language() for specified languages
+  Usage: python -m app.data.run_translations --all
+         python -m app.data.run_translations sa mai doi
+
+File: backend/app/data/generate_embeddings.py (30 lines)
+  Wrapper: Loads all schemes and calls generate_embeddings_batch()
+
+File: backend/app/data/extract_links.py (658 lines)
+  Purpose: Extract official links from scheme data
+  Method: Web scraping via Playwright + BeautifulSoup
+
+File: backend/app/data/validate_links.py (323 lines)
+  Purpose: Check if scheme official_link URLs are working
+  Updates: link_status field (working/broken/redirected)
+
+File: backend/app/data/extract_details.py (338 lines)
+  Purpose: Scrape additional details from scheme pages
+  Updates: extra_details JSONB field
+
+File: backend/app/data/manual_link_search.py (638 lines)
+  Purpose: Google search for official scheme links
+
+File: backend/app/data/curated_links.py (127 lines)
+  Purpose: Manually curated scheme links
+
+File: backend/app/data/update_embedded_data.py (211 lines)
+  Purpose: Update embedded/enriched data from scraped sources
+
+
+4.8  TESTING
+────────────
+
+File: backend/tests/conftest.py (Test Fixtures)
+  - In-memory SQLite async database (no real Postgres needed)
+  - AsyncSession for test DB
+  - HTTPX AsyncClient wired to FastAPI app
+  - Fixture objects: sample_category, sample_state, sample_tag
+  - sample_schemes: 5 test schemes with varied eligibility
+  - Mocks: indictrans (disabled), google_translate, llm (Mistral/Groq)
+
+File: backend/tests/test_search.py
+  TestReciprocalRankFusion:
+    - Single list, two lists with overlap (boosted)
+    - Empty lists, score validity, k parameter effect
+
+File: backend/tests/test_link_extraction.py (453 lines)
+  Tests for link extraction pipeline
+
+File: backend/tests/test_link_validation.py (209 lines)
+  Tests for URL validation
+
+Additional test files: ~8 more test files covering various services
+
+
+================================================================================
+  CHAPTER 5 — FRONTEND (Next.js)
+================================================================================
+
+5.1  CONFIGURATION & BUILD
+──────────────────────────
+
+  Framework:    Next.js 16.1.6 (App Router)
+  React:        19.2.3
+  TypeScript:   5 (strict mode)
+  Styling:      Tailwind CSS 4 via @tailwindcss/postcss
+  Output:       standalone (Docker-optimized)
+  Node:         20 (Alpine in production)
+
+  package.json Dependencies:
+    Runtime:    @heroicons/react, clsx, next-intl, react, react-dom
+    Dev:        tailwindcss, typescript, eslint, @types/*
+
+  tsconfig.json:
+    Path alias:  @/* → ./src/*
+    Target:      ES2017
+    Strict:      true
+
+  Dockerfile (Multi-stage):
+    Stage 1 (builder): npm ci → npm run build
+    Stage 2 (runner):  node:20-alpine, copies .next/standalone + public
+    Port:              3000
+    CMD:               node server.js
+
+
+5.2  APP ROUTER & PAGES
+───────────────────────
+
+  Route                           Page File                              Type
+  ──────────────────────────────  ─────────────────────────────────────   ──────
+  /                               src/app/page.tsx                        Client
+  /chat                           src/app/chat/page.tsx                   Client
+  /schemes                        src/app/(browse)/schemes/page.tsx       Client
+  /schemes/[slug]                 src/app/(browse)/schemes/[slug]/page.tsx Client
+  /categories                     src/app/(browse)/categories/page.tsx    Client
+  /categories/[slug]              src/app/(browse)/categories/[slug]/page.tsx Client
+  /states                         src/app/(browse)/states/page.tsx        Client
+  /states/[slug]                  src/app/(browse)/states/[slug]/page.tsx Client
+  /ministries                     src/app/(browse)/ministries/page.tsx    Client
+  /ministries/[slug]              src/app/(browse)/ministries/[slug]/page.tsx Client
+  /find-scheme                    src/app/(browse)/find-scheme/page.tsx   Client
+  (error)                         src/app/error.tsx                       Client
+  (loading)                       src/app/loading.tsx                     Client
+  (not-found)                     src/app/not-found.tsx                   Client
+
+  Layouts:
+    src/app/layout.tsx             Root layout (LanguageProvider, Navbar, Footer, ChatWidget)
+    src/app/(browse)/layout.tsx    Browse route group (pass-through)
+
+PAGE: / (Home)
+  Sections:
+    1. Hero with gradient (emerald-600 → teal-800), CTA buttons
+    2. Browse by Category (8 categories with emoji icons)
+    3. Featured Schemes (3-column grid, 6 items)
+    4. Browse by State & Union Territories
+    5. CTA Section (Chat + Eligibility)
+  API Calls: getSchemes(6), getCategories(), getStates()
+
+PAGE: /chat
+  Components: ChatWindow + ChatInput
+  Features:
+    - "New Chat" button when messages exist
+    - Suggestions from last assistant message
+    - Voice input support
+
+PAGE: /schemes
+  Features:
+    - Search input
+    - Filters: category, state, level (dropdown)
+    - Pagination: 12 items/page
+    - URL-synced state via useSearchParams
+  API Calls: getSchemes(filters), getCategories(), getStates()
+
+PAGE: /schemes/[slug]
+  Sections:
+    - Header: category badge, tags, ministry, states
+    - Scheme info card: launch_date, deadline, benefit_type, helpline
+    - Content sections (each with ReadAloudButton):
+      • Description
+      • Benefits
+      • Eligibility Criteria
+      • Application Process
+      • Documents Required
+    - Eligibility at a Glance: gender, age, social_category, income,
+      disability, student, BPL (visual tags)
+    - FAQs (collapsible)
+    - Links: official website, MyScheme page
+
+PAGE: /categories, /states, /ministries
+  Grid layout with scheme counts, links to detail pages
+
+PAGE: /categories/[slug], /states/[slug], /ministries/[slug]
+  Paginated scheme grids (24 items/page)
+  State detail: level filter (All/State/Central)
+  Language-aware: resets to page 1 on language change
+
+PAGE: /find-scheme (Eligibility Wizard)
+  8-step wizard: Gender → Age → State → Social Category →
+                 Disability → Student → Income → BPL
+  Results: Scheme cards with match scores (green/yellow/gray)
+
+
+5.3  COMPONENTS (COMPLETE LIST)
+───────────────────────────────
+
+CHAT COMPONENTS (src/components/chat/):
+
+  HomeChat.tsx
+    Props: none
+    Purpose: Welcome screen with 4 suggestion buttons, or ChatWindow + ChatInput
+    Suggestions: education, farmer, health, housing (from i18n keys)
+
+  ChatWindow.tsx
+    Props: messages: ChatMessage[], loading: boolean
+    Purpose: Scrollable message list
+    Features:
+      - User bubbles (emerald-600 background)
+      - Assistant bubbles (white, bordered) with ReadAloudButton
+      - Scheme cards within assistant messages
+      - Loading animation (3 bouncing dots)
+      - Auto-scroll to bottom
+
+  ChatInput.tsx
+    Props: onSend, disabled?, suggestions?, language
+    Purpose: Text input + voice button
+    Features:
+      - Suggestion pills (clickable)
+      - Auto-expanding textarea (rows=1)
+      - VoiceButton component
+      - Send button (paper plane icon)
+      - Enter to send, Shift+Enter for newline
+
+  ChatWidget.tsx
+    Props: none
+    Purpose: Floating chat button (bottom-right, z-50)
+    Features:
+      - Hidden on "/" and "/chat" paths
+      - Toggle popup with link to /chat
+      - Chat/close icon toggle
+
+  VoiceButton.tsx
+    Props: onSend, language, disabled?
+    Purpose: Speech-to-text input
+    Features:
+      - Uses useSpeechRecognition hook
+      - Pulsing red animation when recording
+      - Floating transcript bubble
+      - Auto-sends on recognition stop
+
+SCHEME COMPONENTS (src/components/schemes/):
+
+  SchemeCard.tsx
+    Props: scheme: SchemeListItem
+    Purpose: Scheme preview card for grids
+    Features:
+      - Link to /schemes/{slug}
+      - Name (2-line clamp)
+      - Description (2-line clamp)
+      - Category badge (blue), level badge (gray)
+      - First 2 tags (emerald)
+      - "Featured" badge
+
+ELIGIBILITY COMPONENTS (src/components/eligibility/):
+
+  EligibilityWizard.tsx
+    Props: none (self-contained)
+    State: step (0-7), profile, results
+    Steps:
+      0: Gender (3 buttons: Male, Female, Transgender)
+      1: Age (number input)
+      2: State (select dropdown)
+      3: Social Category (grid: General, SC, ST, OBC, EWS)
+      4: Disability (yes/no)
+      5: Student (yes/no)
+      6: Income (number input, ₹)
+      7: BPL (yes/no)
+    Navigation: Back, Next, Skip buttons
+    Submit: "Find Schemes" → POST /eligibility/check
+    Results: Schemes with match_score color coding
+
+LAYOUT COMPONENTS (src/components/layout/):
+
+  Navbar.tsx
+    Purpose: Sticky top navigation bar
+    Links: Home, Schemes, Categories, States, Ministries, Find Scheme, Chat
+    Features: Desktop nav + mobile burger menu, LanguageSwitcher
+
+  Footer.tsx
+    Purpose: Dark footer with 4 columns
+    Columns: About, Browse, Tools, Info
+    Links to all major pages
+
+  LanguageSwitcher.tsx
+    Purpose: Language selection dropdown
+    Features:
+      - Button showing current language native name + globe icon
+      - Dropdown with all 23 languages
+      - Click-outside handler to close
+
+  AppShell.tsx
+    Purpose: Sidebar + MobileHeader layout (alternative layout)
+    Features: Sidebar toggle state
+
+  MobileHeader.tsx
+    Props: onMenuToggle
+    Purpose: Mobile-only header (hidden on lg+)
+
+  Sidebar.tsx
+    Props: open, onClose
+    Purpose: Sidebar navigation with chat history
+    Sections: Logo, New Chat, Chat History (20 items), Browse links, Language
+
+UI COMPONENTS (src/components/ui/):
+
+  ReadAloudButton.tsx
+    Props: text: string
+    Purpose: Text-to-speech via Web Speech API
+    Features: Play/Stop toggle, truncates to 500 chars
+
+  Pagination.tsx
+    Props: page, totalPages, onPageChange
+    Purpose: Smart pagination with ellipsis
+    Features: Previous/Next + numbered pages
+
+  T.tsx
+    Props: k: string (translation key)
+    Purpose: Inline translation wrapper for JSX
+
+
+5.4  HOOKS
+──────────
+
+  useChat (src/hooks/useChat.ts)
+    Returns: { messages, loading, sendMessage, addVoiceResponse, reset, sessionId }
+    Session ID: session_{timestamp}_{random6chars}
+    sendMessage: POST /chat/message, handles errors
+    addVoiceResponse: Add voice transcript + reply to messages
+    reset: Clear messages + POST /chat/reset/{sessionId}
+
+  useChatHistory (src/hooks/useChatHistory.ts)
+    Storage: localStorage (sevanagpt_chat_history)
+    Limit: 50 conversations
+    Returns: { conversations, createConversation, updateConversationTitle,
+               deleteConversation, clearHistory }
+
+  useSpeechRecognition (src/hooks/useSpeechRecognition.ts)
+    API: Web Speech API (SpeechRecognition)
+    Config: continuous=false, interimResults=true
+    Returns: { isListening, transcript, interimTranscript, startListening,
+               stopListening, supported, error }
+
+
+5.5  CONTEXT & STATE MANAGEMENT
+───────────────────────────────
+
+  LanguageContext (src/context/LanguageContext.tsx)
+    Provider wraps entire app
+    State: language (persisted to localStorage as myscheme_lang)
+    Translations: Loaded from /public/locales/{lang}/common.json
+    Fallback: English on load/error
+    Interface:
+      language: string
+      setLanguage(lang): void
+      languages: Language[] (23 entries)
+      t(key): string (dot-notation lookup)
+      translations: Record<string, any>
+      translationsReady: boolean
+    Languages: en, hi, bn, ta, te, mr, gu, kn, ml, pa, or, ur,
+               as, ne, sa, sd, mai, doi, kok, sat, mni, bodo, lus
+
+
+5.6  API CLIENT LIBRARY
+───────────────────────
+
+File: src/lib/api.ts
+
+  Base Function:
+    fetchAPI<T>(path, options?) → T
+      - Prepends NEXT_PUBLIC_API_URL
+      - Sets Content-Type: application/json
+
+  Scheme APIs:
+    getSchemes(params, lang) → PaginatedSchemes
+    getScheme(slug, lang) → SchemeDetail
+    getFeaturedSchemes(lang) → SchemeListItem[]
+
+  Category APIs:
+    getCategories(lang) → CategoryOut[]
+    getCategory(slug, lang, page, pageSize) → {category, schemes}
+
+  State APIs:
+    getStates(lang) → StateOut[]
+    getState(slug, lang, page, pageSize, level) → {state, schemes}
+
+  Ministry APIs:
+    getMinistries(lang) → MinistryOut[]
+    getMinistry(slug, lang, page, pageSize) → {ministry, schemes}
+
+  Search & Eligibility:
+    searchSchemes(body, lang) → SearchResponse
+    checkEligibility(body, lang) → EligibilityResponse
+    getEligibilityOptions(lang) → {genders, social_categories, states}
+
+  Chat:
+    sendChatMessage({message, session_id, language}) → ChatMessageResponse
+
+
+5.7  INTERNATIONALIZATION (i18n)
+────────────────────────────────
+
+  Locale Files: public/locales/{lang}/common.json (23 languages)
+
+  Translation Key Structure:
+    site_name, site_description
+    nav.*         (home, schemes, categories, states, ministries, find_scheme, chat)
+    hero.*        (title, subtitle, cta_chat, cta_eligibility)
+    stats.*       (schemes, ministries, states, categories)
+    browse.*      (by_category, by_state, by_ministry, view_all, featured, etc.)
+    chat.*        (title, subtitle, new_chat, placeholder, welcome, welcome_sub,
+                   start_voice, stop_recording, error_message, suggestion_*)
+    schemes_page.*(title, search_placeholder, loading, no_results, showing)
+    scheme_detail.*(all detail section headers, eligibility labels, etc.)
+    eligibility.* (wizard step titles, hints, placeholders)
+    not_found.*   (title, heading, message, go_home, browse_schemes)
+    common.*      (all_categories, all_states, all_levels, central, state, etc.)
+    footer.*      (description, browse, tools, about, built_with)
+    sidebar.*     (new_chat, chat_history, browse, language)
+    error.*       (title, default_message, try_again)
+
+  Speech Language Support (BCP-47 codes for Web Speech API):
+    en → en-IN, hi → hi-IN, bn → bn-IN, ta → ta-IN, te → te-IN,
+    mr → mr-IN, gu → gu-IN, kn → kn-IN, ml → ml-IN, pa → pa-IN, ur → ur-IN
+    (11 languages with voice support)
+
+
+5.8  DESIGN SYSTEM & STYLING
+─────────────────────────────
+
+  Color Palette:
+    Primary:   Emerald (emerald-50 through emerald-700)
+    Secondary: Blue (blue-100, blue-800 — category badges)
+    Neutral:   Gray (gray-50 through gray-900)
+    Accent:    Red (red-500 — voice recording pulse)
+    Success:   Green (green-100, green-700 — eligibility match)
+    Warning:   Yellow (yellow-100, yellow-700)
+
+  Typography:
+    Font: Geist Sans + Geist Mono (Google Fonts)
+    Heading: text-lg to text-4xl, font-semibold to font-bold
+    Body: text-sm to text-base, text-gray-600
+
+  Responsive Breakpoints:
+    sm:  640px
+    md:  768px (mobile nav toggles)
+    lg:  1024px (sidebar shows)
+    xl:  1280px
+
+  Component Patterns:
+    Cards: rounded-xl, shadow-sm, border border-gray-200
+    Buttons: rounded-full (pills), rounded-lg (standard)
+    Badges: px-2 py-0.5 text-xs rounded-full
+    Modals: z-50 fixed overlay
+
+
+================================================================================
+  CHAPTER 6 — INDICTRANS2 MICROSERVICE
+================================================================================
+
+6.1  MODEL & ARCHITECTURE
+──────────────────────────
+
+  Model:        ai4bharat/indictrans2-en-indic-dist-200M
+  Type:         Seq2Seq (encoder-decoder) for machine translation
+  Parameters:   200M (distilled variant)
+  Precision:    float16 on CUDA, float32 on CPU
+  Framework:    PyTorch 2.1 + HuggingFace Transformers
+  Preprocessor: IndicTransToolkit (IndicProcessor)
+  Base Image:   pytorch/pytorch:2.1.0-cuda11.8-cudnn8-runtime
+
+  Singleton Loading:
+    - Model, tokenizer, and processor loaded once at startup
+    - Loaded in background thread via lifespan event
+    - /health endpoint reports ready status
+
+  Dependencies:
+    torch>=2.1.0
+    transformers>=4.35.0,<4.45.0  (pinned for tokenizer compatibility)
+    peft>=0.7.0,<0.11.0           (LoRA adapter support)
+    IndicTransToolkit              (preprocessing/postprocessing)
+    sentencepiece                  (subword tokenization)
+    protobuf                       (model serialization)
+    fastapi>=0.104.0               (REST API)
+    uvicorn[standard]>=0.24.0      (ASGI server)
+
+
+6.2  API ENDPOINTS
+──────────────────
+
+  GET  /health
+    Response: { status, model, device, ready: bool }
+
+  POST /translate
+    Request:  { text, source_lang="en", target_lang }
+    Response: { translated_text, source_lang, target_lang }
+    Errors:   400 (unsupported language), 503 (model not ready)
+
+  POST /translate/batch
+    Request:  { texts[], source_lang="en", target_lang }
+    Response: { translated_texts[], source_lang, target_lang }
+    Features: Handles empty lists, auto-chunks for GPU memory
+
+
+6.3  LANGUAGE CODE MAPPING
+──────────────────────────
+
+  ISO 639-1 → IndicTrans2 BCP-47 code mapping (22 languages):
+
+  CODE  INDICTRANS2 CODE  LANGUAGE          SCRIPT
+  ────  ────────────────  ────────────────   ──────────
+  hi    hin_Deva          Hindi              Devanagari
+  bn    ben_Beng          Bengali            Bengali
+  ta    tam_Taml          Tamil              Tamil
+  te    tel_Telu          Telugu             Telugu
+  mr    mar_Deva          Marathi            Devanagari
+  gu    guj_Gujr          Gujarati           Gujarati
+  kn    kan_Knda          Kannada            Kannada
+  ml    mal_Mlym          Malayalam          Malayalam
+  pa    pan_Guru          Punjabi            Gurmukhi
+  or    ory_Orya          Odia               Odia
+  ur    urd_Arab          Urdu               Arabic
+  as    asm_Beng          Assamese           Bengali
+  ne    npi_Deva          Nepali             Devanagari
+  sa    san_Deva          Sanskrit           Devanagari
+  sd    snd_Arab          Sindhi             Arabic
+  mai   mai_Deva          Maithili           Devanagari
+  doi   doi_Deva          Dogri              Devanagari
+  kok   gom_Deva          Konkani            Devanagari
+  sat   sat_Olck          Santali            Ol Chiki
+  mni   mni_Mtei          Manipuri           Meitei
+  bodo  brx_Deva          Bodo               Devanagari
+  lus   lus_Latn          Mizo               Latin
+
+  Source Language: eng_Latn (English)
+
+
+6.4  LORA ADAPTER SUPPORT
+──────────────────────────
+
+  Configuration:
+    INDICTRANS_LORA_ADAPTER_PATH env var
+    Docker mount: ./indictrans/adapters → /app/adapters
+    Expected path: /app/adapters/ml_govscheme/adapter_config.json
+
+  Loading:
+    - Checks os.path.isdir(LORA_ADAPTER_PATH) at startup
+    - Uses peft.PeftModel.from_pretrained() to merge adapter
+    - Prints success/failure to stdout
+
+  Current Status:
+    - Malayalam (ml) LoRA adapter trained in Fine-tuning/ pipeline
+    - Adapter directory exists but adapter not yet exported
+    - Falls back gracefully to base model if adapter missing
+
+
+6.5  OOM HANDLING & PERFORMANCE
+───────────────────────────────
+
+  GPU Memory Management:
+    - MAX_BATCH_SIZE=4 (tuned for RTX 3050 6GB VRAM)
+    - float16 precision on CUDA
+    - Text truncation to 500 chars before translation
+    - use_cache=False workaround (avoids past_key_values memory leak)
+
+  OOM Fallback Strategy:
+    1. Try translating chunk of MAX_BATCH_SIZE texts
+    2. On RuntimeError("out of memory"):
+       a. torch.cuda.empty_cache()
+       b. Fall back to one-by-one translation
+       c. On further OOM: return original text unchanged
+
+  Inference Parameters:
+    NUM_BEAMS=1 (greedy decoding — fastest)
+    MAX_LENGTH=256 tokens
+
+
+================================================================================
+  CHAPTER 7 — TRANSLATION SYSTEM
+================================================================================
+
+7.1  MULTI-ENGINE ARCHITECTURE
+──────────────────────────────
+
+  The translation system uses a waterfall of engines:
+
+    Request
+      │
+      ▼
+    [1. Database Cache] ──── hit ──→ Return cached translation
+      │ miss
+      ▼
+    [2. IndicTrans2]    ──── success ──→ Cache & return
+      │ failure/unavailable
+      ▼
+    [3. Google Translate] ── success ──→ Cache & return
+      │ failure/unsupported
+      ▼
+    [4. Return original text unchanged]
+
+
+7.2  LANGUAGE SUPPORT MATRIX
+─────────────────────────────
+
+  LANGUAGE    CODE  MYSCHEME API  INDICTRANS2  GOOGLE TRANSLATE  VOICE (WEB SPEECH)
+  ──────────  ────  ────────────  ───────────  ────────────────  ──────────────────
+  Hindi       hi    ✓             ✓            ✓                 ✓
+  Bengali     bn    ✓             ✓            ✓                 ✓
+  Tamil       ta    ✓             ✓            ✓                 ✓
+  Telugu      te    ✓             ✓            ✓                 ✓
+  Marathi     mr    ✓             ✓            ✓                 ✓
+  Gujarati    gu    ✓             ✓            ✓                 ✓
+  Kannada     kn    ✓             ✓            ✓                 ✓
+  Malayalam   ml    ✓             ✓            ✓                 ✓
+  Punjabi     pa    ✓             ✓            ✓                 ✓
+  Odia        or    ✓             ✓            ✓                 —
+  Urdu        ur    ✓             ✓            ✓                 ✓
+  Assamese    as    —             ✓            ✓                 —
+  Nepali      ne    —             ✓            ✓                 —
+  Sanskrit    sa    —             ✓            ✓                 —
+  Sindhi      sd    —             ✓            ✓                 —
+  Maithili    mai   —             ✓            ✓ (mai)           —
+  Dogri       doi   —             ✓            ✓ (doi)           —
+  Konkani     kok   —             ✓            ✓ (gom)           —
+  Santali     sat   —             ✓            ✗                 —
+  Manipuri    mni   —             ✓            ✓ (mni-Mtei)      —
+  Bodo        bodo  —             ✓            ✗                 —
+  Mizo        lus   —             ✓            ✓ (lus)           —
+
+  Summary: 11 with MyScheme API data, 22 with IndicTrans2, 20 with Google
+           Translate fallback, 11 with voice support
+
+
+7.3  CACHING STRATEGY
+─────────────────────
+
+  Table: translation_cache
+  Key: SHA-256 hash of "{text}|{src_lang}|{tgt_lang}"
+  Fields: source_text, translated_text, src_lang, tgt_lang, created_at
+
+  Cache Flow:
+    1. On every translation request: check cache by hash_key
+    2. On cache hit: return immediately (zero latency)
+    3. On cache miss: translate via engine chain, then cache result
+    4. Batch cache lookup: IN query on multiple hash_keys (efficient)
+
+  Pre-Population:
+    - Startup: Background pre-translation of Hindi scheme names
+    - CLI: python -m app.data.run_translations --all (all 22 languages)
+    - MyScheme API: 11 languages of scheme_translations from API
+
+
+7.4  BATCH OPTIMIZATION
+───────────────────────
+
+  Google Translate Batching:
+    - Concatenates texts with newline separator
+    - Single API call translates all texts at once
+    - Splits response by newline to recover individual translations
+    - ~13x faster than individual calls
+    - Fallback: individual translation on split mismatch
+    - Chunk limit: 4500 characters per batch
+
+  IndicTrans2 Batching:
+    - GPU batch processing (MAX_BATCH_SIZE=4)
+    - Padding to longest sequence in batch
+    - OOM fallback to one-by-one
+
+  Backend Batch Processing:
+    - Batch cache lookup (IN query)
+    - Parallel workers (CONCURRENT_WORKERS=2 in pre_translate)
+    - Periodic commits to avoid memory buildup
+    - Overall timeout: 20s for batch operations
+
+
+7.5  STATIC TRANSLATION MAPS
+─────────────────────────────
+
+  For instant, zero-latency translation of common UI elements:
+
+  CATEGORY_TRANSLATIONS:  18 categories × 11 languages
+    e.g., "Agriculture, Rural & Environment" → "कृषि, ग्रामीण एवं पर्यावरण" (hi)
+
+  STATE_TRANSLATIONS:     36 states/UTs × 11 languages
+    e.g., "Karnataka" → "கர்நாடகா" (ta)
+
+  MINISTRY_TRANSLATIONS:  Major ministries × 11 languages
+    e.g., "Ministry of Education" → "শিক্ষা মন্ত্রণালয়" (bn)
+
+  Coverage: 11 languages (hi, bn, ta, te, mr, gu, kn, ml, pa, or, ur)
+  Used For: Category names, state names, ministry names in API responses
+  Fallback: On-demand translation for languages not in static maps
+
+
+7.6  SCHEME TRANSLATION ORCHESTRATION
+──────────────────────────────────────
+
+  File: backend/app/utils/scheme_translate.py
+
+  For Scheme Lists (translate_scheme_list_items):
+    1. Bulk lookup in scheme_translations cache (instant)
+    2. Batch translate uncached names (high priority)
+    3. Batch translate descriptions if ≤30 items (deferred for large lists)
+    4. Translate category names (static maps for 11 langs, on-demand for others)
+
+  For Scheme Detail (translate_scheme_detail):
+    1. Check scheme_translations cache for all fields
+    2. Batch translate remaining: name, description, benefits,
+       eligibility_criteria, application_process, documents_required
+    3. Translate nested names: category, ministry, states
+       (static maps or on-demand)
+    4. Translate eligibility display values: target_gender, target_social_category
+
+
+================================================================================
+  CHAPTER 8 — FINE-TUNING PIPELINE
+================================================================================
+
+8.1  PIPELINE OVERVIEW
+──────────────────────
+
+  The Fine-tuning/ directory contains a complete LoRA fine-tuning pipeline
+  for adapting IndicTrans2 to government scheme domain terminology,
+  currently targeting Malayalam.
+
+  Pipeline Stages:
+    extract_parallel_data.py  →  data/raw/scheme_pairs.jsonl (8,948 pairs)
+    build_glossary.py         →  data/raw/glossary.jsonl (319 terms)
+    prepare_dataset.py        →  data/processed/train.jsonl (8,977 pairs)
+                                 data/processed/val.jsonl (998 pairs)
+                                 data/processed/glossary_test.jsonl (319 pairs)
+    train_lora.py             →  output/checkpoints/ (adapter weights)
+    evaluate.py               →  output/eval_results/ (BLEU, chrF++, HTML)
+    export_model.py           →  indictrans/adapters/ml_govscheme/
+
+
+8.2  DATA EXTRACTION
+────────────────────
+
+  Source: PostgreSQL database (schemes + scheme_translations tables)
+  Method: SQL JOIN on scheme_id WHERE lang='ml' (Malayalam)
+  Fields Extracted:
+    - name (scheme name)
+    - description (brief description)
+    - benefits (benefit details)
+    - eligibility_criteria (eligibility text)
+    - application_process (how to apply)
+    - documents_required (required documents)
+  Output: data/raw/scheme_pairs.jsonl (8,948 parallel English↔Malayalam pairs)
+  Format: {"en": "...", "ml": "...", "field": "name|description|..."}
+
+
+8.3  DATASET PREPARATION
+────────────────────────
+
+  Processing Pipeline:
+    1. Sentence split: Long texts (>200 chars) split on . or ।
+    2. Clean: Remove HTML tags, normalize Unicode (NFC), collapse whitespace
+    3. Filter: Remove too-short (<3 tokens), identical pairs, extreme ratios (>3x)
+    4. Deduplicate: Case-insensitive lower match
+    5. Stratified split: 90% train, 10% val per field type
+
+  Dataset Statistics:
+    Raw pairs:                    8,948 scheme + 319 glossary = 9,267
+    After sentence split:         10,426
+    After cleaning:               10,426
+    After filtering:              10,169 (removed 242 too-short, 15 extreme ratio)
+    After deduplication:          9,975
+    Final train:                  8,977
+    Final validation:             998
+    Glossary test:                319
+    Field distribution:           4,249 names, 5,726 descriptions
+
+
+8.4  LORA TRAINING CONFIGURATION
+────────────────────────────────
+
+  Base Model:          ai4bharat/indictrans2-en-indic-dist-200M
+  LoRA Parameters:
+    Rank:              16
+    Alpha:             32
+    Dropout:           0.05
+    Target Modules:    q_proj, v_proj, k_proj, out_proj, fc1, fc2
+    Task Type:         SEQ_2_SEQ_LM
+
+  Training Hyperparameters:
+    Batch Size:        4
+    Gradient Accum:    8 (effective batch size: 32)
+    Learning Rate:     2e-4
+    Epochs:            5
+    Max Seq Length:     128
+    Warmup Ratio:      5%
+    Weight Decay:      0.01
+    Precision:         FP16 mixed
+    Gradient Checkpoint: Enabled
+    Early Stopping:    Patience 3 (eval loss)
+    Logging:           TensorBoard
+
+  Hardware Requirements:
+    GPU VRAM:          ~2.4 GB (fits on RTX 3050 6GB)
+    Training Time:     30-60 minutes
+
+  Preprocessing:
+    - IndicProcessor(inference=True) adds language tags
+    - Source tokenization → input_ids
+    - Target tokenization → labels (padding = -100)
+
+  Output:
+    Checkpoints:       output/checkpoints/checkpoint-{step}/
+    Final adapter:     output/checkpoints/final/
+    Files:             adapter_config.json, adapter_model.safetensors
+
+
+8.5  EVALUATION METRICS
+───────────────────────
+
+  File: Fine-tuning/evaluate.py
+
+  Metrics Computed:
+    - BLEU score (via sacrebleu) on validation set
+    - chrF++ score (character-level F-score) on validation set
+    - Terminology accuracy on glossary_test.jsonl:
+      • Exact match rate
+      • Fuzzy match rate
+
+  Comparison Mode:
+    - Base model vs fine-tuned model
+    - Side-by-side HTML report with 50 sample translations
+
+
+8.6  MODEL EXPORT & DEPLOYMENT
+──────────────────────────────
+
+  File: Fine-tuning/export_model.py
+
+  Export Process:
+    1. Copies adapter from output/checkpoints/final/
+    2. Target: indictrans/adapters/ml_govscheme/
+    3. Reports adapter size in MB
+    4. Displays adapter config (rank, alpha, modules)
+
+  Deployment:
+    - docker-compose.yml mounts ./indictrans/adapters → /app/adapters
+    - INDICTRANS_LORA_ADAPTER_PATH=/app/adapters/ml_govscheme
+    - translator.py loads adapter via peft.PeftModel.from_pretrained()
+    - Graceful fallback: if adapter missing, uses base model
+
+  File: Fine-tuning/precache_ui_strings.py
+  Purpose: Pre-cache UI translations after deploying fine-tuned model
+    - Translates category, ministry, state, gender, social category names
+    - Calls backend /translate endpoint
+    - Warms translation_cache table for all 22 languages
+
+
+================================================================================
+  CHAPTER 9 — SEARCH SYSTEM
+================================================================================
+
+9.1  HYBRID SEARCH ARCHITECTURE
+────────────────────────────────
+
+  The search system combines two complementary strategies:
+
+    User Query
+      │
+      ├──→ [Keyword Search]  → Ranked list 1 (term matching)
+      │
+      ├──→ [Semantic Search] → Ranked list 2 (vector similarity)
+      │
+      └──→ [RRF Merger]      → Final ranked results
+                                  │
+                                  ▼
+                          [Post-Filters] → Top 10 results
+                          (category, state, ministry, level)
+
+
+9.2  KEYWORD SEARCH
+───────────────────
+
+  Algorithm:
+    1. Split query into terms (min 3 chars each)
+    2. For each term, ILIKE search on:
+       - scheme.name
+       - scheme.description
+       - scheme.benefits
+       - scheme.eligibility_criteria
+    3. Score = matching_terms / total_terms
+    4. Return top 20 sorted by score descending
+
+  Translated Search:
+    For non-English queries, additionally searches scheme_translations table
+    on translated name and description fields.
+
+
+9.3  SEMANTIC SEARCH (pgvector)
+───────────────────────────────
+
+  Algorithm:
+    1. Embed query text using Mistral embed API (1024-dim vector)
+    2. Cosine distance search against scheme_embeddings table
+    3. Score = 1.0 - cosine_distance
+    4. Return top 20 nearest neighbors
+
+  Embedding Model: mistral-embed (1024 dimensions)
+  Storage: pgvector Vector(1024) column type
+
+
+9.4  RECIPROCAL RANK FUSION (RRF)
+──────────────────────────────────
+
+  Formula: score(d) = Σ 1/(k + rank_i(d) + 1)
+    Where k=60 (tuning parameter), rank_i(d) = position of document d in list i
+
+  Properties:
+    - Schemes appearing in BOTH keyword and semantic lists get boosted
+    - Higher-ranked items in each list contribute more
+    - k=60 balances between top-heavy and flat scoring
+    - Deduplicates by scheme ID, sums scores from all lists
+
+  Example:
+    Scheme X at rank 1 in keyword + rank 3 in semantic:
+    Score = 1/(60+1+1) + 1/(60+3+1) = 0.0161 + 0.0156 = 0.0317
+
+    Scheme Y at rank 1 in keyword only:
+    Score = 1/(60+1+1) = 0.0161
+
+    → Scheme X ranks higher (appears in both lists)
+
+
+9.5  EMBEDDING GENERATION
+─────────────────────────
+
+  Process:
+    1. For each scheme, build text:
+       name + description + "Benefits: " + benefits + "Eligibility: " + eligibility
+    2. Truncate to 8000 chars
+    3. Compute SHA-256 hash of text
+    4. Check if existing embedding has same hash (skip if unchanged)
+    5. Call Mistral embed API in batches of 10
+    6. Store 1024-dim vector + hash in scheme_embeddings table
+
+  Rate Limit Handling:
+    - Exponential backoff: 5s, 10s, 20s, 40s, 80s (5 attempts)
+    - 1s delay between batches
+    - Stale row cleanup before insert
+
+  Statistics:
+    Total schemes:     4,668
+    Embedding dim:     1,024
+    Batch size:        10
+    Est. generation:   ~8-10 minutes (with rate limits)
+
+
+================================================================================
+  CHAPTER 10 — GIT HISTORY & DEVELOPMENT
+================================================================================
+
+10.1  COMMIT HISTORY
+────────────────────
+
+  HASH      DATE        MESSAGE
+  ────────  ──────────  ───────────────────────────────────────────────────────
+  f361f00   Initial     SevanaGPT: AI-powered Indian government scheme discovery platform
+  8f9af49   Update 1    Replace Bhashini with IndicTrans translation, add Web Speech API,
+                         expand language support and tests
+  56c664a   Update 2    Add scheme detail fields, link extraction pipeline, translation
+                         improvements, and locale updates
+  4ab31e3   Update 3    Add LoRA adapter support, GPU OOM fallback, and version pins
+                         for IndicTrans2
+  a094342   Update 4    Update docker-compose with env_file, GPU runtime, LoRA volume mounts
+  94d9ca3   Update 5    Add DATABASE_URL env var support in alembic and increase batch timeout
+  e2bcdb1   Update 6    Improve translation pipeline with dedup, LoRA-friendly batch sizes,
+                         and dynamic nested translation
+  8c64309   Update 7    Add exponential backoff retry and stale row cleanup to embedding service
+  d374981   Update 8    Simplify HomeChat props, add voice response and reset to chat hook
+  e89c2aa   Update 9    Add CLAUDE.md project documentation for Claude Code
+  d0239a0   Update 10   Add LoRA fine-tuning pipeline for IndicTrans2 domain adaptation
+
+
+10.2  KNOWN ISSUES & GOTCHAS
+─────────────────────────────
+
+  1. IndicTrans2 + transformers: Must pin transformers<4.45.0 — newer versions
+     break the custom tokenizer (_special_tokens_map error).
+
+  2. use_cache=False required: Custom IndicTrans2 model has past_key_values bug
+     with newer transformers. Must set use_cache=False in generate().
+
+  3. peft version: Must pin peft>=0.7.0,<0.11.0 for LoRA compatibility.
+
+  4. Docker BuildKit networking: huggingface_hub may report misleading
+     "connection" errors when real issue is 403 (token permissions).
+
+  5. Mistral rate limits: Free tier hits 429 frequently. Embedding generation
+     uses exponential backoff (5s, 10s, 20s, 40s, 80s).
+
+  6. GPU OOM: Reduce CONCURRENT_WORKERS (default 2) and BATCH_SIZE (default 8)
+     in pre_translate.py. For indictrans, reduce MAX_BATCH_SIZE (default 4).
+
+  7. MyScheme API duplicates: Returns duplicate slugs — deduplicates by
+     scheme_id in ingest_translations.py.
+
+  8. docker compose up --build kills exec: Never rebuild while docker exec
+     tasks are running. Use docker cp to hot-patch.
+
+  9. Google Translate special codes: mni→mni-Mtei, kok→gom. bodo and sat
+     have NO Google Translate support.
+
+  10. HF_TOKEN hardcoded: Currently committed in docker-compose.yml as
+      plaintext. Should be externalized to env var.
+
+
+10.3  FILE STATISTICS
+─────────────────────
+
+  TYPE                    COUNT    NOTES
+  ──────────────────────  ───────  ────────────────────────
+  Python files (.py)      ~100     Backend + IndicTrans + Fine-tuning
+  TypeScript/TSX files    ~40      Frontend
+  JSON locale files       23       One per language
+  Alembic migrations      5        Database schema evolution
+  Docker files            3        backend, frontend, indictrans
+  Config files            ~10      package.json, tsconfig, alembic.ini, etc.
+  Test files              10+      pytest backend tests
+  Training data files     6        JSONL + CSV in Fine-tuning/data/
+
+  Lines of Code (approx):
+    Backend data pipeline: 9,021 lines (19 files)
+    Backend total:         ~15,000 lines
+    Frontend total:        ~5,000 lines
+    IndicTrans:            ~500 lines
+    Fine-tuning:           ~700 lines
+
+
+================================================================================
+  APPENDIX A — COMPLETE FILE TREE
+================================================================================
+
+  sevanagpt/
+  ├── .gitignore
+  ├── CLAUDE.md
+  ├── Makefile
+  ├── docker-compose.yml
+  ├── agriculture_schemes.csv
+  │
+  ├── backend/
+  │   ├── .env.txt                          (API keys — NOT committed)
+  │   ├── Dockerfile
+  │   ├── alembic.ini
+  │   ├── requirements.txt
+  │   ├── alembic/
+  │   │   ├── env.py
+  │   │   └── versions/
+  │   │       ├── 6736873b8656_initial_schema.py
+  │   │       ├── add_source_column.py
+  │   │       ├── b2c3d4e5f6a7_add_scheme_translations.py
+  │   │       ├── c3d4e5f6a7b8_add_scheme_extra_fields.py
+  │   │       └── d4e5f6a7b8c9_fix_column_defaults.py
+  │   ├── app/
+  │   │   ├── __init__.py
+  │   │   ├── main.py
+  │   │   ├── config.py
+  │   │   ├── database.py
+  │   │   ├── models/
+  │   │   │   ├── __init__.py
+  │   │   │   ├── scheme.py           (Scheme, Category, State, Ministry, Tag, FAQ, Embedding, Translation)
+  │   │   │   ├── chat.py             (Conversation, Message)
+  │   │   │   └── cache.py            (TranslationCache)
+  │   │   ├── schemas/
+  │   │   │   ├── __init__.py
+  │   │   │   ├── scheme.py           (SchemeListItem, SchemeDetail, PaginatedSchemes, etc.)
+  │   │   │   ├── chat.py             (ChatMessageRequest, ChatMessageResponse)
+  │   │   │   ├── search.py           (SearchRequest, SearchResponse)
+  │   │   │   └── eligibility.py      (EligibilityCheckRequest, EligibilityResponse)
+  │   │   ├── api/
+  │   │   │   ├── __init__.py
+  │   │   │   └── v1/
+  │   │   │       ├── __init__.py
+  │   │   │       ├── schemes.py      (GET /schemes, /schemes/featured, /schemes/{slug})
+  │   │   │       ├── search.py       (POST /search, GET /search/suggest)
+  │   │   │       ├── chat.py         (POST /chat/message, GET /chat/history, POST /chat/reset)
+  │   │   │       ├── categories.py   (GET /categories, /categories/{slug})
+  │   │   │       ├── states.py       (GET /states, /states/{slug})
+  │   │   │       ├── ministries.py   (GET /ministries, /ministries/{slug})
+  │   │   │       ├── translate.py    (POST /translate, GET /languages)
+  │   │   │       └── eligibility.py  (POST /eligibility/check, GET /eligibility/options)
+  │   │   ├── services/
+  │   │   │   ├── __init__.py
+  │   │   │   ├── chat_service.py     (FSM orchestration, LLM calls)
+  │   │   │   ├── search_service.py   (Hybrid search, RRF)
+  │   │   │   ├── embedding_service.py (Mistral embeddings + retry)
+  │   │   │   ├── mistral_service.py  (Mistral/Groq LLM provider)
+  │   │   │   ├── translate_service.py (IndicTrans2 + Google Translate)
+  │   │   │   ├── eligibility_service.py (Profile matching)
+  │   │   │   └── indictrans_client.py (HTTP client for IndicTrans2)
+  │   │   ├── chatbot/
+  │   │   │   ├── __init__.py
+  │   │   │   ├── fsm.py             (ChatState enum, transitions)
+  │   │   │   └── prompts.py         (System + per-state prompts)
+  │   │   ├── utils/
+  │   │   │   ├── __init__.py
+  │   │   │   ├── languages.py       (LANGUAGE_MAP, 28 languages)
+  │   │   │   ├── scheme_translate.py (Translation orchestration)
+  │   │   │   ├── translations.py    (Static translation maps)
+  │   │   │   ├── rate_limit.py      (Token-bucket rate limiter)
+  │   │   │   └── slug.py            (URL-safe slug generation)
+  │   │   ├── middleware/
+  │   │   │   └── timing.py          (Request latency tracking)
+  │   │   └── data/
+  │   │       ├── __init__.py
+  │   │       ├── ingest_all.py       (Pipeline orchestrator)
+  │   │       ├── seed.py             (Categories, states, ministries, tags)
+  │   │       ├── ingest_hf.py        (HuggingFace data)
+  │   │       ├── ingest_myscheme.py  (MyScheme.gov.in API)
+  │   │       ├── ingest_state_schemes.py (State-specific data)
+  │   │       ├── ingest_kaggle.py    (Kaggle datasets)
+  │   │       ├── ingest_datagov.py   (data.gov.in API)
+  │   │       ├── ingest_translations.py (MyScheme API translations)
+  │   │       ├── pre_translate.py    (Pre-populate translation cache)
+  │   │       ├── run_translations.py (Translation CLI wrapper)
+  │   │       ├── generate_embeddings.py (Embedding generation wrapper)
+  │   │       ├── extract_links.py    (Official link extraction)
+  │   │       ├── validate_links.py   (Link status checking)
+  │   │       ├── extract_details.py  (Web scraping for details)
+  │   │       ├── manual_link_search.py (Google search for links)
+  │   │       ├── curated_links.py    (Manual link data)
+  │   │       ├── update_embedded_data.py (Enrichment updates)
+  │   │       └── state_schemes_data.py (Curated state data)
+  │   └── tests/
+  │       ├── conftest.py             (Fixtures: test DB, mocks)
+  │       ├── test_search.py          (RRF, hybrid search tests)
+  │       ├── test_link_extraction.py
+  │       ├── test_link_validation.py
+  │       └── ... (additional test files)
+  │
+  ├── frontend/
+  │   ├── Dockerfile
+  │   ├── package.json
+  │   ├── next.config.ts
+  │   ├── tsconfig.json
+  │   ├── postcss.config.mjs
+  │   ├── eslint.config.mjs
+  │   ├── public/
+  │   │   └── locales/
+  │   │       ├── en/common.json      (English — base)
+  │   │       ├── hi/common.json      (Hindi)
+  │   │       ├── bn/common.json      (Bengali)
+  │   │       ├── ta/common.json      (Tamil)
+  │   │       ├── te/common.json      (Telugu)
+  │   │       ├── mr/common.json      (Marathi)
+  │   │       ├── gu/common.json      (Gujarati)
+  │   │       ├── kn/common.json      (Kannada)
+  │   │       ├── ml/common.json      (Malayalam)
+  │   │       ├── pa/common.json      (Punjabi)
+  │   │       ├── or/common.json      (Odia)
+  │   │       ├── ur/common.json      (Urdu)
+  │   │       ├── as/common.json      (Assamese)
+  │   │       ├── ne/common.json      (Nepali)
+  │   │       ├── sa/common.json      (Sanskrit)
+  │   │       ├── sd/common.json      (Sindhi)
+  │   │       ├── mai/common.json     (Maithili)
+  │   │       ├── doi/common.json     (Dogri)
+  │   │       ├── kok/common.json     (Konkani)
+  │   │       ├── sat/common.json     (Santali)
+  │   │       ├── mni/common.json     (Manipuri)
+  │   │       ├── bodo/common.json    (Bodo)
+  │   │       └── lus/common.json     (Mizo)
+  │   └── src/
+  │       ├── app/
+  │       │   ├── layout.tsx          (Root: LanguageProvider, Navbar, Footer)
+  │       │   ├── page.tsx            (Home page)
+  │       │   ├── globals.css         (Tailwind + custom vars)
+  │       │   ├── error.tsx
+  │       │   ├── loading.tsx
+  │       │   ├── not-found.tsx
+  │       │   ├── chat/
+  │       │   │   └── page.tsx        (Full chat page)
+  │       │   └── (browse)/
+  │       │       ├── layout.tsx
+  │       │       ├── schemes/
+  │       │       │   ├── page.tsx     (Scheme listing with filters)
+  │       │       │   └── [slug]/page.tsx (Scheme detail)
+  │       │       ├── categories/
+  │       │       │   ├── page.tsx
+  │       │       │   └── [slug]/page.tsx
+  │       │       ├── states/
+  │       │       │   ├── page.tsx
+  │       │       │   └── [slug]/page.tsx
+  │       │       ├── ministries/
+  │       │       │   ├── page.tsx
+  │       │       │   └── [slug]/page.tsx
+  │       │       └── find-scheme/
+  │       │           └── page.tsx    (Eligibility wizard)
+  │       ├── components/
+  │       │   ├── chat/
+  │       │   │   ├── HomeChat.tsx
+  │       │   │   ├── ChatWindow.tsx
+  │       │   │   ├── ChatInput.tsx
+  │       │   │   ├── ChatWidget.tsx
+  │       │   │   └── VoiceButton.tsx
+  │       │   ├── schemes/
+  │       │   │   └── SchemeCard.tsx
+  │       │   ├── eligibility/
+  │       │   │   └── EligibilityWizard.tsx
+  │       │   ├── layout/
+  │       │   │   ├── Navbar.tsx
+  │       │   │   ├── Footer.tsx
+  │       │   │   ├── LanguageSwitcher.tsx
+  │       │   │   ├── AppShell.tsx
+  │       │   │   ├── MobileHeader.tsx
+  │       │   │   └── Sidebar.tsx
+  │       │   └── ui/
+  │       │       ├── ReadAloudButton.tsx
+  │       │       ├── Pagination.tsx
+  │       │       └── T.tsx
+  │       ├── hooks/
+  │       │   ├── useChat.ts
+  │       │   ├── useChatHistory.ts
+  │       │   └── useSpeechRecognition.ts
+  │       ├── context/
+  │       │   └── LanguageContext.tsx
+  │       └── lib/
+  │           ├── api.ts
+  │           ├── types.ts
+  │           ├── constants.ts
+  │           └── speechLanguageMap.ts
+  │
+  ├── indictrans/
+  │   ├── Dockerfile
+  │   ├── requirements.txt
+  │   ├── download_model.py
+  │   ├── adapters/               (LoRA adapter mount point)
+  │   └── app/
+  │       ├── __init__.py
+  │       ├── main.py             (FastAPI: /health, /translate, /translate/batch)
+  │       ├── config.py           (Model, device, inference settings)
+  │       ├── translator.py       (Model loading, LoRA, batch inference)
+  │       ├── lang_codes.py       (ISO → IndicTrans2 mapping)
+  │       └── models.py           (Pydantic request/response schemas)
+  │
+  └── Fine-tuning/
+      ├── config.py               (Hyperparameters, paths)
+      ├── requirements.txt        (ML dependencies)
+      ├── extract_parallel_data.py (DB → JSONL)
+      ├── build_glossary.py       (Terminology extraction)
+      ├── prepare_dataset.py      (Clean, filter, split)
+      ├── train_lora.py           (LoRA training loop)
+      ├── evaluate.py             (BLEU, chrF++, comparisons)
+      ├── export_model.py         (Adapter → indictrans/adapters/)
+      ├── precache_ui_strings.py  (Warm translation cache)
+      └── data/
+          ├── raw/
+          │   ├── scheme_pairs.jsonl    (8,948 pairs)
+          │   └── glossary.jsonl        (319 terms)
+          ├── processed/
+          │   ├── train.jsonl           (8,977 pairs)
+          │   ├── val.jsonl             (998 pairs)
+          │   └── glossary_test.jsonl   (319 pairs)
+          ├── auto_glossary.csv
+          └── stats.json
+
+
+================================================================================
+  APPENDIX B — API ENDPOINT REFERENCE
+================================================================================
+
+  METHOD  PATH                          AUTH  RATE LIMIT  DESCRIPTION
+  ──────  ────────────────────────────  ────  ──────────  ─────────────────────────
+  GET     /health                       —     —           Health check
+  GET     /metrics                      —     —           Latency percentiles
+
+  GET     /api/v1/schemes               —     —           List schemes (paginated)
+  GET     /api/v1/schemes/featured      —     —           Featured schemes (12)
+  GET     /api/v1/schemes/{slug}        —     —           Scheme detail
+
+  POST    /api/v1/search                —     —           Hybrid search
+  GET     /api/v1/search/suggest        —     —           Autocomplete suggestions
+
+  POST    /api/v1/chat/message          —     30/60s/IP   Chat message
+  GET     /api/v1/chat/history/{id}     —     —           Chat history
+  POST    /api/v1/chat/reset/{id}       —     —           Reset conversation
+
+  GET     /api/v1/categories            —     —           List categories
+  GET     /api/v1/categories/{slug}     —     —           Category detail
+
+  GET     /api/v1/states                —     —           List states
+  GET     /api/v1/states/{slug}         —     —           State detail
+
+  GET     /api/v1/ministries            —     —           List ministries
+  GET     /api/v1/ministries/{slug}     —     —           Ministry detail
+
+  POST    /api/v1/translate             —     —           Translate text
+  GET     /api/v1/languages             —     —           Supported languages
+
+  POST    /api/v1/eligibility/check     —     —           Eligibility matching
+  GET     /api/v1/eligibility/options   —     —           Eligibility options
+
+  --- IndicTrans2 Microservice (port 7860) ---
+  GET     /health                       —     —           Model readiness
+  POST    /translate                    —     —           Single translation
+  POST    /translate/batch              —     —           Batch translation
+
+
+================================================================================
+  APPENDIX C — DATABASE SCHEMA DIAGRAM (TEXT)
+================================================================================
+
+  ┌────────────────┐     ┌────────────────┐     ┌────────────────┐
+  │   categories   │     │     states     │     │     tags       │
+  ├────────────────┤     ├────────────────┤     ├────────────────┤
+  │ id (PK)        │     │ id (PK)        │     │ id (PK)        │
+  │ name           │     │ name           │     │ name (UNIQUE)  │
+  │ slug (UNIQUE)  │     │ slug (UNIQUE)  │     │ slug (UNIQUE)  │
+  │ icon           │     │ code (UNIQUE)  │     └────────┬───────┘
+  │ display_order  │     │ is_ut          │              │
+  └────────┬───────┘     └────┬───────────┘              │
+           │                  │                           │
+           │    ┌─────────────┤                           │
+           │    │             │                           │
+  ┌────────▼────▼─────────────▼───────────────────────────▼──────┐
+  │                        schemes                               │
+  ├──────────────────────────────────────────────────────────────┤
+  │ id (PK), name, slug (UNIQUE), description, benefits,        │
+  │ eligibility_criteria, application_process, documents_required│
+  │ official_link, category_id (FK), ministry_id (FK), level    │
+  │ target_gender[], min_age, max_age, target_social_category[] │
+  │ target_income_max, is_disability, is_student, is_bpl        │
+  │ extra_details (JSONB), link_status, link_checked_at         │
+  │ launch_date, application_deadline, helpline, benefit_type   │
+  │ status, featured, source, created_at, updated_at            │
+  └──┬────────┬────────┬────────┬────────┬──────────────────────┘
+     │        │        │        │        │
+     │   ┌────▼────┐   │   ┌────▼────┐   │
+     │   │scheme_  │   │   │scheme_  │   │
+     │   │states   │   │   │tags     │   │
+     │   │(M:M)    │   │   │(M:M)    │   │
+     │   └─────────┘   │   └─────────┘   │
+     │                  │                 │
+  ┌──▼──────────┐  ┌───▼──────────┐  ┌───▼───────────────┐
+  │scheme_faqs  │  │scheme_       │  │scheme_            │
+  │             │  │embeddings    │  │translations       │
+  ├─────────────┤  ├──────────────┤  ├───────────────────┤
+  │ id (PK)     │  │ id (PK)      │  │ id (PK)           │
+  │ scheme_id   │  │ scheme_id    │  │ scheme_id (FK)    │
+  │ question    │  │ (FK,UNIQUE)  │  │ lang              │
+  │ answer      │  │ embedding    │  │ name, description │
+  │ display_ord │  │ (Vector1024) │  │ benefits, elig... │
+  └─────────────┘  │ text_hash    │  │ tags_json (JSONB) │
+                   └──────────────┘  │ UNIQUE(scheme,lang)│
+                                     └───────────────────┘
+
+  ┌────────────────┐     ┌────────────────┐     ┌──────────────────┐
+  │  ministries    │     │ conversations  │     │ translation_cache│
+  ├────────────────┤     ├────────────────┤     ├──────────────────┤
+  │ id (PK)        │     │ id (PK)        │     │ id (PK)          │
+  │ name           │     │ session_id     │     │ hash_key (UNIQUE)│
+  │ slug (UNIQUE)  │     │ language       │     │ source_text      │
+  │ level          │     │ fsm_state      │     │ translated_text  │
+  │ state_id (FK)  │     │ context (JSONB)│     │ src_lang         │
+  └────────────────┘     │ created/updated│     │ tgt_lang         │
+                         └───────┬────────┘     │ created_at       │
+                                 │              └──────────────────┘
+                         ┌───────▼────────┐
+                         │   messages     │
+                         ├────────────────┤
+                         │ id (PK)        │
+                         │ conversation_id│
+                         │ role           │
+                         │ content        │
+                         │ content_original│
+                         │ extra (JSONB)  │
+                         │ created_at     │
+                         └────────────────┘
+
+
+================================================================================
+  APPENDIX D — FSM STATE DIAGRAM (TEXT)
+================================================================================
+
+                          ┌──────────────┐
+                ┌────────►│   GREETING   │◄────────┐
+                │         └──────┬───────┘         │
+                │                │                  │
+                │     search/eligibility/other      │ greeting
+                │                │                  │
+                │         ┌──────▼───────┐         │
+                │         │    NEED      │         │
+                │    ┌───►│  EXTRACTION  │         │
+                │    │    └──────┬───────┘         │
+                │    │           │                  │
+                │    │  search/eligibility/other    │
+                │    │           │                  │
+                │    │    ┌──────▼───────┐         │
+                │    │    │   SCHEME     │◄───┐    │
+                │    │    │   SEARCH     │    │    │
+                │    │    └──┬────┬──────┘    │    │
+                │    │       │    │            │    │
+                │    │  detail│    │clarify/   │    │
+                │    │       │    │other       │    │
+                │    │  ┌────▼──┐ │    ┌──────▼───┐│
+                │    │  │SCHEME │ └───►│DISAMBIG- ││
+                │    │  │DETAIL │      │UATION    ││
+                │    │  └──┬────┘      └──────────┘│
+                │    │     │                        │
+                │    │  search/other                │
+                │    │     │                        │
+                │    └─────┘                        │
+                │                                   │
+                │         ┌──────────────┐         │
+                └─────────│   CLOSING    │─────────┘
+                 goodbye  └──────────────┘  greeting
+
+  States:
+    GREETING         — Welcome, show suggestions
+    NEED_EXTRACTION  — Gather user profile (age, state, category)
+    SCHEME_SEARCH    — Present matching schemes
+    DISAMBIGUATION   — Clarify ambiguous queries
+    SCHEME_DETAIL    — Show full scheme information
+    CLOSING          — End conversation
+
+  Intents (LLM-classified):
+    greeting, search_scheme, ask_detail, check_eligibility,
+    clarify, goodbye, other
+
+
+================================================================================
+                         END OF REPORT
+================================================================================
+
+  Report Generated: March 2026
+  Project: SevanaGPT v1.0
+  Total Lines in Report: ~3,200
+  Coverage: All source files, configurations, and architecture documented
+
+================================================================================
