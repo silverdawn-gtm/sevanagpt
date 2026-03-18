@@ -1,0 +1,320 @@
+english,auto_malayalam,source,frequency
+financial assistance,സാമ്പത്തിക സഹായം,freq_mining,658
+welfare,ക്ഷേമം,freq_mining,467
+Department,വകുപ്പ്,freq_mining,462
+scholarship,സ്കോളർഷിപ്പ്,freq_mining,384
+farmer,കർഷകൻ,freq_mining,317
+pension,പെൻഷൻ,freq_mining,316
+development,വികസനം,freq_mining,261
+eligible,അർഹതയുള്ളവർ,freq_mining,171
+subsidy,സബ്സിഡി,freq_mining,167
+Scheduled Caste,പട്ടികജാതി,freq_mining,165
+agriculture,കൃഷി,freq_mining,110
+tribal,ഗോത്രവർഗക്കാർ,freq_mining,103
+Scheduled Tribe,പട്ടികവർഗക്കാർ,freq_mining,89
+State Government,സംസ്ഥാന സർക്കാർ,freq_mining,74
+empowerment,ശാക്തീകരണം,freq_mining,68
+Chief Minister,മുഖ്യമന്ത്രി,freq_mining,67
+rural,ഗ്രാമീണ,freq_mining,66
+Ministry,മന്ത്രാലയം,freq_mining,58
+stipend,സ്റ്റൈപ്പൻഡ്,freq_mining,57
+BPL,ബിപിഎൽ,freq_mining,55
+skill development,നൈപുണ്യ വികസനം,freq_mining,47
+artisan,കരകൌശല വിദഗ്ധൻ,freq_mining,44
+beneficiary,ഗുണഭോക്താവ്,freq_mining,43
+family income,കുടുംബ വരുമാനം,freq_mining,35
+Directorate,ഡയറക്ടറേറ്റ്,freq_mining,34
+old age pension,വാർദ്ധക്യകാല പെൻഷൻ,freq_mining,29
+handloom,കൈത്തറി,freq_mining,28
+urban,നഗരപ്രദേശം,freq_mining,27
+Economically Weaker Section,സാമ്പത്തികമായി ദുർബലമായ വിഭാഗം,freq_mining,26
+applicant,അപേക്ഷകൻ,freq_mining,26
+Pradhan Mantri,പ്രധാനമന്ത്രി,freq_mining,24
+maternity benefit,പ്രസവ ആനുകൂല്യം,freq_mining,23
+Below Poverty Line,ദാരിദ്ര്യരേഖയ്ക്ക് താഴെ,freq_mining,21
+handicraft,കരകൌശല,freq_mining,20
+vocational training,തൊഴിൽ പരിശീലനം,freq_mining,20
+Union Territory,കേന്ദ്രഭരണ പ്രദേശം,freq_mining,19
+EWS,ഇ. ഡബ്ല്യു. എസ്.,freq_mining,18
+education loan,വിദ്യാഭ്യാസ വായ്പ,freq_mining,18
+health insurance,ആരോഗ്യ ഇൻഷുറൻസ്,freq_mining,18
+widow pension,വിധവ പെൻഷൻ,freq_mining,18
+Other Backward Class,മറ്റ് പിന്നാക്ക വിഭാഗങ്ങൾ,freq_mining,16
+DBT,ഡിബിടി,freq_mining,14
+tuition fee,ട്യൂഷൻ ഫീസ്,freq_mining,14
+bank account,ബാങ്ക് അക്കൌണ്ട്,freq_mining,13
+housing scheme,ഭവന പദ്ധതി,freq_mining,13
+annual income,വാർഷിക വരുമാനം,freq_mining,12
+MSME,എം. എസ്. എം. ഇ.,freq_mining,11
+Anganwadi,അങ്കണവാടി,freq_mining,10
+SHG,എസ്. എച്ച്. ജി.,freq_mining,10
+Direct Benefit Transfer,നേരിട്ടുള്ള ആനുകൂല്യ കൈമാറ്റം,freq_mining,9
+ration card,റേഷൻ കാർഡ്,freq_mining,9
+child welfare,കുട്ടികളുടെ ക്ഷേമം,freq_mining,7
+electricity connection,വൈദ്യുതി കണക്ഷൻ,freq_mining,6
+APL,എ. പി. എൽ.,freq_mining,5
+Self Help Group,സ്വയം സഹായ സംഘം,freq_mining,5
+startup,സ്റ്റാർട്ടപ്പ്,freq_mining,5
+sanitation,ശുചിത്വം,freq_mining,4
+Central Government,കേന്ദ്ര സർക്കാർ,freq_mining,3
+Gram Panchayat,ഗ്രാമപഞ്ചായത്ത്,freq_mining,3
+MGNREGA,എംജിഎൻആർഇജിഎ,freq_mining,3
+life insurance,ലൈഫ് ഇൻഷുറൻസ്,freq_mining,3
+toilet,ടോയ്ലറ്റ്,freq_mining,3
+Aadhaar,ആധാർ,freq_mining,2
+micro enterprise,മൈക്രോ എന്റർപ്രൈസ്,freq_mining,2
+404,404,ui_locale,1
+AI Chatbot,AI ചാറ്റ്ബോട്ട്,ui_locale,1
+AI Scheme Assistant,AI പദ്ധതി സഹായി,ui_locale,1
+ASHA worker,ആശാ പ്രവർത്തക,freq_mining,1
+About,കുറിച്ച്,ui_locale,1
+Age,പ്രായം,ui_locale,1
+"Agriculture, Rural & Environment","കൃഷി, ഗ്രാമീണ, പരിസ്ഥിതി",seed_category,1
+All Categories,എല്ലാ വിഭാഗങ്ങളും,ui_locale,1
+All Levels,എല്ലാ തലങ്ങളും,ui_locale,1
+All Schemes,എല്ലാ പദ്ധതികളും,ui_locale,1
+All States,എല്ലാ സംസ്ഥാനങ്ങളും,ui_locale,1
+An unexpected error occurred. Please try again.,അപ്രതീക്ഷിത പിശക് സംഭവിച്ചു. ദയവായി വീണ്ടും ശ്രമിക്കുക.,ui_locale,1
+Andaman and Nicobar Islands,ആൻഡമാൻ നിക്കോബാർ ദ്വീപുകൾ,seed_state,1
+Andhra Pradesh,ആന്ധ്രാപ്രദേശ്,seed_state,1
+Annual family income in INR,രൂപയില്‍ വാര്‍ഷിക കുടുംബ വരുമാനം,ui_locale,1
+Answer a few questions about yourself to find government schemes you may be eligible for.,നിങ്ങള്‍ക്ക് അര്‍ഹതയുണ്ടാകാനിടയുള്ള സര്‍ക്കാര്‍ പദ്ധതികള്‍ കണ്ടെത്താന്‍ നിങ്ങളെക്കുറിച്ച് ചില ചോദ്യങ്ങള്‍ക്ക് ഉത്തരം നല്‍കുക.,ui_locale,1
+Application Deadline,അപേക്ഷ സമയപരിധി,ui_locale,1
+Application Process,അപേക്ഷാ പ്രക്രിയ,ui_locale,1
+Are you a student?,നിങ്ങള്‍ വിദ്യാര്‍ത്ഥിയാണോ?,ui_locale,1
+Are you below the poverty line (BPL)?,നിങ്ങള്‍ ദാരിദ്ര്യരേഖയ്ക്ക് താഴെ (ബിപിഎല്‍) ആണോ?,ui_locale,1
+Arunachal Pradesh,അരുണാചൽ പ്രദേശ്,seed_state,1
+"Ask me about government schemes, eligibility, or how to apply.","സര്‍ക്കാര്‍ പദ്ധതികള്‍, അര്‍ഹത, അല്ലെങ്കില്‍ അപേക്ഷിക്കുന്ന വിധം എന്നിവയെക്കുറിച്ച് എന്നോട് ചോദിക്കുക.",ui_locale,1
+Assam,അസം,seed_state,1
+BPL Status,ബിപിഎല്‍ സ്ഥിതി,ui_locale,1
+Back,പിന്നിലേക്ക്,ui_locale,1
+"Banking, Financial Services and Insurance","ബാങ്കിംഗ്, സാമ്പത്തിക സേവനങ്ങൾ, ഇൻഷുറൻസ്",seed_category,1
+Benefit Type,ആനുകൂല്യ തരം,ui_locale,1
+Benefits,ആനുകൂല്യങ്ങള്‍,ui_locale,1
+Bihar,ബീഹാർ,seed_state,1
+Browse,ബ്രൗസ്,ui_locale,1
+Browse Schemes,പദ്ധതികള്‍ ബ്രൗസ് ചെയ്യുക,ui_locale,1
+Browse by Category,വിഭാഗം അനുസരിച്ച് ബ്രൗസ് ചെയ്യുക,ui_locale,1
+Browse by Ministry,മന്ത്രാലയം അനുസരിച്ച് ബ്രൗസ് ചെയ്യുക,ui_locale,1
+Browse by State / UT,സംസ്ഥാനം / കേന്ദ്രഭരണ പ്രദേശം അനുസരിച്ച് ബ്രൗസ് ചെയ്യുക,ui_locale,1
+Business & Entrepreneurship,ബിസിനസ് & സംരംഭകത്വം,seed_category,1
+By Category,വിഭാഗം അനുസരിച്ച്,ui_locale,1
+By Ministry,മന്ത്രാലയം അനുസരിച്ച്,ui_locale,1
+By State,സംസ്ഥാനം അനുസരിച്ച്,ui_locale,1
+Cash Transfer,പണ കൈമാറ്റം,seed_tag,1
+Categories,വിഭാഗങ്ങള്‍,ui_locale,1
+Central,കേന്ദ്ര,ui_locale,1
+Central Ministries,കേന്ദ്ര മന്ത്രാലയങ്ങള്‍,ui_locale,1
+Chandigarh,ചണ്ഡീഗഡ്,seed_state,1
+Chat,ചാറ്റ്,ui_locale,1
+Chat History,ചാറ്റ് ചരിത്രം,ui_locale,1
+Chat with AI Assistant,AI സഹായിയുമായി ചാറ്റ് ചെയ്യുക,ui_locale,1
+Chat with our AI assistant to find government schemes that match your needs.,നിങ്ങളുടെ ആവശ്യങ്ങള്‍ക്ക് അനുയോജ്യമായ സര്‍ക്കാര്‍ പദ്ധതികള്‍ കണ്ടെത്താന്‍ ഞങ്ങളുടെ AI സഹായിയുമായി ചാറ്റ് ചെയ്യുക.,ui_locale,1
+Check Eligibility,അര്‍ഹത പരിശോധിക്കുക,ui_locale,1
+Checking...,പരിശോധിക്കുന്നു...,ui_locale,1
+Chhattisgarh,ഛത്തീസ്ഗഡ്,seed_state,1
+Dadra and Nagar Haveli and Daman and Diu,"ദാദ്ര നഗർ ഹവേലി, ദാമൻ ദിയു",seed_state,1
+Delhi,ഡൽഹി,seed_state,1
+Description,വിവരണം,ui_locale,1
+Disability,വൈകല്യം,ui_locale,1
+Disability & Accessibility,വൈകല്യവും പ്രവേശനക്ഷമതയും,seed_category,1
+Do you have a disability?,നിങ്ങള്‍ക്ക് എന്തെങ്കിലും വൈകല്യമുണ്ടോ?,ui_locale,1
+Documents Required,ആവശ്യമായ രേഖകള്‍,ui_locale,1
+Education,വിദ്യാഭ്യാസം,ui_locale,1
+Education & Learning,വിദ്യാഭ്യാസവും പഠനവും,seed_category,1
+Eligibility Checker,അര്‍ഹതാ പരിശോധന,ui_locale,1
+Eligibility Criteria,അര്‍ഹതാ മാനദണ്ഡങ്ങള്‍,ui_locale,1
+Eligibility at a Glance,ഒറ്റനോട്ടത്തില്‍ അര്‍ഹത,ui_locale,1
+Employment,തൊഴിൽ,seed_tag,1
+Enter your age,നിങ്ങളുടെ പ്രായം നല്‍കുക,ui_locale,1
+Enter your annual family income,നിങ്ങളുടെ കുടുംബ വാര്‍ഷിക വരുമാനം നല്‍കുക,ui_locale,1
+Equipment,ഉപകരണങ്ങൾ,seed_tag,1
+FAQs,പതിവ് ചോദ്യങ്ങള്‍,ui_locale,1
+Featured,പ്രത്യേക,ui_locale,1
+Featured Schemes,പ്രത്യേക പദ്ധതികള്‍,ui_locale,1
+Find Government Schemes You're Eligible For,നിങ്ങള്‍ക്ക് അര്‍ഹതയുള്ള സര്‍ക്കാര്‍ പദ്ധതികള്‍ കണ്ടെത്തുക,ui_locale,1
+Find Scheme,പദ്ധതി കണ്ടെത്തുക,ui_locale,1
+Find Schemes,പദ്ധതികള്‍ കണ്ടെത്തുക,ui_locale,1
+Find Schemes For You,നിങ്ങള്‍ക്കുള്ള പദ്ധതികള്‍ കണ്ടെത്തുക,ui_locale,1
+Find government schemes available in your state or union territory,നിങ്ങളുടെ സംസ്ഥാനത്തിലോ കേന്ദ്രഭരണ പ്രദേശത്തിലോ ലഭ്യമായ സര്‍ക്കാര്‍ പദ്ധതികള്‍ കണ്ടെത്തുക,ui_locale,1
+Find government schemes by implementing ministry,നടപ്പാക്കുന്ന മന്ത്രാലയം അനുസരിച്ച് സര്‍ക്കാര്‍ പദ്ധതികള്‍ കണ്ടെത്തുക,ui_locale,1
+Find government schemes organized by sector,മേഖല അനുസരിച്ച് ക്രമീകരിച്ച സര്‍ക്കാര്‍ പദ്ധതികള്‍ കണ്ടെത്തുക,ui_locale,1
+Find the right government schemes for you,നിങ്ങള്‍ക്ക് ശരിയായ സര്‍ക്കാര്‍ പദ്ധതികള്‍ കണ്ടെത്തുക,ui_locale,1
+Gender,ലിംഗം,ui_locale,1
+Go Home,ഹോമിലേക്ക് പോകുക,ui_locale,1
+Goa,ഗോവ,seed_state,1
+Government Schemes,സര്‍ക്കാര്‍ പദ്ധതികള്‍,ui_locale,1
+Grant,ഗ്രാന്റ്,seed_tag,1
+Gujarat,ഗുജറാത്ത്,seed_state,1
+Haryana,ഹരിയാന,seed_state,1
+Health & Wellness,ആരോഗ്യവും ക്ഷേമവും,seed_category,1
+Health insurance for my family,എന്‍റെ കുടുംബത്തിനുള്ള ആരോഗ്യ ഇന്‍ഷുറന്‍സ്,ui_locale,1
+Healthcare,ആരോഗ്യ സംരക്ഷണം,seed_tag,1
+Helpline,ഹെൽപ്പ്‌ലൈൻ,ui_locale,1
+Himachal Pradesh,ഹിമാചൽ പ്രദേശ്,seed_state,1
+Home,ഹോം,ui_locale,1
+Housing,വീട്,seed_tag,1
+Housing & Shelter,ഭവനവും പാർപ്പിടവും,seed_category,1
+Housing schemes for low income,കുറഞ്ഞ വരുമാനക്കാര്‍ക്കുള്ള ഭവന പദ്ധതികള്‍,ui_locale,1
+I'm a farmer looking for schemes,"ഞാന്‍ ഒരു കര്‍ഷകനാണ്, പദ്ധതികള്‍ തിരയുന്നു",ui_locale,1
+Infrastructure,അടിസ്ഥാന സൌകര്യങ്ങൾ,seed_tag,1
+Insurance,ഇൻഷുറൻസ്,seed_tag,1
+Jammu and Kashmir,ജമ്മു കാശ്മീർ,seed_state,1
+Jharkhand,ജാർഖണ്ഡ്,seed_state,1
+Karnataka,കർണാടക,seed_state,1
+Kerala,കേരളം,seed_state,1
+Ladakh,ലഡാക്ക്,seed_state,1
+Lakshadweep,ലക്ഷദ്വീപ്,seed_state,1
+Language,ഭാഷ,ui_locale,1
+Launch Date,ആരംഭ തീയതി,ui_locale,1
+Leave blank if you prefer not to share,പങ്കിടാന്‍ താല്‍പ്പര്യമില്ലെങ്കില്‍ ശൂന്യമായി വിടുക,ui_locale,1
+Listen,കേൾക്കുക,ui_locale,1
+Loading schemes...,പദ്ധതികള്‍ ലോഡ് ചെയ്യുന്നു...,ui_locale,1
+Loading...,ലോഡ് ചെയ്യുന്നു...,ui_locale,1
+Loan,വായ്പ,seed_tag,1
+Location,സ്ഥലം,ui_locale,1
+Madhya Pradesh,മധ്യപ്രദേശ്,seed_state,1
+Maharashtra,മഹാരാഷ്ട്ര,seed_state,1
+Manipur,മണിപ്പൂർ,seed_state,1
+Max Income,പരമാവധി വരുമാനം,ui_locale,1
+Meghalaya,മേഘാലയ,seed_state,1
+Ministries,മന്ത്രാലയങ്ങള്‍,ui_locale,1
+Ministry of Agriculture & Farmers Welfare,"കൃഷി, കർഷകക്ഷേമ മന്ത്രാലയം",seed_ministry,1
+Ministry of Chemicals and Fertilizers,"രാസവള, രാസവള മന്ത്രാലയം",seed_ministry,1
+Ministry of Civil Aviation,വ്യോമയാന മന്ത്രാലയം,seed_ministry,1
+Ministry of Coal,കൽക്കരി മന്ത്രാലയം,seed_ministry,1
+Ministry of Commerce and Industry,വാണിജ്യ വ്യവസായ മന്ത്രാലയം,seed_ministry,1
+Ministry of Communications,വാർത്താവിനിമയ മന്ത്രാലയം,seed_ministry,1
+"Ministry of Consumer Affairs, Food and Public Distribution","ഉപഭോക്തൃകാര്യ, ഭക്ഷ്യ, പൊതുവിതരണ മന്ത്രാലയം",seed_ministry,1
+Ministry of Corporate Affairs,കോർപ്പറേറ്റ് കാര്യ മന്ത്രാലയം,seed_ministry,1
+Ministry of Culture,സാംസ്കാരിക മന്ത്രാലയം,seed_ministry,1
+Ministry of Defence,പ്രതിരോധ മന്ത്രാലയം,seed_ministry,1
+Ministry of Development of North Eastern Region,വടക്കുകിഴക്കൻ മേഖലയുടെ വികസന മന്ത്രാലയം,seed_ministry,1
+Ministry of Earth Sciences,ഭൌമശാസ്ത്ര മന്ത്രാലയം,seed_ministry,1
+Ministry of Education,വിദ്യാഭ്യാസ മന്ത്രാലയം,seed_ministry,1
+Ministry of Electronics and Information Technology,"ഇലക്ട്രോണിക്സ്, ഇൻഫർമേഷൻ ടെക്നോളജി മന്ത്രാലയം",seed_ministry,1
+"Ministry of Environment, Forest and Climate Change","പരിസ്ഥിതി, വനം, കാലാവസ്ഥാ വ്യതിയാന മന്ത്രാലയം",seed_ministry,1
+Ministry of External Affairs,വിദേശകാര്യ മന്ത്രാലയം,seed_ministry,1
+Ministry of Finance,ധനമന്ത്രാലയം,seed_ministry,1
+"Ministry of Fisheries, Animal Husbandry and Dairying","ഫിഷറീസ്, മൃഗസംരക്ഷണം, ക്ഷീര മന്ത്രാലയം",seed_ministry,1
+Ministry of Food Processing Industries,ഭക്ഷ്യ സംസ്കരണ വ്യവസായ മന്ത്രാലയം,seed_ministry,1
+Ministry of Health and Family Welfare,ആരോഗ്യ കുടുംബക്ഷേമ മന്ത്രാലയം,seed_ministry,1
+Ministry of Heavy Industries,കനത്ത വ്യവസായ മന്ത്രാലയം,seed_ministry,1
+Ministry of Home Affairs,ആഭ്യന്തര മന്ത്രാലയം,seed_ministry,1
+Ministry of Housing and Urban Affairs,"ഭവന, നഗരകാര്യ മന്ത്രാലയം",seed_ministry,1
+Ministry of Information and Broadcasting,വാർത്താവിതരണ പ്രക്ഷേപണ മന്ത്രാലയം,seed_ministry,1
+Ministry of Jal Shakti,ജൽ ശക്തി മന്ത്രാലയം,seed_ministry,1
+Ministry of Labour and Employment,"തൊഴിൽ, തൊഴിൽ മന്ത്രാലയം",seed_ministry,1
+Ministry of Law and Justice,നിയമ-നീതി മന്ത്രാലയം,seed_ministry,1
+"Ministry of Micro, Small and Medium Enterprises","മൈക്രോ, ചെറുകിട, ഇടത്തരം സംരംഭങ്ങളുടെ മന്ത്രാലയം",seed_ministry,1
+Ministry of Mines,ഖനിത്തൊഴില് മന്ത്രാലയം,seed_ministry,1
+Ministry of Minority Affairs,ന്യൂനപക്ഷകാര്യ മന്ത്രാലയം,seed_ministry,1
+Ministry of New and Renewable Energy,പുതിയതും പുനരുപയോഗിക്കാവുന്നതുമായ ഊർജ്ജ മന്ത്രാലയം,seed_ministry,1
+Ministry of Panchayati Raj,പഞ്ചായത്തി രാജ് മന്ത്രാലയം,seed_ministry,1
+Ministry of Parliamentary Affairs,പാർലമെൻ്റികാര്യ മന്ത്രാലയം,seed_ministry,1
+"Ministry of Personnel, Public Grievances and Pensions","പേഴ്സണൽ, പബ്ലിക് ഗ്രീവൻസസ്, പെൻഷൻ മന്ത്രാലയം",seed_ministry,1
+Ministry of Petroleum and Natural Gas,"പെട്രോളിയം, പ്രകൃതിവാതക മന്ത്രാലയം",seed_ministry,1
+"Ministry of Ports, Shipping and Waterways","തുറമുഖ, ഷിപ്പിംഗ്, ജലപാത മന്ത്രാലയം",seed_ministry,1
+Ministry of Power,ഊർജ്ജ മന്ത്രാലയം,seed_ministry,1
+Ministry of Railways,റെയിൽവേ മന്ത്രാലയം,seed_ministry,1
+Ministry of Road Transport and Highways,"റോഡ് ഗതാഗത, ദേശീയപാത മന്ത്രാലയം",seed_ministry,1
+Ministry of Rural Development,ഗ്രാമവികസന മന്ത്രാലയം,seed_ministry,1
+Ministry of Science and Technology,ശാസ്ത്ര സാങ്കേതിക മന്ത്രാലയം,seed_ministry,1
+Ministry of Skill Development and Entrepreneurship,"നൈപുണ്യ വികസന, സംരംഭകത്വ മന്ത്രാലയം",seed_ministry,1
+Ministry of Social Justice and Empowerment,"സാമൂഹിക നീതി, ശാക്തീകരണ മന്ത്രാലയം",seed_ministry,1
+Ministry of Statistics and Programme Implementation,"സ്ഥിതിവിവരക്കണക്ക്, പദ്ധതി നടപ്പാക്കൽ മന്ത്രാലയം",seed_ministry,1
+Ministry of Steel,ഉരുക്ക് മന്ത്രാലയം,seed_ministry,1
+Ministry of Textiles,തുണിത്തര മന്ത്രാലയം,seed_ministry,1
+Ministry of Tourism,ടൂറിസം മന്ത്രാലയം,seed_ministry,1
+Ministry of Tribal Affairs,ഗോത്രകാര്യ മന്ത്രാലയം,seed_ministry,1
+Ministry of Women and Child Development,വനിതാ ശിശു വികസന മന്ത്രാലയം,seed_ministry,1
+Ministry of Youth Affairs and Sports,യുവജനകാര്യ കായിക മന്ത്രാലയം,seed_ministry,1
+Ministry:,മന്ത്രാലയം:,ui_locale,1
+Minority Affairs,ന്യൂനപക്ഷകാര്യങ്ങൾ,seed_category,1
+Mizoram,മിസോറാം,seed_state,1
+NITI Aayog,നിതി ആയോഗ്,seed_ministry,1
+Nagaland,നാഗാലാൻഡ്,seed_state,1
+Need help finding schemes?,പദ്ധതികള്‍ കണ്ടെത്താന്‍ സഹായം വേണോ?,ui_locale,1
+New Chat,പുതിയ ചാറ്റ്,ui_locale,1
+Next,അടുത്തത്,ui_locale,1
+No,ഇല്ല,ui_locale,1
+No exact matches found. Try adjusting your criteria or,കൃത്യമായ പൊരുത്തങ്ങള്‍ കണ്ടെത്തിയില്ല. നിങ്ങളുടെ മാനദണ്ഡങ്ങള്‍ മാറ്റി ശ്രമിക്കുക അല്ലെങ്കില്‍,ui_locale,1
+No schemes found,പദ്ധതികളൊന്നും കണ്ടെത്തിയില്ല,ui_locale,1
+No schemes found. Try adjusting your filters.,പദ്ധതികളൊന്നും കണ്ടെത്തിയില്ല. നിങ്ങളുടെ ഫില്‍ട്ടറുകള്‍ മാറ്റി ശ്രമിക്കുക.,ui_locale,1
+Not sure which scheme is right for you?,ഏത് പദ്ധതിയാണ് നിങ്ങള്‍ക്ക് ശരിയായത് എന്ന് ഉറപ്പില്ലേ?,ui_locale,1
+Odisha,ഒഡീഷ,seed_state,1
+Official Website,ഔദ്യോഗിക വെബ്‌സൈറ്റ്,ui_locale,1
+Our AI chatbot can help you find the right government schemes based on your profile. Just tell us about yourself and we'll match you with eligible schemes.,"ഞങ്ങളുടെ AI ചാറ്റ്ബോട്ട് നിങ്ങളുടെ പ്രൊഫൈലിന്‍റെ അടിസ്ഥാനത്തില്‍ ശരിയായ സര്‍ക്കാര്‍ പദ്ധതികള്‍ കണ്ടെത്താന്‍ സഹായിക്കും. നിങ്ങളെക്കുറിച്ച് പറയൂ, അര്‍ഹതയുള്ള പദ്ധതികളുമായി ഞങ്ങള്‍ നിങ്ങളെ ബന്ധിപ്പിക്കാം.",ui_locale,1
+Page Not Found,പേജ് കണ്ടെത്തിയില്ല,ui_locale,1
+Pause,താല്‍ക്കാലികമായി നിര്‍ത്തുക,ui_locale,1
+Play reply,മറുപടി കേള്‍ക്കുക,ui_locale,1
+Previous,മുമ്പത്തെ,ui_locale,1
+Processing...,പ്രോസസ് ചെയ്യുന്നു...,ui_locale,1
+"Public Safety, Law & Justice","പൊതു സുരക്ഷ, നിയമം, നീതി",seed_category,1
+Puducherry,പുതുച്ചേരി,seed_state,1
+Punjab,പഞ്ചാബ്,seed_state,1
+Rajasthan,രാജസ്ഥാൻ,seed_state,1
+Scheme Information,പദ്ധതി വിവരങ്ങൾ,ui_locale,1
+Schemes,പദ്ധതികള്‍,ui_locale,1
+"Science, IT & Communications","ശാസ്ത്രം, ഐ. ടി., വാർത്താവിനിമയം",seed_category,1
+Search,തിരയുക,ui_locale,1
+"Search from 2,300+ central and state government schemes. Use our AI chatbot to find the right schemes for you.","2,300+ കേന്ദ്ര, സംസ്ഥാന സര്‍ക്കാര്‍ പദ്ധതികളില്‍ നിന്ന് തിരയുക. നിങ്ങള്‍ക്ക് ശരിയായ പദ്ധതികള്‍ കണ്ടെത്താന്‍ ഞങ്ങളുടെ AI ചാറ്റ്ബോട്ട് ഉപയോഗിക്കുക.",ui_locale,1
+Search schemes...,പദ്ധതികള്‍ തിരയുക...,ui_locale,1
+Select state / UT,സംസ്ഥാനം / കേന്ദ്രഭരണ പ്രദേശം തിരഞ്ഞെടുക്കുക,ui_locale,1
+Select your gender,നിങ്ങളുടെ ലിംഗം തിരഞ്ഞെടുക്കുക,ui_locale,1
+Select your social category,നിങ്ങളുടെ സാമൂഹിക വിഭാഗം തിരഞ്ഞെടുക്കുക,ui_locale,1
+Select your state or union territory,നിങ്ങളുടെ സംസ്ഥാനമോ കേന്ദ്രഭരണ പ്രദേശമോ തിരഞ്ഞെടുക്കുക,ui_locale,1
+SevanaGPT,SevanaGPT,ui_locale,1
+"SevanaGPT — Built with Next.js, FastAPI, and Mistral AI","SevanaGPT — Next.js, FastAPI, Mistral AI എന്നിവ ഉപയോഗിച്ച് നിര്‍മ്മിച്ചത്",ui_locale,1
+Show me education scholarships,വിദ്യാഭ്യാസ സ്കോളര്‍ഷിപ്പുകള്‍ കാണിക്കുക,ui_locale,1
+Sikkim,സിക്കിം,seed_state,1
+Skills & Employment,നൈപുണ്യവും തൊഴിലും,seed_category,1
+Skip,ഒഴിവാക്കുക,ui_locale,1
+Social Category,സാമൂഹിക വിഭാഗം,ui_locale,1
+Social Welfare & Empowerment,സാമൂഹിക ക്ഷേമവും ശാക്തീകരണവും,seed_category,1
+Something went wrong,എന്തോ തെറ്റ് സംഭവിച്ചു,ui_locale,1
+"Sorry, I encountered an error. Please try again.","ക്ഷമിക്കണം, ഒരു പിശക് സംഭവിച്ചു. ദയവായി വീണ്ടും ശ്രമിക്കുക.",ui_locale,1
+Sports & Culture,കായികരംഗവും സംസ്കാരവും,seed_category,1
+Start Chatting,ചാറ്റ് ആരംഭിക്കുക,ui_locale,1
+Start Over,വീണ്ടും ആരംഭിക്കുക,ui_locale,1
+Start voice input,വോയ്സ് ഇന്‍പുട്ട് ആരംഭിക്കുക,ui_locale,1
+State,സംസ്ഥാനം,ui_locale,1
+States,സംസ്ഥാനങ്ങള്‍,ui_locale,1
+States & UTs,സംസ്ഥാനങ്ങളും കേന്ദ്രഭരണ പ്രദേശങ്ങളും,ui_locale,1
+States:,സംസ്ഥാനങ്ങള്‍:,ui_locale,1
+Stop,നിർത്തുക,ui_locale,1
+Stop recording,റെക്കോര്‍ഡിംഗ് നിര്‍ത്തുക,ui_locale,1
+Student,വിദ്യാര്‍ത്ഥി,ui_locale,1
+Tamil Nadu,തമിഴ്നാട്,seed_state,1
+Telangana,തെലങ്കാന,seed_state,1
+The page you're looking for doesn't exist or has been moved.,നിങ്ങള്‍ തിരയുന്ന പേജ് നിലവിലില്ല അല്ലെങ്കില്‍ മാറ്റിയിരിക്കുന്നു.,ui_locale,1
+This is an open-source project built for educational purposes. Data sourced from publicly available datasets.,ഇത് വിദ്യാഭ്യാസ ആവശ്യങ്ങള്‍ക്കായി നിര്‍മ്മിച്ച ഓപ്പണ്‍-സോഴ്‌സ് പ്രോജക്ടാണ്. പൊതുവായി ലഭ്യമായ ഡാറ്റാസെറ്റുകളില്‍ നിന്ന് ഡാറ്റ ശേഖരിച്ചത്.,ui_locale,1
+Tools,ഉപകരണങ്ങള്‍,ui_locale,1
+Training,പരിശീലനം,seed_tag,1
+Transport & Infrastructure,ഗതാഗതവും അടിസ്ഥാന സൌകര്യങ്ങളും,seed_category,1
+Travel & Tourism,യാത്രയും വിനോദസഞ്ചാരവും,seed_category,1
+Tripura,ത്രിപുര,seed_state,1
+Try Again,വീണ്ടും ശ്രമിക്കുക,ui_locale,1
+Type your message...,നിങ്ങളുടെ സന്ദേശം ടൈപ്പ് ചെയ്യുക...,ui_locale,1
+Union Territories,കേന്ദ്രഭരണ പ്രദേശങ്ങള്‍,ui_locale,1
+Utility & Sanitation,ഉപയോഗവും ശുചിത്വവും,seed_category,1
+Uttar Pradesh,ഉത്തർപ്രദേശ്,seed_state,1
+Uttarakhand,ഉത്തരാഖണ്ഡ്,seed_state,1
+View All,എല്ലാം കാണുക,ui_locale,1
+View on MyScheme.gov.in,MyScheme.gov.in-ൽ കാണുക,ui_locale,1
+Welcome to SevanaGPT,SevanaGPT-ലേക്ക് സ്വാഗതം,ui_locale,1
+West Bengal,പശ്ചിമ ബംഗാൾ,seed_state,1
+Women and Child,സ്ത്രീകളും കുട്ടികളും,seed_category,1
+Yes,അതെ,ui_locale,1
+Your AI-powered guide to Indian government schemes,ഇന്ത്യന്‍ സര്‍ക്കാര്‍ പദ്ധതികള്‍ക്കുള്ള നിങ്ങളുടെ AI-അധിഷ്ഠിത ഗൈഡ്,ui_locale,1
+Your AI-powered guide to Indian government schemes. Find schemes you are eligible for.,ഇന്ത്യന്‍ സര്‍ക്കാര്‍ പദ്ധതികള്‍ക്കുള്ള നിങ്ങളുടെ AI-അധിഷ്ഠിത ഗൈഡ്. നിങ്ങള്‍ക്ക് അര്‍ഹതയുള്ള പദ്ധതികള്‍ കണ്ടെത്തുക.,ui_locale,1
+Youth Affairs,യുവജനകാര്യങ്ങൾ,seed_category,1
+chat with our AI assistant,ഞങ്ങളുടെ AI സഹായിയുമായി ചാറ്റ് ചെയ്യുക,ui_locale,1
+drinking water,കുടിവെള്ളം,freq_mining,1
+fisherman,മത്സ്യത്തൊഴിലാളി,freq_mining,1
+for personalized recommendations.,വ്യക്തിഗത ശുപാര്‍ശകള്‍ക്കായി.,ui_locale,1
+match,പൊരുത്തം,ui_locale,1
+savings account,സേവിംഗ്സ് അക്കൌണ്ട്,freq_mining,1
+small enterprise,ചെറുകിട സംരംഭം,freq_mining,1
+voter ID,വോട്ടർ ഐഡി,freq_mining,1
+years,വര്‍ഷം,ui_locale,1

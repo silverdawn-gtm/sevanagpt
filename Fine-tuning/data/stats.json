@@ -1,0 +1,19 @@
+{
+  "raw_scheme_pairs": 8948,
+  "raw_glossary_pairs": 319,
+  "after_sentence_split": 10426,
+  "after_cleaning": 10426,
+  "after_filtering": 10169,
+  "after_dedup": 9975,
+  "train": 8977,
+  "val": 998,
+  "glossary_test": 319,
+  "removed_reasons": {
+    "too_short": 242,
+    "length_ratio": 15
+  },
+  "field_distribution": {
+    "name": 4249,
+    "description": 5726
+  }
+}
