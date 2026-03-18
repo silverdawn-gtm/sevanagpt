@@ -1,15 +1,13 @@
 "use client";
 
-import { useCallback } from "react";
 import { useChat } from "@/hooks/useChat";
 import ChatWindow from "./ChatWindow";
 import ChatInput from "./ChatInput";
 import { useLanguage } from "@/context/LanguageContext";
-import type { SchemeListItem } from "@/lib/types";
 
 export default function HomeChat() {
-  const { messages, loading, sendMessage, addVoiceResponse, sessionId } = useChat();
-  const { t } = useLanguage();
+  const { messages, loading, sendMessage } = useChat();
+  const { t, language } = useLanguage();
 
   const lastAssistant = messages.filter((m) => m.role === "assistant").at(-1);
   const suggestions = [
@@ -18,25 +16,6 @@ export default function HomeChat() {
     { text: t("chat.suggestion_health") },
     { text: t("chat.suggestion_housing") },
   ];
-
-  const handleVoiceResponse = useCallback(
-    (response: {
-      transcript: string;
-      reply: string;
-      reply_audio_base64: string | null;
-      schemes: unknown[];
-      suggestions: { text: string }[];
-    }) => {
-      addVoiceResponse(
-        response.transcript,
-        response.reply,
-        response.reply_audio_base64 || undefined,
-        response.schemes as SchemeListItem[],
-        response.suggestions,
-      );
-    },
-    [addVoiceResponse]
-  );
 
   return (
     <>
@@ -67,10 +46,9 @@ export default function HomeChat() {
       )}
       <ChatInput
         onSend={sendMessage}
-        onVoiceResponse={handleVoiceResponse}
         disabled={loading}
         suggestions={messages.length > 0 && !loading && lastAssistant?.suggestions?.length ? lastAssistant.suggestions : undefined}
-        sessionId={sessionId}
+        language={language}
       />
     </>
   );

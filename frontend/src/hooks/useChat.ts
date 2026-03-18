@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef } from "react";
 import { sendChatMessage } from "@/lib/api";
 import { useLanguage } from "@/context/LanguageContext";
-import type { ChatMessage } from "@/lib/types";
+import type { ChatMessage, SchemeListItem } from "@/lib/types";
 
 let sessionCounter = 0;
 
@@ -54,6 +54,26 @@ export function useChat() {
     [loading, sessionId, language, t]
   );
 
+  const addVoiceResponse = useCallback(
+    (
+      transcript: string,
+      reply: string,
+      replyAudioBase64?: string,
+      schemes?: SchemeListItem[],
+      suggestions?: { text: string }[],
+    ) => {
+      const userMsg: ChatMessage = { role: "user", content: transcript };
+      const assistantMsg: ChatMessage = {
+        role: "assistant",
+        content: reply,
+        schemes,
+        suggestions,
+      };
+      setMessages((prev) => [...prev, userMsg, assistantMsg]);
+    },
+    []
+  );
+
   const reset = useCallback(() => {
     setMessages([]);
     fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1"}/chat/reset/${sessionId}`, {
@@ -61,5 +81,5 @@ export function useChat() {
     }).catch(() => {});
   }, [sessionId]);
 
-  return { messages, loading, sendMessage, reset, sessionId };
+  return { messages, loading, sendMessage, addVoiceResponse, reset, sessionId };
 }
