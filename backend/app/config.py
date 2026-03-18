@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     # IndicTrans2 microservice
     INDICTRANS_URL: str = ""  # e.g. "http://indictrans:7860" — empty = disabled
     INDICTRANS_TIMEOUT: float = 10.0
-    INDICTRANS_BATCH_TIMEOUT: float = 30.0
+    INDICTRANS_BATCH_TIMEOUT: float = 60.0
     INDICTRANS_ENABLED: bool = True
 
     CORS_ORIGINS: list[str] = [
