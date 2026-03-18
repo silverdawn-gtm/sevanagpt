@@ -116,6 +116,8 @@ async def ingest_language(session: AsyncSession, lang: str, slug_to_scheme: dict
     unmatched = 0
     batch = []
 
+    seen_scheme_ids = set()
+
     for item in raw_schemes:
         fields = item.get("fields", {})
         slug = fields.get("slug", "")
@@ -129,6 +131,9 @@ async def ingest_language(session: AsyncSession, lang: str, slug_to_scheme: dict
             continue
 
         scheme = slug_to_scheme[slug]
+        if scheme.id in seen_scheme_ids:
+            continue
+        seen_scheme_ids.add(scheme.id)
         translated_name = fields.get("schemeName", "").strip()
         translated_desc = fields.get("briefDescription", "").strip()
         translated_tags = fields.get("tags", [])

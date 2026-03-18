@@ -26,9 +26,9 @@ ALL_LANGS = [
     "hi", "bn", "ta", "te", "mr", "gu", "kn", "ml", "pa", "or", "ur",  # original 11
     "as", "ne", "sa", "sd", "mai", "doi", "kok", "sat", "mni", "bodo", "lus",  # IndicTrans2 additional
 ]
-BATCH_SIZE = 40  # Number of texts per Google Translate chunk
+BATCH_SIZE = 8  # Number of texts per translation chunk (small for IndicTrans GPU)
 CHUNK_CHAR_LIMIT = 4500
-CONCURRENT_WORKERS = 6  # Parallel translation requests
+CONCURRENT_WORKERS = 2  # Parallel translation requests (low to avoid OOM)
 
 
 def _cache_key(text: str, tgt_lang: str) -> str:

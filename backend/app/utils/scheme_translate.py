@@ -22,6 +22,9 @@ from app.utils.translations import (
 
 logger = logging.getLogger(__name__)
 
+# Languages covered by the static translation maps
+_STATIC_LANGS = {"hi", "bn", "ta", "te", "mr", "gu", "kn", "ml", "pa", "or", "ur"}
+
 
 async def translate_scheme_list_items(
     items: list[SchemeListItem],
@@ -95,10 +98,27 @@ async def translate_scheme_list_items(
         except Exception as e:
             logger.warning("Description translation failed: %s", e)
 
-    # Step 5: Translate static nested names (categories) — instant
-    for item in items:
-        if item.category:
-            item.category.name = translate_name(item.category.name, lang, CATEGORY_TRANSLATIONS)
+    # Step 5: Translate nested names (categories)
+    if lang in _STATIC_LANGS:
+        # Use instant static maps for the 11 languages that have them
+        for item in items:
+            if item.category:
+                item.category.name = translate_name(item.category.name, lang, CATEGORY_TRANSLATIONS)
+    else:
+        # On-demand translation for languages not in static maps
+        cat_names = []
+        cat_indices = []
+        for i, item in enumerate(items):
+            if item.category and item.category.name:
+                cat_names.append(item.category.name)
+                cat_indices.append(i)
+        if cat_names:
+            try:
+                translated_cats = await translate_texts_batch(cat_names, lang, db)
+                for idx, translated in zip(cat_indices, translated_cats):
+                    items[idx].category.name = translated
+            except Exception as e:
+                logger.warning("Category translation failed: %s", e)
 
     return items
 
@@ -179,12 +199,51 @@ async def translate_scheme_detail(
         except Exception as e:
             logger.warning("Detail translation failed: %s", e)
 
-    # Step 3: Translate nested static names — instant
-    if detail.category:
-        detail.category.name = translate_name(detail.category.name, lang, CATEGORY_TRANSLATIONS)
-    if detail.ministry:
-        detail.ministry.name = translate_name(detail.ministry.name, lang, MINISTRY_TRANSLATIONS)
-    for s in detail.states:
-        s.name = translate_name(s.name, lang, STATE_TRANSLATIONS)
+    # Step 3: Translate nested names (category, ministry, states)
+    if lang in _STATIC_LANGS:
+        if detail.category:
+            detail.category.name = translate_name(detail.category.name, lang, CATEGORY_TRANSLATIONS)
+        if detail.ministry:
+            detail.ministry.name = translate_name(detail.ministry.name, lang, MINISTRY_TRANSLATIONS)
+        for s in detail.states:
+            s.name = translate_name(s.name, lang, STATE_TRANSLATIONS)
+    else:
+        # On-demand translation for languages not in static maps
+        names_to_translate = []
+        name_targets = []  # (object, attribute)
+        if detail.category and detail.category.name:
+            names_to_translate.append(detail.category.name)
+            name_targets.append((detail.category, "name"))
+        if detail.ministry and detail.ministry.name:
+            names_to_translate.append(detail.ministry.name)
+            name_targets.append((detail.ministry, "name"))
+        for s in detail.states:
+            if s.name:
+                names_to_translate.append(s.name)
+                name_targets.append((s, "name"))
+        if names_to_translate:
+            try:
+                translated = await translate_texts_batch(names_to_translate, lang, db)
+                for (obj, attr), trans in zip(name_targets, translated):
+                    setattr(obj, attr, trans)
+            except Exception as e:
+                logger.warning("Nested name translation failed: %s", e)
+
+    # Step 4: Translate eligibility display values (gender, social category)
+    if detail.target_gender:
+        gender_texts = [g for g in detail.target_gender]
+        try:
+            translated_genders = await translate_texts_batch(gender_texts, lang, db)
+            detail.target_gender = translated_genders
+        except Exception as e:
+            logger.warning("Gender translation failed: %s", e)
+
+    if detail.target_social_category:
+        cat_texts = [c for c in detail.target_social_category]
+        try:
+            translated_cats = await translate_texts_batch(cat_texts, lang, db)
+            detail.target_social_category = translated_cats
+        except Exception as e:
+            logger.warning("Social category translation failed: %s", e)
 
     return detail

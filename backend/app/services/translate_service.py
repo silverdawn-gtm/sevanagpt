@@ -158,9 +158,9 @@ async def translate_text(
                 src_lang="en",
                 tgt_lang=tgt_lang,
             ))
-            await db.flush()
+            await db.commit()
         except Exception:
-            pass
+            await db.rollback()
 
     return translated
 
@@ -224,9 +224,9 @@ async def _cache_translations(
             except Exception:
                 pass
     try:
-        await db.flush()
+        await db.commit()
     except Exception:
-        pass
+        await db.rollback()
 
 
 async def translate_texts_batch(
