@@ -50,8 +50,16 @@ def load_model() -> None:
         config.MODEL_NAME,
         trust_remote_code=True,
         cache_dir=config.MODEL_CACHE_DIR,
-        dtype=torch.float16 if config.DEVICE == "cuda" else torch.float32,
+        torch_dtype=torch.float16 if config.DEVICE == "cuda" else torch.float32,
     ).to(config.DEVICE)
+
+    # Load LoRA adapter if configured
+    if config.LORA_ADAPTER_PATH and os.path.isdir(config.LORA_ADAPTER_PATH):
+        print(f"[IndicTrans2] Loading LoRA adapter from {config.LORA_ADAPTER_PATH}")
+        from peft import PeftModel
+        _model = PeftModel.from_pretrained(_model, config.LORA_ADAPTER_PATH)
+        print("[IndicTrans2] LoRA adapter loaded successfully")
+
     _model.eval()
 
     print("[IndicTrans2] Initializing IndicProcessor...")
@@ -61,33 +69,12 @@ def load_model() -> None:
     print("[IndicTrans2] Model loaded successfully! Server is ready.")
 
 
-def translate_batch(
+def _translate_chunk(
     texts: list[str],
-    target_lang: str,
-    source_lang: str = "en",
+    src_code: str,
+    tgt_code: str,
 ) -> list[str]:
-    """Translate a batch of texts from source to target language.
-
-    Args:
-        texts: List of texts to translate.
-        target_lang: ISO 639-1 target language code.
-        source_lang: ISO 639-1 source language code (default: "en").
-
-    Returns:
-        List of translated texts, same length as input.
-    """
-    if not _ready:
-        raise RuntimeError("Model not loaded. Call load_model() first.")
-
-    if not texts:
-        return []
-
-    # Convert ISO codes to IndicTrans2 codes
-    src_code = ENGLISH_CODE if source_lang == "en" else to_indictrans_code(source_lang)
-    tgt_code = to_indictrans_code(target_lang)
-    if not src_code or not tgt_code:
-        raise ValueError(f"Unsupported language pair: {source_lang} -> {target_lang}")
-
+    """Translate a small chunk that fits in GPU memory."""
     # Preprocess
     preprocessed = _processor.preprocess_batch(
         texts,
@@ -123,6 +110,50 @@ def translate_batch(
     )
 
     # Postprocess
-    result = _processor.postprocess_batch(decoded, lang=tgt_code)
+    return _processor.postprocess_batch(decoded, lang=tgt_code)
 
-    return result
+
+def translate_batch(
+    texts: list[str],
+    target_lang: str,
+    source_lang: str = "en",
+) -> list[str]:
+    """Translate a batch of texts from source to target language.
+
+    Automatically chunks large batches to avoid GPU OOM.
+    """
+    if not _ready:
+        raise RuntimeError("Model not loaded. Call load_model() first.")
+
+    if not texts:
+        return []
+
+    # Convert ISO codes to IndicTrans2 codes
+    src_code = ENGLISH_CODE if source_lang == "en" else to_indictrans_code(source_lang)
+    tgt_code = to_indictrans_code(target_lang)
+    if not src_code or not tgt_code:
+        raise ValueError(f"Unsupported language pair: {source_lang} -> {target_lang}")
+
+    # Truncate long texts to avoid OOM
+    texts = [t[:500] for t in texts]
+
+    # Process in GPU-friendly chunks
+    results = []
+    for i in range(0, len(texts), config.MAX_BATCH_SIZE):
+        chunk = texts[i : i + config.MAX_BATCH_SIZE]
+        try:
+            results.extend(_translate_chunk(chunk, src_code, tgt_code))
+        except RuntimeError as e:
+            if "out of memory" in str(e).lower():
+                torch.cuda.empty_cache()
+                logger.warning("OOM on chunk of %d, falling back to one-by-one", len(chunk))
+                for text in chunk:
+                    try:
+                        results.extend(_translate_chunk([text], src_code, tgt_code))
+                    except RuntimeError:
+                        torch.cuda.empty_cache()
+                        results.append(text)  # Return original on failure
+            else:
+                raise
+
+    return results

@@ -11,12 +11,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Pre-download model at build time so container starts fast
-RUN python -c "\
-from transformers import AutoModelForSeq2SeqLM, AutoTokenizer; \
-name = 'ai4bharat/indictrans2-en-indic-dist-200M'; \
-AutoTokenizer.from_pretrained(name, trust_remote_code=True); \
-AutoModelForSeq2SeqLM.from_pretrained(name, trust_remote_code=True)"
+# HuggingFace token for gated model access at runtime
+ARG HF_TOKEN
+ENV HUGGING_FACE_HUB_TOKEN=${HF_TOKEN}
 
 # Copy application code
 COPY app/ app/

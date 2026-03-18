@@ -24,7 +24,7 @@ ISO_TO_INDICTRANS: dict[str, str] = {
     "sd": "snd_Arab",
     "mai": "mai_Deva",
     "doi": "doi_Deva",
-    "kok": "kok_Deva",
+    "kok": "gom_Deva",
     "sat": "sat_Olck",
     "mni": "mni_Mtei",
     "bodo": "brx_Deva",

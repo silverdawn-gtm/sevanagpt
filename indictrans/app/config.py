@@ -21,7 +21,11 @@ DEVICE: str = os.getenv("INDICTRANS_DEVICE", _default_device())
 
 # Inference
 MAX_LENGTH: int = int(os.getenv("INDICTRANS_MAX_LENGTH", "256"))
-NUM_BEAMS: int = int(os.getenv("INDICTRANS_NUM_BEAMS", "5"))
+NUM_BEAMS: int = int(os.getenv("INDICTRANS_NUM_BEAMS", "1"))
+MAX_BATCH_SIZE: int = int(os.getenv("INDICTRANS_MAX_BATCH_SIZE", "4"))  # GPU batch limit to avoid OOM on 6GB VRAM
+
+# LoRA adapter (optional — set to directory containing adapter_config.json)
+LORA_ADAPTER_PATH: str = os.getenv("INDICTRANS_LORA_ADAPTER_PATH", "")
 
 # Server
 HOST: str = os.getenv("INDICTRANS_HOST", "0.0.0.0")
