@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<title>Translation Comparison</title>
+<style>
+body { font-family: sans-serif; margin: 20px; }
+table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }
+th { background: #f5f5f5; }
+tr:nth-child(even) { background: #fafafa; }
+.improved { background: #e8f5e9; }
+.degraded { background: #ffebee; }
+</style>
+</head><body>
+<h1>IndicTrans2 Fine-tuning: Translation Comparison</h1>
+<table>
+<tr><th>#</th><th>English</th><th>Reference (ML)</th><th>Base Model</th><th>Fine-tuned</th></tr>
+<tr>
+<td>1</td>
+<td>financial assistance</td>
+<td>സാമ്പത്തിക സഹായം</td>
+<td>സാമ്പത്തിക സഹായം</td>
+<td>സാമ്പത്തിക സഹായം</td>
+</tr>
+<tr>
+<td>2</td>
+<td>welfare</td>
+<td>ക്ഷേമം</td>
+<td>ക്ഷേമം</td>
+<td>ക്ഷേമം</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Department</td>
+<td>വകുപ്പ്</td>
+<td>വകുപ്പ്</td>
+<td>വകുപ്പ്</td>
+</tr>
+<tr>
+<td>4</td>
+<td>scholarship</td>
+<td>സ്കോളർഷിപ്പ്</td>
+<td>സ്കോളർഷിപ്പ്</td>
+<td>സ്കോളർഷിപ്പ്</td>
+</tr>
+<tr>
+<td>5</td>
+<td>farmer</td>
+<td>കർഷകൻ</td>
+<td>കർഷകൻ</td>
+<td>കർഷകൻ</td>
+</tr>
+<tr>
+<td>6</td>
+<td>pension</td>
+<td>പെൻഷൻ</td>
+<td>പെൻഷൻ</td>
+<td>പെൻഷൻ</td>
+</tr>
+<tr>
+<td>7</td>
+<td>development</td>
+<td>വികസനം</td>
+<td>വികസനം</td>
+<td>വികസനം</td>
+</tr>
+<tr>
+<td>8</td>
+<td>eligible</td>
+<td>അർഹതയുള്ളവർ</td>
+<td>അർഹതയുള്ളവർ</td>
+<td>യോഗ്യത</td>
+</tr>
+<tr>
+<td>9</td>
+<td>subsidy</td>
+<td>സബ്സിഡി</td>
+<td>സബ്സിഡി</td>
+<td>സബ്സിഡി</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Scheduled Caste</td>
+<td>പട്ടികജാതി</td>
+<td>പട്ടികജാതി</td>
+<td>പട്ടികജാതി</td>
+</tr>
+<tr>
+<td>11</td>
+<td>agriculture</td>
+<td>കൃഷി</td>
+<td>കൃഷി</td>
+<td>കൃഷി</td>
+</tr>
+<tr>
+<td>12</td>
+<td>tribal</td>
+<td>ഗോത്രവർഗക്കാർ</td>
+<td>ഗോത്രവർഗക്കാർ</td>
+<td>ഗോത്രവർഗക്കാർ</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Scheduled Tribe</td>
+<td>പട്ടികവർഗക്കാർ</td>
+<td>പട്ടികവർഗക്കാർ</td>
+<td>പട്ടികവർഗക്കാർ</td>
+</tr>
+<tr>
+<td>14</td>
+<td>State Government</td>
+<td>സംസ്ഥാന സർക്കാർ</td>
+<td>സംസ്ഥാന സർക്കാർ</td>
+<td>സംസ്ഥാന സർക്കാർ</td>
+</tr>
+<tr>
+<td>15</td>
+<td>empowerment</td>
+<td>ശാക്തീകരണം</td>
+<td>ശാക്തീകരണം</td>
+<td>ശാക്തീകരണം</td>
+</tr>
+<tr>
+<td>16</td>
+<td>Chief Minister</td>
+<td>മുഖ്യമന്ത്രി</td>
+<td>മുഖ്യമന്ത്രി</td>
+<td>മുഖ്യമന്ത്രി</td>
+</tr>
+<tr>
+<td>17</td>
+<td>rural</td>
+<td>ഗ്രാമീണ</td>
+<td>ഗ്രാമീണ</td>
+<td>ഗ്രാമീണ</td>
+</tr>
+<tr>
+<td>18</td>
+<td>Ministry</td>
+<td>മന്ത്രാലയം</td>
+<td>മന്ത്രാലയം</td>
+<td>മന്ത്രാലയം</td>
+</tr>
+<tr>
+<td>19</td>
+<td>stipend</td>
+<td>സ്റ്റൈപ്പൻഡ്</td>
+<td>സ്റ്റൈപ്പൻഡ്</td>
+<td>സ്റ്റൈപ്പൻഡ്</td>
+</tr>
+<tr>
+<td>20</td>
+<td>BPL</td>
+<td>ബിപിഎൽ</td>
+<td>ബിപിഎൽ</td>
+<td>ബിപിഎൽ</td>
+</tr>
+<tr>
+<td>21</td>
+<td>skill development</td>
+<td>നൈപുണ്യ വികസനം</td>
+<td>നൈപുണ്യ വികസനം</td>
+<td>നൈപുണ്യ വികസനം</td>
+</tr>
+<tr>
+<td>22</td>
+<td>artisan</td>
+<td>കരകൌശല വിദഗ്ധൻ</td>
+<td>കരകൌശല വിദഗ്ധൻ</td>
+<td>കരകൌശല വിദഗ്ധൻ</td>
+</tr>
+<tr>
+<td>23</td>
+<td>beneficiary</td>
+<td>ഗുണഭോക്താവ്</td>
+<td>ഗുണഭോക്താവ്</td>
+<td>ഗുണഭോക്താവ്</td>
+</tr>
+<tr>
+<td>24</td>
+<td>family income</td>
+<td>കുടുംബ വരുമാനം</td>
+<td>കുടുംബ വരുമാനം</td>
+<td>കുടുംബ വരുമാനം</td>
+</tr>
+<tr>
+<td>25</td>
+<td>Directorate</td>
+<td>ഡയറക്ടറേറ്റ്</td>
+<td>ഡയറക്ടറേറ്റ്</td>
+<td>ഡയറക്ടറേറ്റ്</td>
+</tr>
+<tr>
+<td>26</td>
+<td>old age pension</td>
+<td>വാർദ്ധക്യകാല പെൻഷൻ</td>
+<td>വാർദ്ധക്യകാല പെൻഷൻ</td>
+<td>വാർദ്ധക്യകാല പെൻഷൻ</td>
+</tr>
+<tr>
+<td>27</td>
+<td>handloom</td>
+<td>കൈത്തറി</td>
+<td>കൈത്തറി</td>
+<td>കൈത്തറി</td>
+</tr>
+<tr>
+<td>28</td>
+<td>urban</td>
+<td>നഗരപ്രദേശം</td>
+<td>നഗരപ്രദേശം</td>
+<td>നഗരപ്രദേശം</td>
+</tr>
+<tr>
+<td>29</td>
+<td>Economically Weaker Section</td>
+<td>സാമ്പത്തികമായി ദുർബലമായ വിഭാഗം</td>
+<td>സാമ്പത്തികമായി ദുർബലമായ വിഭാഗം</td>
+<td>സാമ്പത്തികമായി ദുർബലമായ വിഭാഗം</td>
+</tr>
+<tr>
+<td>30</td>
+<td>applicant</td>
+<td>അപേക്ഷകൻ</td>
+<td>അപേക്ഷകൻ</td>
+<td>അപേക്ഷകൻ</td>
+</tr>
+<tr>
+<td>31</td>
+<td>Pradhan Mantri</td>
+<td>പ്രധാനമന്ത്രി</td>
+<td>പ്രധാനമന്ത്രി</td>
+<td>പ്രധാൻ മന്ത്രി</td>
+</tr>
+<tr>
+<td>32</td>
+<td>maternity benefit</td>
+<td>പ്രസവ ആനുകൂല്യം</td>
+<td>പ്രസവ ആനുകൂല്യം</td>
+<td>പ്രസവ ആനുകൂല്യങ്ങൾ</td>
+</tr>
+<tr>
+<td>33</td>
+<td>Below Poverty Line</td>
+<td>ദാരിദ്ര്യരേഖയ്ക്ക് താഴെ</td>
+<td>ദാരിദ്ര്യരേഖയ്ക്ക് താഴെ</td>
+<td>ദാരിദ്ര്യരേഖയ്ക്ക് താഴെ</td>
+</tr>
+<tr>
+<td>34</td>
+<td>handicraft</td>
+<td>കരകൌശല</td>
+<td>കരകൌശല</td>
+<td>കരകൌശല</td>
+</tr>
+<tr>
+<td>35</td>
+<td>vocational training</td>
+<td>തൊഴിൽ പരിശീലനം</td>
+<td>തൊഴിൽ പരിശീലനം</td>
+<td>തൊഴിലധിഷ്ഠിത പരിശീലനം</td>
+</tr>
+<tr>
+<td>36</td>
+<td>Union Territory</td>
+<td>കേന്ദ്രഭരണ പ്രദേശം</td>
+<td>കേന്ദ്രഭരണ പ്രദേശം</td>
+<td>കേന്ദ്രഭരണ പ്രദേശം</td>
+</tr>
+<tr>
+<td>37</td>
+<td>EWS</td>
+<td>ഇ. ഡബ്ല്യു. എസ്.</td>
+<td>ഇ. ഡബ്ല്യു. എസ്.</td>
+<td>ഇ. ഡബ്ല്യു. എസ്</td>
+</tr>
+<tr>
+<td>38</td>
+<td>education loan</td>
+<td>വിദ്യാഭ്യാസ വായ്പ</td>
+<td>വിദ്യാഭ്യാസ വായ്പ</td>
+<td>വിദ്യാഭ്യാസ വായ്പ</td>
+</tr>
+<tr>
+<td>39</td>
+<td>health insurance</td>
+<td>ആരോഗ്യ ഇൻഷുറൻസ്</td>
+<td>ആരോഗ്യ ഇൻഷുറൻസ്</td>
+<td>ആരോഗ്യ ഇൻഷുറൻസ്</td>
+</tr>
+<tr>
+<td>40</td>
+<td>widow pension</td>
+<td>വിധവ പെൻഷൻ</td>
+<td>വിധവ പെൻഷൻ</td>
+<td>വിധവകളുടെ പെൻഷൻ</td>
+</tr>
+<tr>
+<td>41</td>
+<td>Other Backward Class</td>
+<td>മറ്റ് പിന്നാക്ക വിഭാഗങ്ങൾ</td>
+<td>മറ്റ് പിന്നാക്ക വിഭാഗങ്ങൾ</td>
+<td>മറ്റ് പിന്നാക്ക വിഭാഗങ്ങൾ</td>
+</tr>
+<tr>
+<td>42</td>
+<td>DBT</td>
+<td>ഡിബിടി</td>
+<td>ഡിബിടി</td>
+<td>ഡിബിടി</td>
+</tr>
+<tr>
+<td>43</td>
+<td>tuition fee</td>
+<td>ട്യൂഷൻ ഫീസ്</td>
+<td>ട്യൂഷൻ ഫീസ്</td>
+<td>ട്യൂഷൻ ഫീസ്</td>
+</tr>
+<tr>
+<td>44</td>
+<td>bank account</td>
+<td>ബാങ്ക് അക്കൌണ്ട്</td>
+<td>ബാങ്ക് അക്കൌണ്ട്</td>
+<td>ബാങ്ക് അക്കൌണ്ട്</td>
+</tr>
+<tr>
+<td>45</td>
+<td>housing scheme</td>
+<td>ഭവന പദ്ധതി</td>
+<td>ഭവന പദ്ധതി</td>
+<td>ഭവന പദ്ധതി</td>
+</tr>
+<tr>
+<td>46</td>
+<td>annual income</td>
+<td>വാർഷിക വരുമാനം</td>
+<td>വാർഷിക വരുമാനം</td>
+<td>വാർഷിക വരുമാനം</td>
+</tr>
+<tr>
+<td>47</td>
+<td>MSME</td>
+<td>എം. എസ്. എം. ഇ.</td>
+<td>എം. എസ്. എം. ഇ.</td>
+<td>എംഎസ്എംഇ</td>
+</tr>
+<tr>
+<td>48</td>
+<td>Anganwadi</td>
+<td>അങ്കണവാടി</td>
+<td>അങ്കണവാടി</td>
+<td>അങ്കണവാടി</td>
+</tr>
+<tr>
+<td>49</td>
+<td>SHG</td>
+<td>എസ്. എച്ച്. ജി.</td>
+<td>എസ്. എച്ച്. ജി.</td>
+<td>എസ്. എച്ച്. ജി</td>
+</tr>
+<tr>
+<td>50</td>
+<td>Direct Benefit Transfer</td>
+<td>നേരിട്ടുള്ള ആനുകൂല്യ കൈമാറ്റം</td>
+<td>നേരിട്ടുള്ള ആനുകൂല്യ കൈമാറ്റം</td>
+<td>നേരിട്ടുള്ള ആനുകൂല്യ കൈമാറ്റം</td>
+</tr>
+</table></body></html>

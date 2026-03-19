@@ -95,7 +95,8 @@
       "Bash(netstat -ano | grep 7860 2>/dev/null || ss -tlnp | grep 7860 2>/dev/null || powershell -Command \"Get-NetTCPConnection -LocalPort 7860 -ErrorAction SilentlyContinue | Select-Object OwningProcess\" 2>&1)",
       "Bash(taskkill:*)",
       "Bash(powershell:*)",
-      "Bash(netstat:*)"
+      "Bash(netstat:*)",
+      "Bash(find '/e/new folder/sevanagpt/Fine-tuning' -type f \\\\\\(-name *.py -o -name *.txt -o -name *.json -o -name *.csv \\\\\\))"
     ]
   }
 }

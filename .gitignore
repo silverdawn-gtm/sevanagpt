@@ -28,6 +28,11 @@ Thumbs.db
 # Models (large HuggingFace downloads)
 indictrans/models/
 
+# Fine-tuning large files
+*.pt
+*.safetensors
+Fine-tuning/_indictrans_toolkit/
+
 # Misc
 *.log
 .vercel
